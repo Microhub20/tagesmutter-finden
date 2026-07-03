@@ -1,0 +1,34 @@
+name: Deploy zu Dogado (FTPS)
+
+# Lädt bei jedem Push auf main automatisch alle Website-Dateien per FTPS auf den Dogado-Webspace.
+# Voraussetzung: 3 Secrets im Repo (Settings → Secrets and variables → Actions):
+#   FTP_SERVER   Dogado-FTP-Server (aus dem cloudpit, z. B. wpXXXXXX.server-he.de)
+#   FTP_USERNAME FTP-Benutzer
+#   FTP_PASSWORD FTP-Passwort
+# server-dir = Zielordner auf dem Webspace (ggf. anpassen, z. B. /tagesmutter/ oder /html/).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Per FTPS hochladen
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: /
+          exclude: |
+            **/.git*
+            **/.git*/**
+            README.md
+            ROADMAP.md
