@@ -4,233 +4,437 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Tagesmutter finden in Balingen – Demo-Entwurf</title>
+<meta name="description" content="Alle Tagesmütter in Balingen auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos für Eltern und Tagesmütter.">
+<title>Tagesmutter finden in Balingen – Kindertagespflege in deiner Nähe (Demo)</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <style>
+  @font-face{
+    font-family:"Nunito";
+    src:url("fonts/nunito-var.woff2") format("woff2-variations"),url("fonts/nunito-var.woff2") format("woff2");
+    font-weight:200 1000;font-style:normal;font-display:swap;
+  }
   :root{
-    --coral:#f26d5f; --coral-dark:#d9503f; --sage:#6aa87e; --sage-bg:#e8f3ec;
-    --cream:#fdf7f0; --card:#ffffff; --ink:#3b3330; --muted:#8a7f79;
-    --amber:#c98a1e; --amber-bg:#fdf1dc; --line:#f0e4d8;
-    --radius:18px; --shadow:0 6px 24px rgba(80,50,30,.08);
+    --coral:#f26d5f; --coral-dark:#e05243; --coral-soft:#fdeae7;
+    --sage:#5f9e74; --sage-dark:#4c8560; --sage-bg:#e9f3ec;
+    --cream:#fdf8f2; --card:#ffffff; --ink:#33291f; --ink-soft:#5d5248; --muted:#94897e;
+    --amber:#b97e14; --amber-bg:#fcf3e0; --line:#eee1d3;
+    --radius:20px;
+    --shadow-sm:0 2px 10px rgba(90,60,30,.06);
+    --shadow:0 10px 34px rgba(90,60,30,.10);
+    --shadow-lg:0 18px 50px rgba(90,60,30,.16);
+    --grad-coral:linear-gradient(135deg,#f5806f 0%,#ee5c4c 100%);
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6}
+  body{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--cream);color:var(--ink);line-height:1.65;font-size:16.5px}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 1.4rem}
+
+  /* ---------- Scroll-Reveal ---------- */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
   /* ---------- Header ---------- */
-  header{position:sticky;top:0;z-index:50;background:rgba(253,247,240,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-  .header-inner{max-width:1080px;margin:0 auto;padding:.7rem 1.2rem;display:flex;align-items:center;gap:.8rem}
-  .logo{font-weight:800;font-size:1.15rem;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:.45rem}
-  .logo .mark{font-size:1.5rem}
-  .city-badge{background:var(--sage-bg);color:var(--sage);font-weight:700;font-size:.8rem;padding:.2rem .7rem;border-radius:999px}
-  nav{margin-left:auto;display:flex;gap:.4rem}
-  nav a{text-decoration:none;color:var(--ink);font-weight:600;font-size:.92rem;padding:.45rem .9rem;border-radius:999px}
-  nav a:hover{background:#f5e9dd}
-  nav a.cta{background:var(--coral);color:#fff}
-  nav a.cta:hover{background:var(--coral-dark)}
+  header{position:sticky;top:0;z-index:50;background:rgba(253,248,242,.88);backdrop-filter:blur(12px);transition:box-shadow .25s}
+  header.scrolled{box-shadow:var(--shadow-sm)}
+  .header-inner{max-width:1120px;margin:0 auto;padding:.75rem 1.4rem;display:flex;align-items:center;gap:.9rem}
+  .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
+  .logo .mark{width:42px;height:42px;border-radius:13px;background:var(--grad-coral);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 4px 12px rgba(242,109,95,.35)}
+  .logo .word{font-weight:800;font-size:1.18rem;letter-spacing:-.01em;line-height:1.1}
+  .logo .word small{display:block;font-size:.68rem;font-weight:700;color:var(--sage);letter-spacing:.08em;text-transform:uppercase}
+  nav{margin-left:auto;display:flex;gap:.2rem;align-items:center}
+  nav a{text-decoration:none;color:var(--ink-soft);font-weight:700;font-size:.93rem;padding:.5rem .95rem;border-radius:999px;transition:background .15s,color .15s}
+  nav a:hover{background:#f6ebdd;color:var(--ink)}
+  nav a.cta{background:var(--grad-coral);color:#fff;box-shadow:0 4px 14px rgba(242,109,95,.35);margin-left:.4rem}
+  nav a.cta:hover{filter:brightness(1.05)}
+  @media(max-width:760px){nav a:not(.cta){display:none}}
 
-  .demo-banner{background:var(--amber-bg);color:var(--amber);text-align:center;font-size:.85rem;font-weight:600;padding:.45rem 1rem}
+  .demo-banner{background:var(--amber-bg);color:var(--amber);text-align:center;font-size:.82rem;font-weight:700;padding:.5rem 1rem}
 
   /* ---------- Hero ---------- */
-  .hero{max-width:1080px;margin:0 auto;padding:3rem 1.2rem 1.5rem;text-align:center}
-  .hero h1{font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:800;letter-spacing:-.02em}
-  .hero h1 em{color:var(--coral);font-style:normal}
-  .hero p{color:var(--muted);max-width:560px;margin:.8rem auto 0;font-size:1.05rem}
-  .searchbar{max-width:560px;margin:1.6rem auto 0;display:flex;background:#fff;border:2px solid var(--line);border-radius:999px;padding:.3rem .3rem .3rem 1.2rem;box-shadow:var(--shadow)}
-  .searchbar:focus-within{border-color:var(--coral)}
-  .searchbar input{flex:1;border:none;outline:none;font-size:1rem;background:transparent;color:var(--ink)}
-  .searchbar .lupe{align-self:center;margin-right:.6rem;opacity:.5}
+  .hero{padding:3.2rem 0 2.6rem;overflow:hidden}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:2rem}}
+  .eyebrow{display:inline-flex;align-items:center;gap:.45rem;background:var(--sage-bg);color:var(--sage-dark);font-weight:800;font-size:.8rem;padding:.35rem .95rem;border-radius:999px;letter-spacing:.02em}
+  .hero h1{font-size:clamp(2.1rem,4.6vw,3.15rem);font-weight:800;letter-spacing:-.025em;line-height:1.13;margin:1rem 0 .9rem}
+  .hero h1 em{font-style:normal;color:var(--coral);position:relative}
+  .hero .lead{color:var(--ink-soft);font-size:1.08rem;max-width:34rem}
+  .searchbar{margin-top:1.6rem;display:flex;background:#fff;border:2px solid var(--line);border-radius:999px;padding:.35rem .4rem .35rem 1.3rem;box-shadow:var(--shadow-sm);max-width:33rem;transition:border-color .2s,box-shadow .2s}
+  .searchbar:focus-within{border-color:var(--coral);box-shadow:0 6px 24px rgba(242,109,95,.15)}
+  .searchbar input{flex:1;border:none;outline:none;font-size:1rem;background:transparent;color:var(--ink);font-family:inherit;min-width:0}
+  .searchbar .go{background:var(--grad-coral);color:#fff;border:none;border-radius:999px;padding:.65rem 1.35rem;font-weight:800;font-size:.95rem;cursor:pointer;font-family:inherit}
+  .trust{display:flex;flex-wrap:wrap;gap:1.1rem;margin-top:1.3rem;color:var(--ink-soft);font-size:.88rem;font-weight:700}
+  .trust span{display:inline-flex;align-items:center;gap:.4rem}
+  .trust b{color:var(--sage-dark)}
 
-  /* ---------- Filter ---------- */
-  .filters{max-width:1080px;margin:1.2rem auto 0;padding:0 1.2rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center}
-  .filters select{appearance:none;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%238a7f79" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>') no-repeat right .9rem center;border:1.5px solid var(--line);border-radius:999px;padding:.5rem 2.2rem .5rem 1rem;font-size:.9rem;font-weight:600;color:var(--ink);cursor:pointer}
+  .hero-visual{position:relative}
+  .hero-visual .frame{border-radius:28px;overflow:hidden;box-shadow:var(--shadow-lg);transform:rotate(1.2deg)}
+  .hero-visual::before{content:"";position:absolute;inset:-8% -6% auto auto;width:190px;height:190px;background:radial-gradient(circle,var(--coral-soft),transparent 65%);z-index:-1}
+  .hero-visual::after{content:"";position:absolute;left:-9%;bottom:-12%;width:230px;height:230px;background:radial-gradient(circle,var(--sage-bg),transparent 65%);z-index:-1}
+  .float-chip{position:absolute;background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:.65rem 1rem;font-weight:800;font-size:.86rem;display:flex;align-items:center;gap:.5rem}
+  .float-chip.tl{top:7%;left:-1.4rem;animation:bob 5s ease-in-out infinite}
+  .float-chip.br{bottom:8%;right:-1rem;animation:bob 6s ease-in-out .8s infinite}
+  .float-chip .dot{width:10px;height:10px;border-radius:50%;background:var(--sage)}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @media(max-width:900px){.float-chip.tl{left:.4rem}.float-chip.br{right:.4rem}}
+
+  /* ---------- Stats ---------- */
+  .stats{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stats-grid{max-width:1120px;margin:0 auto;padding:1.5rem 1.4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center}
+  @media(max-width:760px){.stats-grid{grid-template-columns:repeat(2,1fr);row-gap:1.4rem}}
+  .stat .n{font-size:1.75rem;font-weight:800;color:var(--coral);letter-spacing:-.02em;line-height:1.1}
+  .stat .l{font-size:.83rem;font-weight:700;color:var(--muted)}
+
+  /* ---------- Sections ---------- */
+  section.block{padding:3.6rem 0}
+  .sec-head{text-align:center;max-width:40rem;margin:0 auto 2.2rem}
+  .sec-head .eyebrow{margin-bottom:.8rem}
+  .sec-head h2{font-size:clamp(1.55rem,3.2vw,2.15rem);font-weight:800;letter-spacing:-.02em;line-height:1.2}
+  .sec-head p{color:var(--ink-soft);margin-top:.6rem}
+
+  /* ---------- Filter + Cards ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin-bottom:.9rem}
+  .filters select{appearance:none;background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%2394897e" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>') no-repeat right .95rem center;border:1.5px solid var(--line);border-radius:999px;padding:.55rem 2.3rem .55rem 1.1rem;font-size:.9rem;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm)}
   .filters select:focus{outline:none;border-color:var(--coral)}
-  .toggle{display:flex;align-items:center;gap:.45rem;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.9rem;font-weight:600;cursor:pointer;user-select:none}
+  .toggle{display:flex;align-items:center;gap:.45rem;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:.55rem 1.1rem;font-size:.9rem;font-weight:700;cursor:pointer;user-select:none;box-shadow:var(--shadow-sm)}
   .toggle input{accent-color:var(--coral);width:1rem;height:1rem;cursor:pointer}
-  .count-line{text-align:center;color:var(--muted);font-size:.9rem;margin-top:1rem}
+  .count-line{text-align:center;color:var(--muted);font-size:.9rem;font-weight:700;margin-bottom:1.6rem}
 
-  /* ---------- Cards ---------- */
-  .grid{max-width:1080px;margin:1.2rem auto 0;padding:0 1.2rem 2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.1rem}
-  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.3rem;display:flex;flex-direction:column;gap:.7rem;border:1px solid #fff}
-  .card-top{display:flex;gap:.9rem;align-items:center}
-  .avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.15rem;color:#fff;flex-shrink:0}
-  .card h3{font-size:1.08rem;font-weight:800}
-  .card .ort{color:var(--muted);font-size:.85rem;font-weight:600}
-  .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.76rem;font-weight:700;padding:.18rem .6rem;border-radius:999px}
-  .b-frei{background:var(--sage-bg);color:var(--sage)}
-  .b-voll{background:#eee7e0;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.3rem}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:1.45rem;display:flex;flex-direction:column;gap:.75rem;border:1px solid #fbf4ec;transition:transform .25s ease,box-shadow .25s ease}
+  .card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+  .card-top{display:flex;gap:.95rem;align-items:center}
+  .avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.25rem;color:#fff;flex-shrink:0;box-shadow:inset 0 -3px 8px rgba(0,0,0,.12),0 0 0 3px #fff,0 0 0 5px var(--line)}
+  .card h3{font-size:1.12rem;font-weight:800;letter-spacing:-.01em}
+  .card .ort{color:var(--muted);font-size:.85rem;font-weight:700}
+  .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:800;padding:.2rem .65rem;border-radius:999px}
+  .b-frei{background:var(--sage-bg);color:var(--sage-dark)}
+  .b-voll{background:#efe8e0;color:var(--muted)}
   .b-neu{background:var(--amber-bg);color:var(--amber)}
-  .b-check{background:#eef4fb;color:#4a7fb5}
-  .badges{display:flex;flex-wrap:wrap;gap:.35rem}
-  .card p.desc{font-size:.9rem;color:#5d534d;flex:1}
-  .meta{font-size:.84rem;color:var(--muted);display:flex;flex-direction:column;gap:.15rem}
-  .meta b{color:var(--ink);font-weight:700}
-  .chips{display:flex;gap:.3rem;flex-wrap:wrap}
-  .chip{background:#f7ede2;color:#9a6b3f;font-size:.74rem;font-weight:700;padding:.15rem .55rem;border-radius:999px}
-  .card .contact{margin-top:.3rem;display:flex;gap:.5rem}
-  .btn{display:inline-block;border:none;cursor:pointer;text-decoration:none;text-align:center;font-weight:700;font-size:.9rem;padding:.6rem 1.1rem;border-radius:999px;transition:background .15s}
-  .btn-coral{background:var(--coral);color:#fff}
-  .btn-coral:hover{background:var(--coral-dark)}
-  .btn-ghost{background:#f5e9dd;color:var(--ink)}
-  .btn-ghost:hover{background:#eeddca}
-  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:3rem 1rem}
+  .b-check{background:#eaf1fa;color:#4a7fb5}
+  .badges{display:flex;flex-wrap:wrap;gap:.4rem}
+  .card p.desc{font-size:.9rem;color:var(--ink-soft);flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .meta{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:.3rem;font-weight:600}
+  .meta b{color:var(--ink);font-weight:800}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chip{background:#f8eee1;color:#9a6b3f;font-size:.73rem;font-weight:800;padding:.16rem .6rem;border-radius:999px}
+  .card .contact{margin-top:.4rem;display:flex;gap:.55rem}
+  .btn{display:inline-block;border:none;cursor:pointer;text-decoration:none;text-align:center;font-weight:800;font-size:.9rem;padding:.62rem 1.15rem;border-radius:999px;transition:filter .15s,transform .15s;font-family:inherit}
+  .btn:active{transform:scale(.97)}
+  .btn-coral{background:var(--grad-coral);color:#fff;box-shadow:0 4px 12px rgba(242,109,95,.3)}
+  .btn-coral:hover{filter:brightness(1.06)}
+  .btn-ghost{background:#f6ecdf;color:var(--ink)}
+  .btn-ghost:hover{background:#efe1cd}
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:3rem 1rem;font-weight:700}
+
+  /* ---------- Vorteile ---------- */
+  .benefits{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem}
+  @media(max-width:820px){.benefit-grid{grid-template-columns:1fr}}
+  .benefit{background:var(--cream);border-radius:var(--radius);padding:1.7rem 1.5rem;border:1px solid var(--line)}
+  .benefit .ico{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:1.5rem;margin-bottom:.9rem;background:var(--sage-bg)}
+  .benefit:nth-child(2) .ico{background:var(--coral-soft)}
+  .benefit:nth-child(3) .ico{background:#eaf1fa}
+  .benefit h3{font-size:1.05rem;font-weight:800;margin-bottom:.35rem}
+  .benefit p{font-size:.9rem;color:var(--ink-soft)}
 
   /* ---------- Steps ---------- */
-  .steps{max-width:1080px;margin:0 auto;padding:2.5rem 1.2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;text-align:center}
-  .step{padding:1.2rem}
-  .step .num{width:44px;height:44px;margin:0 auto .6rem;border-radius:50%;background:var(--sage-bg);color:var(--sage);font-weight:800;display:grid;place-items:center;font-size:1.1rem}
-  .step h4{font-size:1rem;margin-bottom:.2rem}
-  .step p{font-size:.88rem;color:var(--muted)}
+  .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem;counter-reset:step}
+  @media(max-width:820px){.steps-grid{grid-template-columns:1fr;max-width:26rem;margin:0 auto}}
+  .step{text-align:center;padding:1.4rem 1.1rem;position:relative}
+  .step .num{width:52px;height:52px;margin:0 auto .85rem;border-radius:50%;background:var(--grad-coral);color:#fff;font-weight:800;display:grid;place-items:center;font-size:1.25rem;box-shadow:0 6px 16px rgba(242,109,95,.35)}
+  .step h4{font-size:1.02rem;font-weight:800;margin-bottom:.25rem}
+  .step p{font-size:.89rem;color:var(--ink-soft)}
+  @media(min-width:821px){
+    .step:not(:last-child)::after{content:"";position:absolute;top:26px;left:calc(50% + 40px);width:calc(100% - 80px);border-top:2px dashed #e5d5c2}
+  }
 
-  /* ---------- Form ---------- */
-  .form-section{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  .form-inner{max-width:760px;margin:0 auto;padding:3rem 1.2rem}
-  .form-inner h2{font-size:1.6rem;font-weight:800;text-align:center}
-  .form-inner .sub{text-align:center;color:var(--muted);margin:.4rem 0 1.8rem}
+  /* ---------- Für Tagesmütter (Formular) ---------- */
+  .register{background:#fff;border-top:1px solid var(--line)}
+  .register-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:3rem;align-items:start}
+  @media(max-width:900px){.register-grid{grid-template-columns:1fr}}
+  .register-side{position:sticky;top:90px}
+  @media(max-width:900px){.register-side{position:static}}
+  .register-side .frame{border-radius:26px;overflow:hidden;box-shadow:var(--shadow);transform:rotate(-1.2deg);margin-bottom:1.6rem}
+  .perk{display:flex;gap:.8rem;align-items:flex-start;margin-bottom:.95rem}
+  .perk .tick{width:26px;height:26px;border-radius:50%;background:var(--sage-bg);color:var(--sage-dark);display:grid;place-items:center;font-size:.8rem;font-weight:800;flex-shrink:0;margin-top:.15rem}
+  .perk b{display:block;font-size:.95rem}
+  .perk span{font-size:.86rem;color:var(--ink-soft)}
+
   form .row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
   @media(max-width:600px){form .row{grid-template-columns:1fr}}
-  .field{margin-bottom:1rem}
-  .field label{display:block;font-weight:700;font-size:.86rem;margin-bottom:.3rem}
-  .field label .opt{color:var(--muted);font-weight:500}
-  .field input[type=text],.field input[type=email],.field input[type=tel],.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:.65rem .9rem;font-size:.95rem;font-family:inherit;background:var(--cream);color:var(--ink)}
+  .field{margin-bottom:1.05rem}
+  .field label{display:block;font-weight:800;font-size:.85rem;margin-bottom:.35rem}
+  .field label .opt{color:var(--muted);font-weight:600}
+  .field input[type=text],.field input[type=email],.field input[type=tel],.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:13px;padding:.7rem .95rem;font-size:.95rem;font-family:inherit;background:var(--cream);color:var(--ink);transition:border-color .15s,background .15s}
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--coral);background:#fff}
-  .field textarea{resize:vertical;min-height:90px}
+  .field textarea{resize:vertical;min-height:95px}
   .age-boxes{display:flex;gap:.5rem;flex-wrap:wrap}
-  .age-boxes label{display:flex;align-items:center;gap:.4rem;background:var(--cream);border:1.5px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.9rem;font-weight:600;cursor:pointer;margin:0}
+  .age-boxes label{display:flex;align-items:center;gap:.4rem;background:var(--cream);border:1.5px solid var(--line);border-radius:999px;padding:.5rem 1rem;font-size:.9rem;font-weight:700;cursor:pointer;margin:0}
   .age-boxes input{accent-color:var(--coral)}
-  .consent{display:flex;gap:.6rem;align-items:flex-start;background:var(--sage-bg);border-radius:12px;padding:.9rem 1rem;font-size:.86rem;margin-bottom:1rem}
+  .consent{display:flex;gap:.65rem;align-items:flex-start;background:var(--sage-bg);border-radius:14px;padding:.95rem 1.05rem;font-size:.85rem;margin-bottom:1.1rem}
   .consent input{margin-top:.25rem;accent-color:var(--sage);flex-shrink:0}
-  .form-note{font-size:.8rem;color:var(--muted);text-align:center;margin-top:1rem}
-  .submit-row{text-align:center;margin-top:.5rem}
-  .submit-row .btn{font-size:1rem;padding:.8rem 2.2rem}
+  .form-note{font-size:.79rem;color:var(--muted);text-align:center;margin-top:1rem}
+  .submit-row{text-align:center;margin-top:.6rem}
+  .submit-row .btn{font-size:1.02rem;padding:.85rem 2.4rem}
+
+  /* ---------- FAQ ---------- */
+  .faq{max-width:46rem;margin:0 auto}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:.75rem;box-shadow:var(--shadow-sm);overflow:hidden}
+  .faq summary{list-style:none;cursor:pointer;padding:1.05rem 1.3rem;font-weight:800;font-size:.98rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";font-size:1.4rem;color:var(--coral);font-weight:800;transition:transform .25s;line-height:1}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq .a{padding:0 1.3rem 1.15rem;color:var(--ink-soft);font-size:.92rem}
 
   /* ---------- Toast ---------- */
-  .toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(20px);background:var(--sage);color:#fff;font-weight:700;padding:.8rem 1.4rem;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:all .3s;z-index:99}
+  .toast{position:fixed;left:50%;bottom:1.6rem;transform:translateX(-50%) translateY(20px);background:var(--sage-dark);color:#fff;font-weight:800;padding:.85rem 1.5rem;border-radius:999px;box-shadow:0 12px 34px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s;z-index:99}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--ink);color:#cfc5ba;margin-top:3.5rem}
+  .footer-grid{max-width:1120px;margin:0 auto;padding:3rem 1.4rem 2.2rem;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2.5rem}
+  @media(max-width:760px){.footer-grid{grid-template-columns:1fr;gap:1.8rem}}
+  footer .logo .word{color:#fff}
+  footer .brand-txt{font-size:.88rem;margin-top:.9rem;max-width:22rem;color:#b6aa9d}
+  footer h5{color:#fff;font-size:.85rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.8rem}
+  footer ul{list-style:none}
+  footer li{margin-bottom:.45rem}
+  footer a{color:#cfc5ba;text-decoration:none;font-size:.9rem}
+  footer a:hover{color:#fff}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.12);text-align:center;padding:1.1rem 1.4rem;font-size:.78rem;color:#9d9184}
+  .footer-bottom a{font-size:.78rem}
 
   /* ---------- Werbe-Platzhalter links/rechts (Demo, später Google AdSense) ---------- */
   .ad-rail{display:none}
-  @media(min-width:1440px){
+  @media(min-width:1490px){
     .ad-rail{display:block;position:fixed;top:50%;transform:translateY(-50%);z-index:40;width:160px}
     .ad-rail.left{left:14px}
     .ad-rail.right{right:14px}
     .ad-label{text-align:center;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
-    .ad-box{height:600px;max-height:82vh;border:2px dashed #d8c9ba;border-radius:12px;background:repeating-linear-gradient(45deg,#faf3ea,#faf3ea 12px,#f5ece0 12px,#f5ece0 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#a8988a;font-weight:700;text-align:center;padding:1rem;line-height:1.35}
+    .ad-box{height:600px;max-height:82vh;border:2px dashed #ddcebd;border-radius:14px;background:repeating-linear-gradient(45deg,#faf3ea,#faf3ea 12px,#f5ece0 12px,#f5ece0 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#a8988a;font-weight:800;text-align:center;padding:1rem;line-height:1.35}
     .ad-box .icon{font-size:1.9rem}
-    .ad-box small{font-weight:600;font-size:.72rem;color:#bdae9f}
+    .ad-box small{font-weight:700;font-size:.72rem;color:#bdae9f}
   }
-
-  footer{text-align:center;padding:2.2rem 1.2rem;color:var(--muted);font-size:.83rem}
-  footer a{color:var(--muted)}
 </style>
 </head>
 <body>
 
-<header>
+<header id="header">
   <div class="header-inner">
-    <a class="logo" href="#"><span class="mark">🧸</span> Tagesmutter finden</a>
-    <span class="city-badge">Balingen</span>
+    <a class="logo" href="#">
+      <span class="mark">🧸</span>
+      <span class="word">Tagesmutter finden<small>Balingen</small></span>
+    </a>
     <nav>
       <a href="#liste">Tagesmütter</a>
-      <a href="#eintragen" class="cta">Eintragen</a>
+      <a href="#so-gehts">So funktioniert’s</a>
+      <a href="#faq">FAQ</a>
+      <a href="#eintragen" class="cta">Als Tagesmutter eintragen</a>
     </nav>
   </div>
 </header>
 
-<div class="demo-banner">🚧 Demo-Entwurf v0.1 — alle Einträge sind frei erfundene Beispieldaten</div>
+<div class="demo-banner">🚧 Demo-Entwurf v0.2 — alle Einträge sind frei erfundene Beispieldaten</div>
 
 <section class="hero">
-  <h1>Finde die passende <em>Tagesmutter</em> in deiner Nähe</h1>
-  <p>Alle Kindertagespflege-Angebote in Balingen auf einen Blick – mit freien Plätzen, Betreuungszeiten und direktem Kontakt.</p>
-  <div class="searchbar">
-    <input id="search" type="text" placeholder="Name oder Stadtteil suchen …" aria-label="Suche">
-    <span class="lupe">🔍</span>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">💛 Kindertagespflege in Balingen</span>
+      <h1>Die passende <em>Tagesmutter</em> für dein Kind – ganz in deiner Nähe</h1>
+      <p class="lead">Alle Betreuungsangebote der Stadt auf einen Blick: freie Plätze, Zeiten, Qualifikationen – und der direkte Draht zur Tagesmutter. Kostenlos und ohne Anmeldung.</p>
+      <div class="searchbar">
+        <input id="search" type="text" placeholder="Name oder Stadtteil suchen …" aria-label="Suche">
+        <button class="go" type="button" onclick="document.getElementById('liste').scrollIntoView({behavior:'smooth'})">Suchen</button>
+      </div>
+      <div class="trust">
+        <span>✅ <b>Geprüfte Profile</b>&nbsp;(§ 43 SGB VIII)</span>
+        <span>💶 <b>100 % kostenlos</b></span>
+        <span>📍 <b>13 Stadtteile</b></span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="frame"><img src="img/hero.jpg" alt="Illustration: Tagesmutter liest zwei Kindern ein Bilderbuch vor" width="1600" height="900"></div>
+      <div class="float-chip tl"><span class="dot"></span> Plätze frei in 4 Stadtteilen</div>
+      <div class="float-chip br">🧸 Liebevoll betreut</div>
+    </div>
   </div>
 </section>
 
-<div class="filters" id="liste">
-  <select id="f-ort" aria-label="Stadtteil filtern"><option value="">Alle Stadtteile</option></select>
-  <select id="f-alter" aria-label="Altersgruppe filtern">
-    <option value="">Jedes Alter</option>
-    <option>0–1 Jahr</option>
-    <option>1–3 Jahre</option>
-    <option>3+ Jahre</option>
-  </select>
-  <label class="toggle"><input type="checkbox" id="f-frei"> nur freie Plätze</label>
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat"><div class="n" id="stat-count">5</div><div class="l">Tagesmütter gelistet</div></div>
+    <div class="stat"><div class="n">13</div><div class="l">Stadtteile abgedeckt</div></div>
+    <div class="stat"><div class="n">0&nbsp;€</div><div class="l">Kosten für Eltern</div></div>
+    <div class="stat"><div class="n">§&nbsp;43</div><div class="l">geprüfte Pflegeerlaubnis</div></div>
+  </div>
 </div>
-<p class="count-line" id="count"></p>
 
-<main class="grid" id="grid"></main>
-
-<section class="steps">
-  <div class="step"><div class="num">1</div><h4>Eintragen</h4><p>Tagesmütter tragen sich selbst ein – kostenlos und mit ausdrücklicher Einwilligung.</p></div>
-  <div class="step"><div class="num">2</div><h4>Prüfung</h4><p>Wir prüfen jeden Eintrag (u. a. Pflegeerlaubnis nach §&nbsp;43 SGB&nbsp;VIII), bevor er sichtbar wird.</p></div>
-  <div class="step"><div class="num">3</div><h4>Gefunden werden</h4><p>Eltern filtern nach Stadtteil, Alter und freien Plätzen – und nehmen direkt Kontakt auf.</p></div>
+<section class="block" id="liste">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">🔎 Übersicht</span>
+      <h2>Tagesmütter in Balingen</h2>
+      <p>Filtere nach Stadtteil, Alter deines Kindes und freien Plätzen.</p>
+    </div>
+    <div class="filters reveal">
+      <select id="f-ort" aria-label="Stadtteil filtern"><option value="">Alle Stadtteile</option></select>
+      <select id="f-alter" aria-label="Altersgruppe filtern">
+        <option value="">Jedes Alter</option>
+        <option>0–1 Jahr</option>
+        <option>1–3 Jahre</option>
+        <option>3+ Jahre</option>
+      </select>
+      <label class="toggle"><input type="checkbox" id="f-frei"> nur freie Plätze</label>
+    </div>
+    <p class="count-line" id="count"></p>
+    <div class="grid" id="grid"></div>
+  </div>
 </section>
 
-<section class="form-section" id="eintragen">
-  <div class="form-inner">
-    <h2>Du bist Tagesmutter? Trag dich ein! 💛</h2>
-    <p class="sub">Kostenlos · Sichtbar für Eltern in Balingen · Jederzeit änderbar oder löschbar</p>
-    <form id="form" novalidate>
-      <div class="row">
-        <div class="field">
-          <label for="in-name">Name *</label>
-          <input type="text" id="in-name" required maxlength="60" placeholder="z. B. Maria S.">
-        </div>
-        <div class="field">
-          <label for="in-ort">Stadtteil *</label>
-          <select id="in-ort" required></select>
-        </div>
+<section class="block benefits">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">💡 Gut zu wissen</span>
+      <h2>Warum Kindertagespflege?</h2>
+      <p>Die familiäre Alternative zur Kita – anerkannt, gefördert und oft flexibler.</p>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit reveal">
+        <div class="ico">🏡</div>
+        <h3>Familiär &amp; geborgen</h3>
+        <p>Betreuung in kleiner Gruppe (max. 5 Kinder) im Zuhause der Tagesmutter – mit Ruhe, Nähe und festen Ritualen.</p>
       </div>
-      <div class="row">
-        <div class="field">
-          <label for="in-plaetze">Freie Plätze *</label>
-          <select id="in-plaetze" required>
-            <option value="0">Aktuell keine (Warteliste)</option>
-            <option value="1">1 Platz</option>
-            <option value="2" selected>2 Plätze</option>
-            <option value="3">3 Plätze</option>
-            <option value="4">4 Plätze</option>
-          </select>
+      <div class="benefit reveal">
+        <div class="ico">🕐</div>
+        <h3>Flexible Zeiten</h3>
+        <p>Viele Tagesmütter bieten Randzeiten, Teilzeitmodelle oder einspringen bei Schichtarbeit – individueller als jede Einrichtung.</p>
+      </div>
+      <div class="benefit reveal">
+        <div class="ico">🛡️</div>
+        <h3>Offiziell geprüft</h3>
+        <p>Jede Tagesmutter braucht eine Pflegeerlaubnis des Jugendamts (§ 43 SGB VIII) – inkl. Qualifikation und regelmäßiger Prüfung.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="so-gehts">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">🚀 In 3 Schritten</span>
+      <h2>So funktioniert’s</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step reveal"><div class="num">1</div><h4>Suchen &amp; filtern</h4><p>Stadtteil wählen, Alter angeben – passende Tagesmütter mit freien Plätzen finden.</p></div>
+      <div class="step reveal"><div class="num">2</div><h4>Direkt Kontakt aufnehmen</h4><p>Per E-Mail oder Telefon – ohne Umwege, ohne Anmeldung, ohne Kosten.</p></div>
+      <div class="step reveal"><div class="num">3</div><h4>Kennenlernen</h4><p>Schnuppertermin vereinbaren und in Ruhe entscheiden, ob es passt.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block register" id="eintragen">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">👩‍🏫 Für Tagesmütter</span>
+      <h2>Du betreust Kinder? Trag dich ein!</h2>
+      <p>Kostenlos sichtbar für Eltern in ganz Balingen – in 2 Minuten ausgefüllt.</p>
+    </div>
+    <div class="register-grid">
+      <div class="register-side reveal">
+        <div class="frame"><img src="img/eintragen.jpg" alt="Illustration: Tagesmutter trägt sich am Laptop ein, daneben spielt ein Kind" width="900" height="1125"></div>
+        <div class="perk"><div class="tick">✓</div><div><b>Kostenlos gefunden werden</b><span>Eltern aus deinem Stadtteil sehen dein Profil zuerst.</span></div></div>
+        <div class="perk"><div class="tick">✓</div><div><b>Anfragen direkt zu dir</b><span>Kontakt per E-Mail oder Telefon – ohne Zwischenstation.</span></div></div>
+        <div class="perk"><div class="tick">✓</div><div><b>Volle Kontrolle</b><span>Eintrag jederzeit ändern oder löschen lassen – ein Satz per E-Mail genügt.</span></div></div>
+      </div>
+      <form id="form" novalidate class="reveal">
+        <div class="row">
+          <div class="field">
+            <label for="in-name">Name *</label>
+            <input type="text" id="in-name" required maxlength="60" placeholder="z. B. Maria S.">
+          </div>
+          <div class="field">
+            <label for="in-ort">Stadtteil *</label>
+            <select id="in-ort" required></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="in-plaetze">Freie Plätze *</label>
+            <select id="in-plaetze" required>
+              <option value="0">Aktuell keine (Warteliste)</option>
+              <option value="1">1 Platz</option>
+              <option value="2" selected>2 Plätze</option>
+              <option value="3">3 Plätze</option>
+              <option value="4">4 Plätze</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="in-zeiten">Betreuungszeiten *</label>
+            <input type="text" id="in-zeiten" required maxlength="60" placeholder="z. B. Mo–Fr 7:30–16:00">
+          </div>
         </div>
         <div class="field">
-          <label for="in-zeiten">Betreuungszeiten *</label>
-          <input type="text" id="in-zeiten" required maxlength="60" placeholder="z. B. Mo–Fr 7:30–16:00">
-        </div>
-      </div>
-      <div class="field">
-        <label>Altersgruppen * <span class="opt">(mindestens eine)</span></label>
-        <div class="age-boxes">
-          <label><input type="checkbox" name="alter" value="0–1 Jahr"> 0–1 Jahr</label>
-          <label><input type="checkbox" name="alter" value="1–3 Jahre" checked> 1–3 Jahre</label>
-          <label><input type="checkbox" name="alter" value="3+ Jahre"> 3+ Jahre</label>
-        </div>
-      </div>
-      <div class="field">
-        <label for="in-text">Über mich <span class="opt">(optional, max. 300 Zeichen)</span></label>
-        <textarea id="in-text" maxlength="300" placeholder="Erfahrung, Schwerpunkte, was dir wichtig ist …"></textarea>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label for="in-email">E-Mail *</label>
-          <input type="email" id="in-email" required maxlength="100" placeholder="name@beispiel.de">
+          <label>Altersgruppen * <span class="opt">(mindestens eine)</span></label>
+          <div class="age-boxes">
+            <label><input type="checkbox" name="alter" value="0–1 Jahr"> 0–1 Jahr</label>
+            <label><input type="checkbox" name="alter" value="1–3 Jahre" checked> 1–3 Jahre</label>
+            <label><input type="checkbox" name="alter" value="3+ Jahre"> 3+ Jahre</label>
+          </div>
         </div>
         <div class="field">
-          <label for="in-tel">Telefon <span class="opt">(optional)</span></label>
-          <input type="tel" id="in-tel" maxlength="30" placeholder="07433 …">
+          <label for="in-text">Über mich <span class="opt">(optional, max. 300 Zeichen)</span></label>
+          <textarea id="in-text" maxlength="300" placeholder="Erfahrung, Schwerpunkte, was dir wichtig ist …"></textarea>
         </div>
-      </div>
-      <div class="field">
-        <label class="toggle" style="display:inline-flex"><input type="checkbox" id="in-erlaubnis"> Ich habe eine Pflegeerlaubnis nach §&nbsp;43 SGB&nbsp;VIII</label>
-      </div>
-      <label class="consent">
-        <input type="checkbox" id="in-consent" required>
-        <span><b>Einwilligung (erforderlich):</b> Ich willige ein, dass die oben angegebenen Daten öffentlich auf diesem Portal angezeigt werden. Ich kann meinen Eintrag jederzeit ändern oder löschen lassen (Widerruf per E-Mail genügt).</span>
-      </label>
-      <div class="submit-row"><button type="submit" class="btn btn-coral">Eintrag absenden</button></div>
-      <p class="form-note">Hinweis: Im fertigen Portal wird jeder Eintrag erst nach Prüfung freigeschaltet.<br>In dieser <b>Demo</b> erscheint er sofort in der Liste und wird nur lokal in deinem Browser gespeichert.</p>
-    </form>
+        <div class="row">
+          <div class="field">
+            <label for="in-email">E-Mail *</label>
+            <input type="email" id="in-email" required maxlength="100" placeholder="name@beispiel.de">
+          </div>
+          <div class="field">
+            <label for="in-tel">Telefon <span class="opt">(optional)</span></label>
+            <input type="tel" id="in-tel" maxlength="30" placeholder="07433 …">
+          </div>
+        </div>
+        <div class="field">
+          <label class="toggle" style="display:inline-flex"><input type="checkbox" id="in-erlaubnis"> Ich habe eine Pflegeerlaubnis nach §&nbsp;43 SGB&nbsp;VIII</label>
+        </div>
+        <label class="consent">
+          <input type="checkbox" id="in-consent" required>
+          <span><b>Einwilligung (erforderlich):</b> Ich willige ein, dass die oben angegebenen Daten öffentlich auf diesem Portal angezeigt werden. Ich kann meinen Eintrag jederzeit ändern oder löschen lassen (Widerruf per E-Mail genügt).</span>
+        </label>
+        <div class="submit-row"><button type="submit" class="btn btn-coral">Eintrag absenden</button></div>
+        <p class="form-note">Im fertigen Portal wird jeder Eintrag erst nach Prüfung freigeschaltet.<br>In dieser <b>Demo</b> erscheint er sofort in der Liste und wird nur lokal in deinem Browser gespeichert.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">❓ Häufige Fragen</span>
+      <h2>FAQ</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Was kostet die Nutzung des Portals?</summary>
+        <div class="a">Nichts – weder für Eltern noch für Tagesmütter. Das Portal finanziert sich über dezente Werbeanzeigen am Seitenrand.</div>
+      </details>
+      <details>
+        <summary>Was ist Kindertagespflege eigentlich?</summary>
+        <div class="a">Die Betreuung von Kindern (meist 0–3 Jahre) durch qualifizierte Tagesmütter oder Tagesväter – in kleinen Gruppen von maximal fünf Kindern, in der Regel im Zuhause der Betreuungsperson. Sie ist gesetzlich anerkannt und wird vom Landratsamt gefördert wie ein Kita-Platz.</div>
+      </details>
+      <details>
+        <summary>Wie werden die Profile geprüft?</summary>
+        <div class="a">Jede Tagesmutter trägt sich selbst ein und willigt in die Veröffentlichung ein. Vor der Freischaltung prüfen wir die Angaben – insbesondere die Pflegeerlaubnis nach § 43 SGB VIII, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt.</div>
+      </details>
+      <details>
+        <summary>Wie bekomme ich einen Betreuungsplatz?</summary>
+        <div class="a">Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das Landratsamt Zollernalbkreis – die Tagesmutter kennt den Ablauf und hilft dabei.</div>
+      </details>
+    </div>
   </div>
 </section>
 
@@ -245,7 +449,34 @@
 </aside>
 
 <footer>
-  Demo-Entwurf v0.1 · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a> · Impressum (folgt) · Datenschutz (folgt) · <a href="#" id="reset-demo">Demo zurücksetzen</a>
+  <div class="footer-grid">
+    <div>
+      <a class="logo" href="#">
+        <span class="mark">🧸</span>
+        <span class="word" style="color:#fff">Tagesmutter finden<small>Balingen</small></span>
+      </a>
+      <p class="brand-txt">Das lokale Verzeichnis für Kindertagespflege in Balingen. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
+    </div>
+    <div>
+      <h5>Für Eltern</h5>
+      <ul>
+        <li><a href="#liste">Tagesmütter finden</a></li>
+        <li><a href="#so-gehts">So funktioniert’s</a></li>
+        <li><a href="#faq">Häufige Fragen</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Für Tagesmütter</h5>
+      <ul>
+        <li><a href="#eintragen">Kostenlos eintragen</a></li>
+        <li><a href="#">Impressum (folgt)</a></li>
+        <li><a href="#">Datenschutz (folgt)</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    Demo-Entwurf v0.2 · Alle Einträge sind frei erfundene Beispieldaten · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="reset-demo">Demo zurücksetzen</a>
+  </div>
 </footer>
 
 <div class="toast" id="toast">✅ Danke! Dein Eintrag wurde hinzugefügt.</div>
@@ -311,6 +542,8 @@ function render(){
   list.sort((a,b) => (b.neu?1:0)-(a.neu?1:0) || b.plaetze - a.plaetze);
 
   countEl.textContent = list.length === 1 ? "1 Tagesmutter gefunden" : `${list.length} Tagesmütter gefunden`;
+  const statCount = document.getElementById("stat-count");
+  if(statCount) statCount.textContent = alleEintraege().length;
 
   grid.innerHTML = list.length ? list.map((e,i) => `
     <article class="card">
@@ -386,6 +619,16 @@ document.getElementById("reset-demo").addEventListener("click", ev => {
   localStorage.removeItem(LS_KEY);
   render();
 });
+
+// ---------- Header-Schatten ----------
+const headerEl = document.getElementById("header");
+addEventListener("scroll", () => headerEl.classList.toggle("scrolled", scrollY > 8), {passive:true});
+
+// ---------- Scroll-Reveal ----------
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); } });
+}, {threshold:.12});
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 render();
 </script>
