@@ -108,6 +108,18 @@
   .toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(20px);background:var(--sage);color:#fff;font-weight:700;padding:.8rem 1.4rem;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:all .3s;z-index:99}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* ---------- Werbe-Platzhalter links/rechts (Demo, später Google AdSense) ---------- */
+  .ad-rail{display:none}
+  @media(min-width:1440px){
+    .ad-rail{display:block;position:fixed;top:50%;transform:translateY(-50%);z-index:40;width:160px}
+    .ad-rail.left{left:14px}
+    .ad-rail.right{right:14px}
+    .ad-label{text-align:center;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+    .ad-box{height:600px;max-height:82vh;border:2px dashed #d8c9ba;border-radius:12px;background:repeating-linear-gradient(45deg,#faf3ea,#faf3ea 12px,#f5ece0 12px,#f5ece0 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#a8988a;font-weight:700;text-align:center;padding:1rem;line-height:1.35}
+    .ad-box .icon{font-size:1.9rem}
+    .ad-box small{font-weight:600;font-size:.72rem;color:#bdae9f}
+  }
+
   footer{text-align:center;padding:2.2rem 1.2rem;color:var(--muted);font-size:.83rem}
   footer a{color:var(--muted)}
 </style>
@@ -221,6 +233,16 @@
     </form>
   </div>
 </section>
+
+<!-- Werbeplätze (Demo) — hier kommt später Google AdSense rein -->
+<aside class="ad-rail left" aria-hidden="true">
+  <div class="ad-label">Anzeige</div>
+  <div class="ad-box"><span class="icon">📢</span>Google Ads<br>Demo-Banner<small>Skyscraper<br>160 × 600</small></div>
+</aside>
+<aside class="ad-rail right" aria-hidden="true">
+  <div class="ad-label">Anzeige</div>
+  <div class="ad-box"><span class="icon">📢</span>Google Ads<br>Demo-Banner<small>Skyscraper<br>160 × 600</small></div>
+</aside>
 
 <footer>
   Demo-Entwurf v0.1 · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a> · Impressum (folgt) · Datenschutz (folgt) · <a href="#" id="reset-demo">Demo zurücksetzen</a>
