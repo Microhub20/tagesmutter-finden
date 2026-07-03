@@ -152,6 +152,14 @@ section.block{padding:3.6rem 0}
 .p-text{white-space:pre-line;color:var(--ink-soft);font-size:.98rem}
 .p-contact{display:flex;gap:.6rem;margin-top:1.7rem;flex-wrap:wrap}
 .p-contact .btn{font-size:.98rem;padding:.75rem 1.5rem}
+/* Rechtsseiten (Impressum, Datenschutz) */
+.legal h1{font-size:clamp(1.6rem,4vw,2.1rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1.2rem}
+.legal h2{font-size:1.08rem;font-weight:800;margin:1.7rem 0 .45rem;color:var(--ink)}
+.legal p{font-size:.93rem;color:var(--ink-soft);margin-bottom:.6rem}
+.legal ul{margin:.3rem 0 .8rem 1.2rem;font-size:.93rem;color:var(--ink-soft)}
+.legal li{margin-bottom:.3rem}
+.legal a{color:var(--coral);font-weight:700}
+
 .p-error{text-align:center;padding:3.5rem 1rem}
 .p-error .big{font-size:2.6rem;margin-bottom:.6rem}
 .p-error h1{font-size:1.4rem;font-weight:800;margin-bottom:.4rem}
