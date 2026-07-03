@@ -34,7 +34,7 @@
   <!-- Profil (wird per JavaScript gefüllt) -->
   <article class="profile-card" id="profil" hidden>
     <div class="p-head">
-      <div class="avatar p-avatar" id="p-avatar"></div>
+      <div class="p-photo" id="p-photo"></div>
       <div>
         <h1 id="p-name"></h1>
         <div class="ort" id="p-ort"></div>
@@ -108,9 +108,14 @@ if(!eintrag){
 }else{
   const e = eintrag;
   document.title = `${e.name} – Tagesmutter in Balingen-${e.ort} (Demo)`;
-  const av = document.getElementById("p-avatar");
-  av.textContent = e.name.trim()[0] || "?";
-  av.style.background = avColor(e.name);
+  // Foto oder Platzhalter („Foto folgt")
+  const photo = document.getElementById("p-photo");
+  if(e.foto){
+    photo.innerHTML = `<img src="${esc(e.foto)}" alt="Foto von ${esc(e.name)}">`;
+  }else{
+    photo.style.background = avColor(e.name);
+    photo.innerHTML = `<span class="ini">${esc(e.name.trim()[0] || "?")}</span><span class="hint">📷 Foto folgt</span>`;
+  }
   document.getElementById("p-name").textContent = e.name;
   document.getElementById("p-ort").textContent = "📍 Balingen-" + e.ort;
   document.getElementById("p-badges").innerHTML =

@@ -97,7 +97,8 @@ section.block{padding:3.6rem 0}
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:1.45rem;display:flex;flex-direction:column;gap:.75rem;border:1px solid #fbf4ec;transition:transform .25s ease,box-shadow .25s ease;cursor:pointer}
 .card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
 .card-top{display:flex;gap:.95rem;align-items:center}
-.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.25rem;color:#fff;flex-shrink:0;box-shadow:inset 0 -3px 8px rgba(0,0,0,.12),0 0 0 3px #fff,0 0 0 5px var(--line)}
+.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.25rem;color:#fff;flex-shrink:0;box-shadow:inset 0 -3px 8px rgba(0,0,0,.12),0 0 0 3px #fff,0 0 0 5px var(--line);overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .card h3{font-size:1.12rem;font-weight:800;letter-spacing:-.01em}
 .card .ort{color:var(--muted);font-size:.85rem;font-weight:700}
 .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:800;padding:.2rem .65rem;border-radius:999px}
@@ -120,6 +121,20 @@ section.block{padding:3.6rem 0}
 .btn-ghost{background:#f6ecdf;color:var(--ink)}
 .btn-ghost:hover{background:#efe1cd}
 .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:3rem 1rem;font-weight:700}
+
+/* ---------- Foto-Platzhalter & Upload ---------- */
+.p-photo{width:150px;height:150px;border-radius:24px;flex-shrink:0;display:grid;place-items:center;position:relative;color:#fff;box-shadow:var(--shadow-sm);overflow:hidden;background:#e8ddd0}
+.p-photo .ini{font-size:3.1rem;font-weight:800;line-height:1}
+.p-photo .hint{position:absolute;bottom:.6rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.94);color:var(--ink-soft);font-size:.66rem;font-weight:800;padding:.2rem .65rem;border-radius:999px;white-space:nowrap;box-shadow:var(--shadow-sm)}
+.p-photo img{width:100%;height:100%;object-fit:cover}
+@media(max-width:600px){.p-photo{width:112px;height:112px}.p-photo .ini{font-size:2.3rem}}
+.photo-upload{display:flex;gap:1rem;align-items:center}
+.photo-preview{width:84px;height:84px;border-radius:18px;border:2px dashed var(--line);display:grid;place-items:center;font-size:1.6rem;background:var(--cream);overflow:hidden;flex-shrink:0}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.photo-meta{min-width:0}
+.photo-meta input[type=file]{font-family:inherit;font-size:.85rem;max-width:100%}
+.photo-meta .opt-hint{font-size:.76rem;color:var(--muted);margin-top:.35rem}
+.photo-meta a{color:var(--coral);font-size:.8rem;font-weight:800}
 
 /* ---------- Profilseite ---------- */
 .profile-main{max-width:820px;margin:0 auto;padding:2.4rem 1.4rem 3.5rem}
