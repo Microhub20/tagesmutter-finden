@@ -37,6 +37,17 @@ function badgePlaetze(p){
 
 function profilUrl(id){ return "profil.html?id=" + encodeURIComponent(id); }
 
+// ---------- Merkliste (Favoriten, lokal im Browser) ----------
+const FAV_KEY = "tmf_favoriten";
+function favGet(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }catch(e){ return []; } }
+function favHas(id){ return favGet().includes(id); }
+function favToggle(id){
+  const f = favGet(); const i = f.indexOf(id);
+  if(i >= 0) f.splice(i, 1); else f.push(id);
+  localStorage.setItem(FAV_KEY, JSON.stringify(f));
+  return f.includes(id);
+}
+
 // Zwei abhängige Dropdowns füllen: Bundesland → Stadt. `blSel`/`ortSel` sind <select>-Elemente.
 // optBl = "Alle Bundesländer" (für Filter) oder null (für Formular: erstes Bundesland vorwählen).
 function initOrtsauswahl(blSel, ortSel, aktBl, aktOrt, filter){

@@ -95,6 +95,23 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 $meinAlter = json_decode($user['altersgruppen'] ?: '[]', true) ?: [];
 $meineGalerie = tmf_fotos_list($user['fotos'] ?? '');
+$anfrStmt = tmf_db()->prepare("SELECT * FROM anfragen WHERE tm_id = ? ORDER BY created_at DESC LIMIT 50");
+$anfrStmt->execute([$user['id']]);
+$meineAnfragen = $anfrStmt->fetchAll();
+// Profil-Vollständigkeit
+$checks = [
+    'Profilbild'               => !empty($user['foto']),
+    'weitere Bilder'           => !empty($meineGalerie),
+    'ausführliche Vorstellung' => mb_strlen((string)($user['persoenlich'] ?? '')) >= 100,
+    'Qualifikation'            => !empty($user['qualifikation']),
+    'Sprachen'                 => !empty($user['sprachen']),
+    '„frei ab"'                => !empty($user['frei_ab']),
+    'pädagog. Schwerpunkt'     => !empty($user['konzept']),
+    'Telefon'                  => !empty($user['tel']),
+    'Pflegeerlaubnis §43'      => !empty($user['erlaubnis']),
+];
+$prozent = (int)round(count(array_filter($checks)) / count($checks) * 100);
+$offen   = array_keys(array_filter($checks, fn($v) => !$v));
 $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öffentlich sichtbar', 'rejected' => '✕ Nicht sichtbar'][$user['status']] ?? $user['status'];
 ?>
 <!DOCTYPE html>
@@ -117,6 +134,12 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
   .k-links{margin-left:auto;display:flex;gap:.9rem;font-size:.85rem;font-weight:700}
   .k-links a{color:var(--muted);text-decoration:none}
   .cur-foto{width:64px;height:64px;border-radius:14px;object-fit:cover}
+  .k-progress{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:.9rem 1.05rem;margin-bottom:1.4rem}
+  .kp-top{display:flex;justify-content:space-between;font-weight:800;font-size:.9rem;margin-bottom:.5rem}
+  .kp-top b{color:var(--coral)}
+  .kp-bar{height:9px;background:#eadfce;border-radius:999px;overflow:hidden}
+  .kp-fill{height:100%;background:linear-gradient(90deg,#f2a25c,#f26d5f);border-radius:999px;transition:width .5s}
+  .kp-hint{font-size:.78rem;color:var(--muted);margin-top:.55rem}
 </style>
 </head>
 <body>
@@ -131,13 +154,30 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 </header>
 
 <div class="k-wrap">
+  <?php if($meineAnfragen): ?>
+  <div class="k-card" style="margin-bottom:1.4rem">
+    <h2 style="font-size:1.25rem;font-weight:800;margin-bottom:.9rem">📨 Anfragen von Eltern <span style="color:var(--muted);font-weight:700">(<?= count($meineAnfragen) ?>)</span></h2>
+    <?php foreach($meineAnfragen as $a): ?>
+    <div style="border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;margin-bottom:.7rem;background:var(--cream)">
+      <div style="font-weight:800"><?= $e($a['name']) ?> <span style="color:var(--muted);font-weight:600;font-size:.85rem">· <?= $e(date('d.m.Y H:i', strtotime((string)$a['created_at']))) ?></span></div>
+      <div style="font-size:.92rem;margin:.35rem 0;white-space:pre-wrap"><?= $e($a['nachricht']) ?></div>
+      <div style="font-size:.85rem;color:var(--muted)">✉️ <a href="mailto:<?= $e($a['email']) ?>" style="color:var(--coral);font-weight:700"><?= $e($a['email']) ?></a><?= $a['tel'] ? ' · 📞 '.$e($a['tel']) : '' ?></div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
   <div class="k-card">
     <div class="k-top">
       <h1>Mein Profil</h1>
       <span class="k-status" style="background:#eef4fb;color:#4a7fb5">Nr. <?= tmf_usernr($user['nummer']) ?></span>
       <span class="k-status <?= $e($user['status']) ?>"><?= $statusLabel ?></span>
     </div>
-    <p class="sub" style="color:var(--ink-soft);margin-bottom:1.4rem">Hallo <?= $e($user['name']) ?>! Hier kannst du deine Angaben jederzeit anpassen. Änderungen sind sofort aktiv.</p>
+    <p class="sub" style="color:var(--ink-soft);margin-bottom:1.1rem">Hallo <?= $e($user['name']) ?>! Hier kannst du deine Angaben jederzeit anpassen. Änderungen sind sofort aktiv.</p>
+    <div class="k-progress">
+      <div class="kp-top"><span>Profil-Vollständigkeit</span><b><?= $prozent ?> %</b></div>
+      <div class="kp-bar"><div class="kp-fill" style="width:<?= $prozent ?>%"></div></div>
+      <?php if($offen): ?><p class="kp-hint">Noch offen: <?= $e(implode(', ', $offen)) ?>. Ein volleres Profil wird häufiger angefragt! 💛</p><?php endif; ?>
+    </div>
     <div id="msg"></div>
     <form id="form" novalidate>
       <div class="field"><label for="in-name">Name *</label><input type="text" id="in-name" required maxlength="60" value="<?= $e($user['name']) ?>"></div>

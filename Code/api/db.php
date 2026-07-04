@@ -86,6 +86,18 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'nichtraucher', 'INT');
     tmf_ensure_column($pdo, 'tagesmuetter', 'haustiere', 'VARCHAR(80)');
     tmf_ensure_column($pdo, 'tagesmuetter', 'konzept', 'TEXT');
+
+    // Kontaktanfragen von Eltern an Tagesmütter (Historie fürs Konto)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS anfragen (
+        id         VARCHAR(32)  PRIMARY KEY,
+        tm_id      VARCHAR(64)  NOT NULL,
+        name       VARCHAR(80),
+        email      VARCHAR(120),
+        tel        VARCHAR(40),
+        nachricht  TEXT,
+        gelesen    INT          NOT NULL DEFAULT 0,
+        created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
+    )");
 }
 
 /**

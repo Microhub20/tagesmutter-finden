@@ -80,6 +80,7 @@
         <option value="name">Sortierung: Name (A–Z)</option>
       </select>
       <label class="toggle"><input type="checkbox" id="f-frei"> nur freie Plätze</label>
+      <label class="toggle"><input type="checkbox" id="f-fav"> ❤️ nur gemerkte</label>
     </div>
     <p class="count-line" id="count"></p>
     <div class="grid" id="grid"></div>
@@ -233,14 +234,17 @@ function render(){
   const fOrt = document.getElementById("f-ort").value;
   const fAlter = document.getElementById("f-alter").value;
   const nurFrei = document.getElementById("f-frei").checked;
+  const nurFav = document.getElementById("f-fav").checked;
   const fSort = document.getElementById("f-sort").value;
+  const favs = favGet();
 
   let list = ALLE.filter(e =>
     (!q || e.name.toLowerCase().includes(q) || e.ort.toLowerCase().includes(q)) &&
     (!fBl || e.bundesland === fBl) &&
     (!fOrt || e.ort === fOrt) &&
     (!fAlter || e.alter.includes(fAlter)) &&
-    (!nurFrei || e.plaetze > 0)
+    (!nurFrei || e.plaetze > 0) &&
+    (!nurFav || favs.includes(e.id))
   );
   if(fSort === "name") list.sort((a,b) => a.name.localeCompare(b.name, "de"));
   else list.sort((a,b) => b.plaetze - a.plaetze);
@@ -253,6 +257,7 @@ function render(){
     const teaser = e.persoenlich ? (e.persoenlich.length > 140 ? e.persoenlich.slice(0,140).trimEnd()+" …" : e.persoenlich) : "";
     return `
     <article class="card" data-id="${esc(e.id)}" tabindex="0" role="link" aria-label="Profilseite von ${esc(e.name)} öffnen">
+      <button class="fav-btn${favHas(e.id)?' on':''}" data-fav="${esc(e.id)}" title="Merken" aria-label="Zur Merkliste">${favHas(e.id)?'❤️':'🤍'}</button>
       <div class="card-top">
         ${e.foto
           ? `<div class="avatar"><img src="${esc(e.foto)}" alt="Foto von ${esc(e.name)}"></div>`
@@ -291,6 +296,15 @@ async function ladeUndRender(){
 
 // Klick auf die Karte öffnet die Profilseite (echte Links bleiben Links)
 grid.addEventListener("click", ev => {
+  const favBtn = ev.target.closest(".fav-btn");
+  if(favBtn){
+    ev.stopPropagation();
+    const on = favToggle(favBtn.dataset.fav);
+    favBtn.classList.toggle("on", on);
+    favBtn.textContent = on ? "❤️" : "🤍";
+    if(document.getElementById("f-fav").checked) render();
+    return;
+  }
   if(ev.target.closest("a")) return;
   const card = ev.target.closest(".card");
   if(card) location.href = profilUrl(card.dataset.id);
@@ -303,7 +317,7 @@ grid.addEventListener("keydown", ev => {
 // ---------- Filter-Setup: Bundesland → Stadt ----------
 initOrtsauswahl(document.getElementById("f-bundesland"), document.getElementById("f-ort"), "", "", true);
 document.getElementById("f-bundesland").addEventListener("change", render); // nach dem Nachladen der Orte
-["search","f-ort","f-alter","f-frei","f-sort"].forEach(id => {
+["search","f-ort","f-alter","f-frei","f-sort","f-fav"].forEach(id => {
   document.getElementById(id).addEventListener("input", render);
 });
 
