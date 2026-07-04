@@ -32,7 +32,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     $status = in_array($_POST['status'] ?? '', ['pending', 'approved', 'rejected'], true) ? $_POST['status'] : 'pending';
     $pdo->prepare(
-        "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
+        "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, extras=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
     )->execute([
         $clean($_POST['name'] ?? '', 80), $clean($_POST['ort'] ?? '', 80), $clean($_POST['bundesland'] ?? '', 60),
         max(0, min(9, (int)($_POST['plaetze'] ?? 0))),
@@ -43,6 +43,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $clean($_POST['qualifikation'] ?? '', 120), $clean($_POST['sprachen'] ?? '', 120), $clean($_POST['frei_ab'] ?? '', 40),
         $clean($_POST['ernaehrung'] ?? '', 120), !empty($_POST['nichtraucher']) ? 1 : 0, $clean($_POST['haustiere'] ?? '', 80),
         mb_substr(trim((string)($_POST['konzept'] ?? '')), 0, 400),
+        json_encode(array_values(array_intersect(['Frühbetreuung','Randzeiten','Wochenende','Ferienbetreuung','Notfallbetreuung'], (array)($_POST['extras'] ?? []))), JSON_UNESCAPED_UNICODE),
         $status, $id,
     ]);
     header('Location: admin.php?msg=' . rawurlencode('Profil „' . $clean($_POST['name'] ?? '', 40) . '" gespeichert.'));
@@ -126,6 +127,15 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
       <div class="field">
         <label for="in-konzept">Pädagogischer Schwerpunkt</label>
         <textarea id="in-konzept" name="konzept" rows="2" maxlength="400"><?= $e($r['konzept'] ?? '') ?></textarea>
+      </div>
+      <?php $meineExtras = json_decode($r['extras'] ?? '[]', true) ?: []; ?>
+      <div class="field">
+        <label>Betreuungs-Extras</label>
+        <div class="age-boxes">
+          <?php foreach(['Frühbetreuung','Randzeiten','Wochenende','Ferienbetreuung','Notfallbetreuung'] as $x): ?>
+            <label><input type="checkbox" name="extras[]" value="<?= $e($x) ?>" <?= in_array($x,$meineExtras,true)?'checked':'' ?>> <?= $e($x) ?></label>
+          <?php endforeach; ?>
+        </div>
       </div>
       <?php if($r['foto']): ?>
       <div class="field">
