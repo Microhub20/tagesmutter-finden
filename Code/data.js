@@ -102,6 +102,17 @@ function initOrtsauswahl(blSel, ortSel, aktBl, aktOrt, filter){
   fuelleOrte();
 }
 
+// Aktuelle Ausroll-Region: NUR Baden-Württemberg. Städte direkt, ohne Bundesland-Auswahl.
+// (Skalierbar: für weitere Bundesländer wieder auf initOrtsauswahl umstellen.)
+const REGION_BL = "Baden-Württemberg";
+function initBwOrte(ortSel, aktOrt, filter){
+  const orte = BUNDESLAENDER[REGION_BL] || [];
+  ortSel.innerHTML = (filter
+      ? '<option value="">Alle Städte</option>'
+      : '<option value="" disabled' + (aktOrt ? '' : ' selected') + '>Stadt / Gemeinde wählen …</option>')
+    + orte.map(o => `<option${o === aktOrt ? " selected" : ""}>${o}</option>`).join("");
+}
+
 // ---------- Server-Anbindung ----------
 async function ladeEintraege(){
   const res = await fetch("api/list.php", {headers:{"Accept":"application/json"}});

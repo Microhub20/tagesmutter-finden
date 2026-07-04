@@ -92,10 +92,8 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
         </select>
       </div>
       <div class="field"><label for="in-name">Name</label><input type="text" id="in-name" name="name" maxlength="60" value="<?= $e($r['name']) ?>"></div>
-      <div class="row">
-        <div class="field"><label for="in-bundesland">Bundesland</label><select id="in-bundesland" name="bundesland"></select></div>
-        <div class="field"><label for="in-ort">Stadt / Gemeinde</label><select id="in-ort" name="ort"></select></div>
-      </div>
+      <input type="hidden" name="bundesland" value="Baden-Württemberg">
+      <div class="field"><label for="in-ort">Stadt / Gemeinde <span class="opt">(Baden-Württemberg)</span></label><select id="in-ort" name="ort"></select></div>
       <div class="row">
         <div class="field"><label for="in-plaetze">Freie Plätze</label>
           <select id="in-plaetze" name="plaetze">
@@ -176,13 +174,7 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
 </div>
 <script src="data.js"></script>
 <script>
-  initOrtsauswahl(
-    document.getElementById("in-bundesland"),
-    document.getElementById("in-ort"),
-    <?= json_encode($r['bundesland'] ?: 'Baden-Württemberg', JSON_UNESCAPED_UNICODE) ?>,
-    <?= json_encode($r['ort'], JSON_UNESCAPED_UNICODE) ?>,
-    false
-  );
+  initBwOrte(document.getElementById("in-ort"), <?= json_encode($r['ort'], JSON_UNESCAPED_UNICODE) ?>, false);
 </script>
 </body>
 </html>
