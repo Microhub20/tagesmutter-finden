@@ -5,6 +5,19 @@ $user = tmf_require_login();
 
 // ---------- Speichern (POST via fetch, FormData → JSON) ----------
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    // Konto komplett löschen (DSGVO – Recht auf Löschung)
+    if (($_POST['aktion'] ?? '') === 'loeschen') {
+        $db = tmf_db();
+        if (!empty($user['foto'])) @unlink(__DIR__ . '/uploads/' . $user['foto']);
+        foreach (tmf_fotos_list($user['fotos'] ?? '') as $g) @unlink(__DIR__ . '/uploads/' . $g);
+        foreach (['anfragen', 'bewertungen', 'vormerkungen'] as $t) {
+            $db->prepare("DELETE FROM {$t} WHERE tm_id = ?")->execute([$user['id']]);
+        }
+        $db->prepare("DELETE FROM tagesmuetter WHERE id = ?")->execute([$user['id']]);
+        tmf_logout();
+        tmf_json(['ok' => true, 'geloescht' => true]);
+    }
+
     $clean = static fn(string $s, int $max): string =>
         mb_substr(trim(str_replace(["\r", "\n"], ' ', $s)), 0, $max);
 
@@ -260,6 +273,10 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
       </div>
       <div class="submit-row"><button type="submit" class="btn btn-coral">Änderungen speichern</button></div>
     </form>
+    <div style="margin-top:2rem;padding-top:1.4rem;border-top:1px solid var(--line)">
+      <button type="button" id="del-btn" class="btn" style="background:none;border:1.5px solid #e0b4b4;color:#c0392b">Konto &amp; Profil löschen</button>
+      <p class="opt-hint">Löscht dein Profil, deine Bilder, Anfragen &amp; Bewertungen unwiderruflich (DSGVO).</p>
+    </div>
   </div>
 </div>
 
@@ -374,6 +391,18 @@ document.getElementById("form").addEventListener("submit", async ev => {
   }finally{
     btn.disabled = false; btn.textContent = label;
   }
+});
+
+// Konto löschen
+document.getElementById("del-btn").addEventListener("click", async () => {
+  if(!confirm("Wirklich dein komplettes Profil und alle zugehörigen Daten unwiderruflich löschen?")) return;
+  const fd = new FormData(); fd.append("aktion", "loeschen");
+  try{
+    const res = await fetch("mein-konto.php", {method:"POST", body:fd});
+    const data = await res.json().catch(() => ({}));
+    if(data.geloescht){ alert("Dein Konto wurde gelöscht."); location.href = "index.html"; }
+    else throw new Error();
+  }catch(e){ alert("Löschen fehlgeschlagen – bitte später erneut versuchen."); }
 });
 </script>
 </body>

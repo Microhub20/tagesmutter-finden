@@ -44,6 +44,7 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
       <button class="btn btn-coral" type="submit">Anmelden</button>
     </form>
     <div class="links">
+      <a href="passwort-vergessen.php">Passwort vergessen?</a><br>
       Noch kein Profil? <a href="registrieren.php">Jetzt kostenlos eintragen</a><br>
       <a href="index.html">← Zurück zur Startseite</a>
     </div>

@@ -75,6 +75,19 @@
     <div id="p-konzept" hidden></div>
     <div class="p-contact" id="p-contact"></div>
     <div class="p-share" id="p-share"></div>
+    <div class="p-vormerkung" id="p-vormerkung" hidden>
+      <h2 class="p-label">🔔 Bei freiem Platz benachrichtigen</h2>
+      <p style="color:var(--muted);font-size:.9rem;margin:.2rem 0 .9rem">Aktuell keine freien Plätze. Trag dich ein – du wirst benachrichtigt, sobald wieder etwas frei wird.</p>
+      <div id="vm-msg"></div>
+      <form id="vm-form" novalidate>
+        <div class="row">
+          <div class="field"><label for="vm-name">Dein Name *</label><input type="text" id="vm-name" required maxlength="80"></div>
+          <div class="field"><label for="vm-email">Deine E-Mail *</label><input type="email" id="vm-email" required maxlength="100" autocomplete="email"></div>
+        </div>
+        <input type="text" id="vm-hp" name="firma_website" style="display:none" tabindex="-1" autocomplete="off">
+        <div class="submit-row" style="text-align:left"><button type="submit" class="btn btn-ghost">Vormerken</button></div>
+      </form>
+    </div>
     <div class="p-anfrage" id="p-anfrage" hidden>
       <h2 class="p-label">Direkt anfragen</h2>
       <p style="color:var(--muted);font-size:.9rem;margin:.2rem 0 .9rem">Schreib eine unverbindliche Nachricht – sie geht direkt an die Tagesmutter.</p>
@@ -256,6 +269,30 @@
       msg.innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`;
     }finally{ btn.disabled = false; btn.textContent = lbl; }
   });
+
+  // ---------- Vormerkung (nur wenn kein Platz frei) ----------
+  if(e.plaetze === 0){
+    document.getElementById("p-vormerkung").hidden = false;
+    document.getElementById("vm-form").addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const form = ev.target;
+      if(!form.reportValidity()) return;
+      const fd = new FormData();
+      fd.append("id", e.id);
+      fd.append("name", document.getElementById("vm-name").value.trim());
+      fd.append("email", document.getElementById("vm-email").value.trim());
+      fd.append("firma_website", document.getElementById("vm-hp").value);
+      const btn = form.querySelector("button"); btn.disabled = true;
+      try{
+        const res = await fetch("api/vormerkung.php", {method:"POST", body:fd});
+        const data = await res.json().catch(() => ({}));
+        if(!res.ok || !data.ok) throw new Error(data.error || "Fehler");
+        form.reset();
+        document.getElementById("vm-msg").innerHTML = '<div class="auth-ok">✅ Du bist vorgemerkt! Du wirst benachrichtigt, sobald ein Platz frei wird.</div>';
+      }catch(err){ document.getElementById("vm-msg").innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`; }
+      finally{ btn.disabled = false; }
+    });
+  }
 
   // ---------- Bewertungen ----------
   const bw = e.bewertung || {avg:0, count:0};
