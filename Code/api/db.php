@@ -59,6 +59,13 @@ function tmf_init_schema(PDO $pdo): void {
         foto          VARCHAR(200),
         fotos         TEXT,
         bundesland    VARCHAR(60),
+        qualifikation VARCHAR(120),
+        sprachen      VARCHAR(120),
+        frei_ab       VARCHAR(40),
+        ernaehrung    VARCHAR(120),
+        nichtraucher  INT          NOT NULL DEFAULT 0,
+        haustiere     VARCHAR(80),
+        konzept       TEXT,
         status        VARCHAR(20)  NOT NULL DEFAULT 'pending',
         passwort_hash VARCHAR(255),
         nummer        INT,
@@ -71,6 +78,14 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'nummer', 'INT');
     tmf_ensure_column($pdo, 'tagesmuetter', 'fotos', 'TEXT');        // JSON: bis zu 5 Galerie-Bilder
     tmf_ensure_column($pdo, 'tagesmuetter', 'bundesland', 'VARCHAR(60)');
+    // v2.2: detailliertere Profile
+    tmf_ensure_column($pdo, 'tagesmuetter', 'qualifikation', 'VARCHAR(120)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'sprachen', 'VARCHAR(120)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'frei_ab', 'VARCHAR(40)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'ernaehrung', 'VARCHAR(120)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'nichtraucher', 'INT');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'haustiere', 'VARCHAR(80)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'konzept', 'TEXT');
 }
 
 /**
@@ -144,6 +159,13 @@ function tmf_row_to_entry(array $r): array {
         'erlaubnis'   => (bool)$r['erlaubnis'],
         'foto'        => $r['foto'] ? 'uploads/' . $r['foto'] : '',
         'fotos'       => array_map(fn($f) => 'uploads/' . $f, tmf_fotos_list($r['fotos'] ?? '')),
+        'qualifikation' => $r['qualifikation'] ?? '',
+        'sprachen'    => $r['sprachen'] ?? '',
+        'frei_ab'     => $r['frei_ab'] ?? '',
+        'ernaehrung'  => $r['ernaehrung'] ?? '',
+        'nichtraucher'=> (bool)($r['nichtraucher'] ?? 0),
+        'haustiere'   => $r['haustiere'] ?? '',
+        'konzept'     => $r['konzept'] ?? '',
         'status'      => $r['status'],
     ];
 }

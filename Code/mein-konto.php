@@ -18,6 +18,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $erlaubnis   = !empty($_POST['erlaubnis']) ? 1 : 0;
     $persoenlich = mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500);
     $pass        = (string)($_POST['passwort'] ?? '');
+    $qualifikation = $clean($_POST['qualifikation'] ?? '', 120);
+    $sprachen      = $clean($_POST['sprachen'] ?? '', 120);
+    $frei_ab       = $clean($_POST['frei_ab'] ?? '', 40);
+    $ernaehrung    = $clean($_POST['ernaehrung'] ?? '', 120);
+    $haustiere     = $clean($_POST['haustiere'] ?? '', 80);
+    $nichtraucher  = !empty($_POST['nichtraucher']) ? 1 : 0;
+    $konzept       = mb_substr(trim((string)($_POST['konzept'] ?? '')), 0, 400);
 
     $alter = $_POST['alter'] ?? [];
     if (is_string($alter)) $alter = array_filter(array_map('trim', explode(',', $alter)));
@@ -65,8 +72,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         }
     }
 
-    $sql = "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, updated_at=CURRENT_TIMESTAMP";
-    $params = [$name, $ort, $bundesland, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis, json_encode($neueGalerie, JSON_UNESCAPED_UNICODE)];
+    $sql = "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, updated_at=CURRENT_TIMESTAMP";
+    $params = [$name, $ort, $bundesland, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis, json_encode($neueGalerie, JSON_UNESCAPED_UNICODE), $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept];
     if ($fotoName) {
         $sql .= ", foto=?"; $params[] = $fotoName;
     } elseif (!empty($_POST['foto_entfernen'])) {
@@ -153,6 +160,22 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
             <label><input type="checkbox" name="alter" value="<?= $e($a) ?>" <?= in_array($a,$meinAlter,true)?'checked':'' ?>> <?= $e($a) ?></label>
           <?php endforeach; ?>
         </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-qualifikation">Qualifikation</label><input type="text" id="in-qualifikation" maxlength="100" value="<?= $e($user['qualifikation'] ?? '') ?>" placeholder="z. B. Erzieherin"></div>
+        <div class="field"><label for="in-frei_ab">Plätze frei ab</label><input type="text" id="in-frei_ab" maxlength="30" value="<?= $e($user['frei_ab'] ?? '') ?>" placeholder="z. B. sofort"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-sprachen">Sprachen</label><input type="text" id="in-sprachen" maxlength="100" value="<?= $e($user['sprachen'] ?? '') ?>" placeholder="z. B. Deutsch, Türkisch"></div>
+        <div class="field"><label for="in-ernaehrung">Ernährung</label><input type="text" id="in-ernaehrung" maxlength="100" value="<?= $e($user['ernaehrung'] ?? '') ?>" placeholder="z. B. frisch gekocht"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-haustiere">Haustiere</label><input type="text" id="in-haustiere" maxlength="60" value="<?= $e($user['haustiere'] ?? '') ?>" placeholder="z. B. Hund, keine"></div>
+        <div class="field"><label style="display:block;margin-bottom:.35rem">&nbsp;</label><label class="toggle" style="display:inline-flex"><input type="checkbox" id="in-nichtraucher" <?= !empty($user['nichtraucher'])?'checked':'' ?>> Nichtraucher-Haushalt</label></div>
+      </div>
+      <div class="field">
+        <label for="in-konzept">Pädagogischer Schwerpunkt <span class="opt">(max. 400 Zeichen)</span></label>
+        <textarea id="in-konzept" rows="2" maxlength="400" placeholder="z. B. Natur &amp; Bewegung, feste Rituale …"><?= $e($user['konzept'] ?? '') ?></textarea>
       </div>
       <div class="field">
         <label for="in-foto">Profilbild</label>
@@ -282,6 +305,8 @@ document.getElementById("form").addEventListener("submit", async ev => {
   const pw = document.getElementById("in-pass").value;
   if(pw) fd.append("passwort", pw);
   if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
+  ["qualifikation","sprachen","frei_ab","ernaehrung","haustiere","konzept"].forEach(k => fd.append(k, document.getElementById("in-"+k).value.trim()));
+  if(document.getElementById("in-nichtraucher").checked) fd.append("nichtraucher", "1");
   const fotoWeg = document.getElementById("in-foto-weg");
   if(fotoWeg && fotoWeg.checked) fd.append("foto_entfernen", "1");
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");

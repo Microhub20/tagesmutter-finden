@@ -8,6 +8,14 @@
 <title>Profil – Tagesmutter finden</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
+<style>
+  .p-details{margin:1.6rem 0}
+  .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.7rem;margin-top:.7rem}
+  .detail-item{display:flex;gap:.7rem;align-items:center;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:.65rem .85rem}
+  .di-ic{font-size:1.4rem;line-height:1;flex-shrink:0}
+  .di-label{display:block;font-size:.68rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .di-val{display:block;font-weight:700;color:var(--ink);font-size:.92rem;line-height:1.25}
+</style>
 </head>
 <body>
 
@@ -39,12 +47,14 @@
     </div>
     <div class="badges" id="p-badges"></div>
     <div class="p-meta" id="p-meta"></div>
+    <div class="p-details" id="p-details" hidden></div>
     <div class="p-galerie" id="p-galerie" hidden>
       <div class="haupt"><img id="p-gal-haupt" src="" alt="Bild der Tagesmutter"></div>
       <div class="thumbs" id="p-gal-thumbs"></div>
     </div>
     <h2 class="p-label">Persönliche Vorstellung</h2>
     <p class="p-text" id="p-text"></p>
+    <div id="p-konzept" hidden></div>
     <div class="p-contact" id="p-contact"></div>
   </article>
 
@@ -122,6 +132,28 @@
   document.getElementById("p-meta").innerHTML =
     `<span>🕐 <b>${esc(e.zeiten)}</b></span><span class="chips">${e.alter.map(a => `<span class="chip">${esc(a)}</span>`).join("")}</span>`;
   document.getElementById("p-text").textContent = e.persoenlich || "Für dieses Profil wurde noch kein persönlicher Text hinterlegt.";
+
+  // "Auf einen Blick" – strukturierte Details
+  const details = [];
+  if(e.frei_ab)       details.push(['🗓️','Plätze frei ab', e.frei_ab]);
+  if(e.qualifikation) details.push(['🎓','Qualifikation', e.qualifikation]);
+  if(e.sprachen)      details.push(['🗣️','Sprachen', e.sprachen]);
+  if(e.ernaehrung)    details.push(['🍎','Ernährung', e.ernaehrung]);
+  if(e.haustiere)     details.push(['🐾','Haustiere', e.haustiere]);
+  if(e.nichtraucher)  details.push(['🚭','Haushalt','Nichtraucher']);
+  if(details.length){
+    document.getElementById("p-details").innerHTML =
+      '<h2 class="p-label">Auf einen Blick</h2><div class="detail-grid">' +
+      details.map(([ic,l,v]) => `<div class="detail-item"><span class="di-ic">${ic}</span><div><span class="di-label">${esc(l)}</span><span class="di-val">${esc(v)}</span></div></div>`).join('') +
+      '</div>';
+    document.getElementById("p-details").hidden = false;
+  }
+  // Pädagogischer Schwerpunkt
+  if(e.konzept){
+    const k = document.getElementById("p-konzept");
+    k.innerHTML = `<h2 class="p-label">Pädagogischer Schwerpunkt</h2><p class="p-text">${esc(e.konzept)}</p>`;
+    k.hidden = false;
+  }
   document.getElementById("p-contact").innerHTML =
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
     (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "");

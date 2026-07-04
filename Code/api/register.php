@@ -25,6 +25,13 @@ $erlaubnis   = !empty($_POST['erlaubnis']) ? 1 : 0;
 $consent     = !empty($_POST['consent']);
 $persoenlich = mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500);
 $pass        = (string)($_POST['passwort'] ?? '');
+$qualifikation = $clean($_POST['qualifikation'] ?? '', 120);
+$sprachen      = $clean($_POST['sprachen'] ?? '', 120);
+$frei_ab       = $clean($_POST['frei_ab'] ?? '', 40);
+$ernaehrung    = $clean($_POST['ernaehrung'] ?? '', 120);
+$haustiere     = $clean($_POST['haustiere'] ?? '', 80);
+$nichtraucher  = !empty($_POST['nichtraucher']) ? 1 : 0;
+$konzept       = mb_substr(trim((string)($_POST['konzept'] ?? '')), 0, 400);
 
 $alter = $_POST['alter'] ?? [];
 if (is_string($alter)) $alter = array_filter(array_map('trim', explode(',', $alter)));
@@ -73,14 +80,16 @@ try {
     $nummer = tmf_next_nummer($pdo);
     $stmt = $pdo->prepare(
         "INSERT INTO tagesmuetter
-         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, passwort_hash, nummer, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, qualifikation, sprachen, frei_ab, ernaehrung, nichtraucher, haustiere, konzept, passwort_hash, nummer, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
     );
     $stmt->execute([
         $id, $name, $ort, $bundesland, $plaetze, $zeiten,
         json_encode($alter, JSON_UNESCAPED_UNICODE),
         $persoenlich, $email, $tel, $erlaubnis, $fotoName,
-        json_encode($galerie, JSON_UNESCAPED_UNICODE), tmf_hash_pw($pass), $nummer,
+        json_encode($galerie, JSON_UNESCAPED_UNICODE),
+        $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept,
+        tmf_hash_pw($pass), $nummer,
     ]);
     // direkt einloggen
     tmf_session();

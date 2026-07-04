@@ -59,6 +59,22 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
           <label><input type="checkbox" name="alter" value="3+ Jahre"> 3+ Jahre</label>
         </div>
       </div>
+      <div class="row">
+        <div class="field"><label for="in-qualifikation">Qualifikation <span class="opt">(optional)</span></label><input type="text" id="in-qualifikation" maxlength="100" placeholder="z. B. Erzieherin, 160h-Qualifizierung"></div>
+        <div class="field"><label for="in-frei_ab">Plätze frei ab <span class="opt">(optional)</span></label><input type="text" id="in-frei_ab" maxlength="30" placeholder="z. B. sofort, ab 09/2026"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-sprachen">Sprachen <span class="opt">(optional)</span></label><input type="text" id="in-sprachen" maxlength="100" placeholder="z. B. Deutsch, Türkisch"></div>
+        <div class="field"><label for="in-ernaehrung">Ernährung <span class="opt">(optional)</span></label><input type="text" id="in-ernaehrung" maxlength="100" placeholder="z. B. frisch gekocht, vegetarisch"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-haustiere">Haustiere <span class="opt">(optional)</span></label><input type="text" id="in-haustiere" maxlength="60" placeholder="z. B. Hund, keine"></div>
+        <div class="field"><label style="display:block;margin-bottom:.35rem">&nbsp;</label><label class="toggle" style="display:inline-flex"><input type="checkbox" id="in-nichtraucher"> Nichtraucher-Haushalt</label></div>
+      </div>
+      <div class="field">
+        <label for="in-konzept">Pädagogischer Schwerpunkt <span class="opt">(optional, max. 400 Zeichen)</span></label>
+        <textarea id="in-konzept" rows="2" maxlength="400" placeholder="z. B. Natur & Bewegung, feste Rituale, viel Freispiel …"></textarea>
+      </div>
       <div class="field">
         <label for="in-foto">Profilbild <span class="opt">(optional)</span></label>
         <div class="photo-upload">
@@ -187,7 +203,10 @@ document.getElementById("form").addEventListener("submit", async ev => {
   fd.append("passwort", document.getElementById("in-pass").value);
   if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
   fd.append("consent", "1");
+  ["qualifikation","sprachen","frei_ab","ernaehrung","haustiere","konzept"].forEach(k => fd.append(k, document.getElementById("in-"+k).value.trim()));
+  if(document.getElementById("in-nichtraucher").checked) fd.append("nichtraucher", "1");
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");
+  galerieBlobs.forEach((b,i) => fd.append("galerie[]", b, "bild"+i+".jpg"));
 
   const btn = f.querySelector('button[type="submit"]');
   const label = btn.textContent; btn.disabled = true; btn.textContent = "Wird angelegt …";
