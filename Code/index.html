@@ -365,7 +365,8 @@ initOrtsauswahl(document.getElementById("f-bundesland"), document.getElementById
 document.getElementById("f-bundesland").addEventListener("change", render); // nach dem Nachladen der Orte
 document.getElementById("f-extra").innerHTML = '<option value="">Alle Extras</option>' + EXTRAS.map(x => `<option>${x}</option>`).join("");
 ["search","f-ort","f-alter","f-extra","f-frei","f-sort","f-fav"].forEach(id => {
-  document.getElementById(id).addEventListener("input", render);
+  const el = document.getElementById(id);
+  ["input","change"].forEach(evt => el.addEventListener(evt, render)); // input = live-tippen, change = Dropdowns/Checkboxen zuverlässig
 });
 
 // ---------- Live-Statistiken ----------
