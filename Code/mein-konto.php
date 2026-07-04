@@ -10,7 +10,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $db = tmf_db();
         if (!empty($user['foto'])) @unlink(__DIR__ . '/uploads/' . $user['foto']);
         foreach (tmf_fotos_list($user['fotos'] ?? '') as $g) @unlink(__DIR__ . '/uploads/' . $g);
-        foreach (['anfragen', 'bewertungen', 'vormerkungen'] as $t) {
+        foreach (['anfragen', 'vormerkungen'] as $t) {
             $db->prepare("DELETE FROM {$t} WHERE tm_id = ?")->execute([$user['id']]);
         }
         $db->prepare("DELETE FROM tagesmuetter WHERE id = ?")->execute([$user['id']]);
@@ -275,7 +275,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
     </form>
     <div style="margin-top:2rem;padding-top:1.4rem;border-top:1px solid var(--line)">
       <button type="button" id="del-btn" class="btn" style="background:none;border:1.5px solid #e0b4b4;color:#c0392b">Konto &amp; Profil löschen</button>
-      <p class="opt-hint">Löscht dein Profil, deine Bilder, Anfragen &amp; Bewertungen unwiderruflich (DSGVO).</p>
+      <p class="opt-hint">Löscht dein Profil, deine Bilder und Anfragen unwiderruflich (DSGVO).</p>
     </div>
   </div>
 </div>
@@ -377,7 +377,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");
 
   const btn = f.querySelector('button[type="submit"]');
-  const label = btn.textContent; btn.disabled = true; btn.textContent = "Speichere …";
+  btn.disabled = true; btn.classList.add("loading");
   const msg = document.getElementById("msg");
   try{
     const res = await fetch("mein-konto.php", {method:"POST", body:fd});
@@ -389,7 +389,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   }catch(err){
     msg.innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`;
   }finally{
-    btn.disabled = false; btn.textContent = label;
+    btn.disabled = false; btn.classList.remove("loading");
   }
 });
 
@@ -404,6 +404,17 @@ document.getElementById("del-btn").addEventListener("click", async () => {
     else throw new Error();
   }catch(e){ alert("Löschen fehlgeschlagen – bitte später erneut versuchen."); }
 });
+
+// Zeichenzähler für die Vorstellungs-Textarea
+(function(){
+  const ta = document.getElementById("in-text");
+  if(!ta || ta.maxLength <= 0) return;
+  const cc = document.createElement("div");
+  cc.className = "char-count";
+  ta.insertAdjacentElement("afterend", cc);
+  const upd = () => { const n = ta.value.length; cc.textContent = n + " / " + ta.maxLength; cc.classList.toggle("warn", n > ta.maxLength * 0.92); };
+  ta.addEventListener("input", upd); upd();
+})();
 </script>
 </body>
 </html>

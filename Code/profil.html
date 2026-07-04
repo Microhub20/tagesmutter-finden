@@ -21,12 +21,6 @@
   .di-val{display:block;font-weight:700;color:var(--ink);font-size:.92rem;line-height:1.25}
   .p-anfrage{margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--line)}
   .p-share{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
-  .p-bewertungen{margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--line)}
-  .bw-item{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem;margin-bottom:.7rem}
-  .bw-stars{color:#f2a25c;letter-spacing:1px}
-  .star-pick{display:inline-flex;gap:.15rem;font-size:1.7rem;cursor:pointer;user-select:none}
-  .star-pick span{color:#d8ccbb;transition:.1s}
-  .star-pick span.on{color:#f2a25c}
   .p-aehnliche{max-width:820px;margin:0 auto;padding:0 1.4rem 3rem}
   .aehnliche-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
   .ae-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;text-decoration:none;color:var(--ink);display:block;transition:transform .15s;box-shadow:var(--shadow-sm)}
@@ -43,7 +37,10 @@
     <a class="logo" href="index.html">
       <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img">
     </a>
-    <nav>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="hauptnav">
       <a href="index.html#liste">Tagesmütter</a>
       <a href="index.html#so-gehts">So funktioniert’s</a>
       <a href="index.html#faq">FAQ</a>
@@ -104,7 +101,6 @@
         <div class="submit-row" style="text-align:left"><button type="submit" class="btn btn-coral">Anfrage senden</button></div>
       </form>
     </div>
-    <div class="p-bewertungen" id="p-bewertungen"></div>
   </article>
 
   <section class="p-aehnliche" id="p-aehnliche" hidden></section>
@@ -210,16 +206,42 @@
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
     (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "");
 
-  // Bilder-Wechsel: Profilbild zuerst, dann die Galerie-Bilder
+  // Bilder-Wechsel + Vollbild-Lightbox: Profilbild zuerst, dann die Galerie-Bilder
   const alleBilder = [];
   if(e.foto) alleBilder.push(e.foto);
   if(Array.isArray(e.fotos)) alleBilder.push(...e.fotos);
+
+  function oeffneLightbox(start){
+    if(!alleBilder.length) return;
+    let i = start;
+    const lb = document.createElement("div");
+    lb.className = "lightbox open";
+    lb.innerHTML = `<button class="lb-close" aria-label="Schließen">✕</button>` +
+      (alleBilder.length > 1 ? `<button class="lb-nav lb-prev" aria-label="Vorheriges Bild">‹</button><button class="lb-nav lb-next" aria-label="Nächstes Bild">›</button>` : "") +
+      `<img src="${esc(alleBilder[i])}" alt="Bild ${i+1} von ${esc(e.name)}">`;
+    document.body.appendChild(lb);
+    document.body.style.overflow = "hidden";
+    const img = lb.querySelector("img");
+    const zeige = n => { i = (n + alleBilder.length) % alleBilder.length; img.src = alleBilder[i]; };
+    const schliesse = () => { lb.classList.remove("open"); document.body.style.overflow = ""; document.removeEventListener("keydown", taste); setTimeout(() => lb.remove(), 200); };
+    const taste = ev => { if(ev.key === "Escape") schliesse(); else if(ev.key === "ArrowLeft") zeige(i - 1); else if(ev.key === "ArrowRight") zeige(i + 1); };
+    lb.addEventListener("click", ev => {
+      if(ev.target.classList.contains("lb-prev")){ ev.stopPropagation(); zeige(i - 1); }
+      else if(ev.target.classList.contains("lb-next")){ ev.stopPropagation(); zeige(i + 1); }
+      else if(ev.target === lb || ev.target.classList.contains("lb-close")) schliesse();
+    });
+    document.addEventListener("keydown", taste);
+  }
+  if(e.foto) document.getElementById("p-photo").addEventListener("click", () => oeffneLightbox(0));
+
   if(alleBilder.length > 1){
     const haupt = document.getElementById("p-gal-haupt");
     const thumbs = document.getElementById("p-gal-thumbs");
-    const setAktiv = i => { haupt.src = alleBilder[i]; [...thumbs.children].forEach((x,j) => x.classList.toggle("aktiv", i===j)); };
+    let aktIdx = 0;
+    const setAktiv = i => { aktIdx = i; haupt.src = alleBilder[i]; [...thumbs.children].forEach((x,j) => x.classList.toggle("aktiv", i===j)); };
     thumbs.innerHTML = alleBilder.map((f,i) => `<img src="${esc(f)}" alt="Bild ${i+1}" data-i="${i}">`).join("");
     thumbs.addEventListener("click", ev => { const t = ev.target.closest("img[data-i]"); if(t) setAktiv(+t.dataset.i); });
+    haupt.parentElement.addEventListener("click", () => oeffneLightbox(aktIdx));
     setAktiv(0);
     document.getElementById("p-galerie").hidden = false;
     let idx = 0;
@@ -256,8 +278,8 @@
     fd.append("tel", document.getElementById("a-tel").value.trim());
     fd.append("nachricht", document.getElementById("a-text").value.trim());
     fd.append("firma_website", document.getElementById("a-hp").value);
-    const btn = form.querySelector("button"); const lbl = btn.textContent;
-    btn.disabled = true; btn.textContent = "Wird gesendet …";
+    const btn = form.querySelector("button");
+    btn.disabled = true; btn.classList.add("loading");
     const msg = document.getElementById("anfrage-msg");
     try{
       const res = await fetch("api/anfrage.php", {method:"POST", body:fd});
@@ -268,7 +290,7 @@
       msg.scrollIntoView({behavior:"smooth", block:"center"});
     }catch(err){
       msg.innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`;
-    }finally{ btn.disabled = false; btn.textContent = lbl; }
+    }finally{ btn.disabled = false; btn.classList.remove("loading"); }
   });
 
   // ---------- Vormerkung (nur wenn kein Platz frei) ----------
@@ -283,7 +305,7 @@
       fd.append("name", document.getElementById("vm-name").value.trim());
       fd.append("email", document.getElementById("vm-email").value.trim());
       fd.append("firma_website", document.getElementById("vm-hp").value);
-      const btn = form.querySelector("button"); btn.disabled = true;
+      const btn = form.querySelector("button"); btn.disabled = true; btn.classList.add("loading");
       try{
         const res = await fetch("api/vormerkung.php", {method:"POST", body:fd});
         const data = await res.json().catch(() => ({}));
@@ -291,58 +313,9 @@
         form.reset();
         document.getElementById("vm-msg").innerHTML = '<div class="auth-ok">✅ Du bist vorgemerkt! Du wirst benachrichtigt, sobald ein Platz frei wird.</div>';
       }catch(err){ document.getElementById("vm-msg").innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`; }
-      finally{ btn.disabled = false; }
+      finally{ btn.disabled = false; btn.classList.remove("loading"); }
     });
   }
-
-  // ---------- Bewertungen ----------
-  const bw = e.bewertung || {avg:0, count:0};
-  const sterneStr = n => "★".repeat(Math.round(n)) + "☆".repeat(5 - Math.round(n));
-  if(bw.count > 0){
-    document.getElementById("p-badges").innerHTML += ` <span class="badge b-check"><span class="bw-stars">${sterneStr(bw.avg)}</span> ${bw.avg} (${bw.count})</span>`;
-  }
-  const bwList = (e.bewertungen || []).map(b =>
-    `<div class="bw-item"><div><span class="bw-stars">${sterneStr(b.sterne)}</span> <b>${esc(b.name)}</b></div><div style="margin-top:.3rem;font-size:.92rem">${esc(b.text)}</div></div>`
-  ).join("");
-  document.getElementById("p-bewertungen").innerHTML = `
-    <h2 class="p-label">Bewertungen${bw.count ? ` <span style="color:var(--muted);font-weight:700">(Ø ${bw.avg} · ${bw.count})</span>` : ""}</h2>
-    ${bwList || '<p style="color:var(--muted);font-size:.9rem;margin-bottom:.6rem">Noch keine Bewertungen – sei die/der Erste!</p>'}
-    <div id="bw-msg"></div>
-    <form id="bw-form" novalidate style="margin-top:.8rem">
-      <div class="field"><label>Deine Bewertung *</label><div class="star-pick" id="bw-stars">${[1,2,3,4,5].map(i=>`<span data-s="${i}">★</span>`).join("")}</div></div>
-      <div class="field"><label for="bw-name">Dein Name *</label><input type="text" id="bw-name" required maxlength="80"></div>
-      <div class="field"><label for="bw-text">Deine Erfahrung *</label><textarea id="bw-text" required rows="3" maxlength="800" placeholder="Wie war die Betreuung? Was hat dir/deinem Kind gefallen?"></textarea></div>
-      <input type="text" id="bw-hp" name="firma_website" style="display:none" tabindex="-1" autocomplete="off">
-      <div class="submit-row" style="text-align:left"><button type="submit" class="btn btn-coral">Bewertung abschicken</button></div>
-      <p class="form-note">Bewertungen werden vor Veröffentlichung geprüft.</p>
-    </form>`;
-  let gewaehlt = 0;
-  const starEls = [...document.querySelectorAll("#bw-stars span")];
-  const malen = n => starEls.forEach((s,i) => s.classList.toggle("on", i < n));
-  starEls.forEach(s => {
-    s.addEventListener("click", () => { gewaehlt = +s.dataset.s; malen(gewaehlt); });
-    s.addEventListener("mouseenter", () => malen(+s.dataset.s));
-  });
-  document.getElementById("bw-stars").addEventListener("mouseleave", () => malen(gewaehlt));
-  document.getElementById("bw-form").addEventListener("submit", async ev => {
-    ev.preventDefault();
-    const form = ev.target;
-    if(!form.reportValidity()) return;
-    if(gewaehlt < 1){ document.getElementById("bw-msg").innerHTML = '<div class="auth-err">Bitte Sterne wählen.</div>'; return; }
-    const fd = new FormData();
-    fd.append("id", e.id); fd.append("name", document.getElementById("bw-name").value.trim());
-    fd.append("sterne", gewaehlt); fd.append("text", document.getElementById("bw-text").value.trim());
-    fd.append("firma_website", document.getElementById("bw-hp").value);
-    const btn = form.querySelector("button"); btn.disabled = true;
-    try{
-      const res = await fetch("api/bewertung.php", {method:"POST", body:fd});
-      const data = await res.json().catch(()=>({}));
-      if(!res.ok || !data.ok) throw new Error(data.error || "Fehler");
-      form.reset(); gewaehlt = 0; malen(0);
-      document.getElementById("bw-msg").innerHTML = '<div class="auth-ok">✅ Danke! Deine Bewertung wird nach Prüfung veröffentlicht.</div>';
-    }catch(err){ document.getElementById("bw-msg").innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`; }
-    finally{ btn.disabled = false; }
-  });
 
   // ---------- Ähnliche Tagesmütter ----------
   try{
@@ -356,6 +329,25 @@
       document.getElementById("p-aehnliche").hidden = false;
     }
   }catch(err){}
+
+  // Schwebender Kontakt-Button (mobil) – scrollt zum Anfrageformular, blendet sich dort aus
+  const mcta = document.createElement("a");
+  mcta.className = "mobile-cta";
+  mcta.href = "#p-anfrage";
+  mcta.textContent = "✉️ Kontakt aufnehmen";
+  mcta.style.transition = "opacity .25s";
+  document.body.appendChild(mcta);
+  mcta.addEventListener("click", ev => {
+    ev.preventDefault();
+    const ziel = document.getElementById("a-name");
+    ziel.scrollIntoView({behavior:"smooth", block:"center"});
+    setTimeout(() => ziel.focus(), 450);
+  });
+  new IntersectionObserver(es => {
+    const sicht = es[0].isIntersecting;
+    mcta.style.opacity = sicht ? "0" : "1";
+    mcta.style.pointerEvents = sicht ? "none" : "auto";
+  }, {threshold:.2}).observe(document.getElementById("p-anfrage"));
 
   document.getElementById("profil").hidden = false;
 })();

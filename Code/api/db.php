@@ -103,17 +103,6 @@ function tmf_init_schema(PDO $pdo): void {
         created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
     )");
 
-    // Bewertungen/Empfehlungen von Eltern (moderiert: pending → approved)
-    $pdo->exec("CREATE TABLE IF NOT EXISTS bewertungen (
-        id         VARCHAR(32)  PRIMARY KEY,
-        tm_id      VARCHAR(64)  NOT NULL,
-        name       VARCHAR(80),
-        sterne     INT          NOT NULL DEFAULT 5,
-        text       TEXT,
-        status     VARCHAR(20)  NOT NULL DEFAULT 'pending',
-        created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
-    )");
-
     // Platz-frei-Vormerkungen von Eltern
     $pdo->exec("CREATE TABLE IF NOT EXISTS vormerkungen (
         id             VARCHAR(32)  PRIMARY KEY,

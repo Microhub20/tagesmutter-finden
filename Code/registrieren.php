@@ -215,7 +215,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   galerieBlobs.forEach((b,i) => fd.append("galerie[]", b, "bild"+i+".jpg"));
 
   const btn = f.querySelector('button[type="submit"]');
-  const label = btn.textContent; btn.disabled = true; btn.textContent = "Wird angelegt …";
+  btn.disabled = true; btn.classList.add("loading");
   try{
     const res = await fetch("api/register.php", {method:"POST", body:fd});
     const data = await res.json().catch(() => ({}));
@@ -224,9 +224,20 @@ document.getElementById("form").addEventListener("submit", async ev => {
   }catch(err){
     document.getElementById("msg").innerHTML = `<div class="auth-err">${err.message.replace(/</g,"&lt;")}</div>`;
     document.getElementById("msg").scrollIntoView({behavior:"smooth", block:"center"});
-    btn.disabled = false; btn.textContent = label;
+    btn.disabled = false; btn.classList.remove("loading");
   }
 });
+
+// Zeichenzähler für die Vorstellungs-Textarea
+(function(){
+  const ta = document.getElementById("in-text");
+  if(!ta || ta.maxLength <= 0) return;
+  const cc = document.createElement("div");
+  cc.className = "char-count";
+  ta.insertAdjacentElement("afterend", cc);
+  const upd = () => { const n = ta.value.length; cc.textContent = n + " / " + ta.maxLength; cc.classList.toggle("warn", n > ta.maxLength * 0.92); };
+  ta.addEventListener("input", upd); upd();
+})();
 </script>
 </body>
 </html>

@@ -29,7 +29,10 @@
     <a class="logo" href="#">
       <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden – Kindertagespflege" class="logo-img">
     </a>
-    <nav>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="hauptnav">
       <a href="#liste">Tagesmütter</a>
       <a href="#so-gehts">So funktioniert’s</a>
       <a href="#kosten">Kosten</a>
@@ -80,22 +83,27 @@
       <h2>Tagesmütter in deiner Nähe</h2>
       <p>Wähle Bundesland und Stadt, filtere nach Alter und freien Plätzen – ein Klick auf ein Profil zeigt die ganze Vorstellung.</p>
     </div>
-    <div class="filters reveal">
-      <select id="f-bundesland" aria-label="Bundesland filtern"></select>
-      <select id="f-ort" aria-label="Stadt filtern"></select>
-      <select id="f-alter" aria-label="Altersgruppe filtern">
-        <option value="">Jedes Alter</option>
-        <option>0–1 Jahr</option>
-        <option>1–3 Jahre</option>
-        <option>3+ Jahre</option>
-      </select>
-      <select id="f-extra" aria-label="Betreuungs-Extra filtern"><option value="">Alle Extras</option></select>
-      <select id="f-sort" aria-label="Sortierung">
-        <option value="plaetze">Sortierung: freie Plätze</option>
-        <option value="name">Sortierung: Name (A–Z)</option>
-      </select>
-      <label class="toggle"><input type="checkbox" id="f-frei"> nur freie Plätze</label>
-      <label class="toggle"><input type="checkbox" id="f-fav"> ❤️ nur gemerkte</label>
+    <div class="filterbar reveal">
+      <button class="filter-toggle" id="filter-toggle" type="button" aria-expanded="false" aria-controls="filters">⚙&nbsp; Filter &amp; Sortierung <span class="ft-badge" id="ft-badge" hidden>0</span></button>
+      <div class="filters" id="filters">
+        <select id="f-bundesland" aria-label="Bundesland filtern"></select>
+        <select id="f-ort" aria-label="Stadt filtern"></select>
+        <select id="f-alter" aria-label="Altersgruppe filtern">
+          <option value="">Jedes Alter</option>
+          <option>0–1 Jahr</option>
+          <option>1–3 Jahre</option>
+          <option>3+ Jahre</option>
+        </select>
+        <select id="f-extra" aria-label="Betreuungs-Extra filtern"><option value="">Alle Extras</option></select>
+        <select id="f-sort" aria-label="Sortierung">
+          <option value="plaetze">Sortierung: freie Plätze</option>
+          <option value="name">Sortierung: Name (A–Z)</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="f-frei"> nur freie Plätze</label>
+        <label class="toggle"><input type="checkbox" id="f-fav"> ❤️ nur gemerkte</label>
+        <button class="filter-reset" id="filter-reset" type="button" hidden>✕ Zurücksetzen</button>
+      </div>
+      <div class="active-filters" id="active-filters"></div>
     </div>
     <p class="count-line" id="count"></p>
     <div class="grid" id="grid"></div>
@@ -313,7 +321,6 @@ function render(){
       </div>
       <div class="badges">
         ${badgePlaetze(e.plaetze)}
-        ${e.bewertung && e.bewertung.count ? `<span class="badge b-check">★ ${e.bewertung.avg} (${e.bewertung.count})</span>` : ""}
         ${e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : ""}
       </div>
       ${teaser ? `<p class="desc">${esc(teaser)}</p>` : ""}
@@ -328,13 +335,36 @@ function render(){
       </div>
     </article>`;
   }).join("")
-    : (ALLE.length ? '<div class="empty">Keine Treffer – Filter etwas lockern? 🙂</div>'
-                   : '<div class="empty">Noch keine Tagesmütter eingetragen – trag dich als Erste ein! 💛</div>');
+    : (ALLE.length ? '<div class="empty"><span class="emo">🔍</span>Keine Tagesmütter für diese Auswahl.<span class="sub">Versuch weniger Filter oder eine andere Stadt.</span></div>'
+                   : '<div class="empty"><span class="emo">🧸</span>Noch keine Tagesmütter eingetragen.<span class="sub">Sei die Erste – kostenlos in 2 Minuten eingetragen.</span><a href="registrieren.php" class="btn btn-coral">Jetzt eintragen</a></div>');
+
+  // Aktive-Filter-Chips (jeder mit ✕ zum Entfernen) + Reset-Sichtbarkeit
+  const aktiv = [];
+  if(q)       aktiv.push(["🔎 " + q,          () => document.getElementById("search").value = ""]);
+  if(fBl)     aktiv.push([fBl,                () => { const b = document.getElementById("f-bundesland"); b.value = ""; b.dispatchEvent(new Event("change")); }]);
+  if(fOrt)    aktiv.push([fOrt,               () => document.getElementById("f-ort").value = ""]);
+  if(fAlter)  aktiv.push([fAlter,             () => document.getElementById("f-alter").value = ""]);
+  if(fExtra)  aktiv.push([fExtra,             () => document.getElementById("f-extra").value = ""]);
+  if(nurFrei) aktiv.push(["nur freie Plätze", () => document.getElementById("f-frei").checked = false]);
+  if(nurFav)  aktiv.push(["❤️ nur gemerkte",  () => document.getElementById("f-fav").checked = false]);
+  const af = document.getElementById("active-filters");
+  af.innerHTML = aktiv.map((a,i) => `<span class="af-chip">${esc(a[0])} <button type="button" data-ai="${i}" aria-label="Filter „${esc(a[0])}“ entfernen">✕</button></span>`).join("");
+  af.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { aktiv[+b.dataset.ai][1](); render(); }));
+  document.getElementById("filter-reset").hidden = aktiv.length === 0;
+  const badge = document.getElementById("ft-badge");
+  if(badge){ badge.hidden = aktiv.length === 0; badge.textContent = aktiv.length; }
 }
 
 // Einträge vom Server holen und anzeigen
 async function ladeUndRender(){
-  grid.innerHTML = '<div class="empty">⏳ Lade Tagesmütter …</div>';
+  grid.innerHTML = Array.from({length:6}, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="sk-row"><div class="sk sk-avatar"></div><div style="flex:1"><div class="sk sk-line" style="width:62%"></div><div class="sk sk-line" style="width:40%;margin:0"></div></div></div>
+      <div class="sk sk-line" style="width:92%"></div>
+      <div class="sk sk-line" style="width:78%"></div>
+      <div class="sk sk-line" style="width:55%;margin-bottom:1.1rem"></div>
+      <div class="sk sk-line" style="height:40px;width:100%"></div>
+    </div>`).join("");
   try{ ALLE = await ladeEintraege(); }
   catch(err){ ALLE = []; }
   render();
@@ -367,6 +397,23 @@ document.getElementById("f-extra").innerHTML = '<option value="">Alle Extras</op
 ["search","f-ort","f-alter","f-extra","f-frei","f-sort","f-fav"].forEach(id => {
   const el = document.getElementById(id);
   ["input","change"].forEach(evt => el.addEventListener(evt, render)); // input = live-tippen, change = Dropdowns/Checkboxen zuverlässig
+});
+
+// Alle Filter zurücksetzen
+document.getElementById("filter-reset").addEventListener("click", () => {
+  document.getElementById("search").value = "";
+  const b = document.getElementById("f-bundesland"); b.value = ""; b.dispatchEvent(new Event("change"));
+  document.getElementById("f-alter").value = "";
+  document.getElementById("f-extra").value = "";
+  document.getElementById("f-sort").value = "plaetze";
+  document.getElementById("f-frei").checked = false;
+  document.getElementById("f-fav").checked = false;
+  render();
+});
+// Filter-Panel ein-/ausklappen (mobil)
+document.getElementById("filter-toggle").addEventListener("click", () => {
+  const f = document.getElementById("filters");
+  document.getElementById("filter-toggle").setAttribute("aria-expanded", f.classList.toggle("open"));
 });
 
 // ---------- Live-Statistiken ----------

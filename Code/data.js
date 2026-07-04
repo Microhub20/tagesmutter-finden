@@ -79,3 +79,34 @@ async function ladeProfil(id){
   if(!res.ok) throw new Error("Laden fehlgeschlagen");
   return await res.json();
 }
+
+// ---------- Mobile-Navigation (Hamburger) – aktiv auf jeder Seite mit #nav-toggle ----------
+(function(){
+  const t = document.getElementById("nav-toggle");
+  const n = document.getElementById("hauptnav");
+  if(!t || !n) return;
+  const bd = document.createElement("div");
+  bd.className = "nav-backdrop";
+  document.body.appendChild(bd);
+  const setz = open => {
+    t.classList.toggle("open", open);
+    n.classList.toggle("open", open);
+    bd.classList.toggle("show", open);
+    t.setAttribute("aria-expanded", open ? "true" : "false");
+    t.setAttribute("aria-label", open ? "Menü schließen" : "Menü öffnen");
+    document.body.style.overflow = open ? "hidden" : "";
+  };
+  t.addEventListener("click", () => setz(!n.classList.contains("open")));
+  bd.addEventListener("click", () => setz(false));
+  n.addEventListener("click", ev => { if(ev.target.closest("a")) setz(false); });
+  addEventListener("keydown", ev => { if(ev.key === "Escape") setz(false); });
+})();
+
+// ---------- „Nach oben"-Button (jede Seite mit data.js) ----------
+(function(){
+  const b = document.createElement("button");
+  b.className = "to-top"; b.type = "button"; b.setAttribute("aria-label", "Nach oben scrollen"); b.textContent = "↑";
+  document.body.appendChild(b);
+  addEventListener("scroll", () => b.classList.toggle("show", scrollY > 700), {passive:true});
+  b.addEventListener("click", () => scrollTo({top:0, behavior:"smooth"}));
+})();

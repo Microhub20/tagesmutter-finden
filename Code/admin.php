@@ -49,15 +49,9 @@ if ($isAdmin && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['a
             if ($rr['foto']) @unlink(__DIR__ . '/uploads/' . $rr['foto']);
             foreach (tmf_fotos_list($rr['fotos'] ?? '') as $g) @unlink(__DIR__ . '/uploads/' . $g);
         }
-        foreach (['anfragen', 'bewertungen', 'vormerkungen'] as $t) $pdo->prepare("DELETE FROM {$t} WHERE tm_id=?")->execute([$id]);
+        foreach (['anfragen', 'vormerkungen'] as $t) $pdo->prepare("DELETE FROM {$t} WHERE tm_id=?")->execute([$id]);
         $pdo->prepare("DELETE FROM tagesmuetter WHERE id=?")->execute([$id]);
         $hinweis = 'Eintrag endgültig gelöscht.';
-    } elseif ($_POST['action'] === 'bw_approve') {
-        $pdo->prepare("UPDATE bewertungen SET status='approved' WHERE id=?")->execute([$id]);
-        $hinweis = 'Bewertung freigegeben.';
-    } elseif ($_POST['action'] === 'bw_delete') {
-        $pdo->prepare("DELETE FROM bewertungen WHERE id=?")->execute([$id]);
-        $hinweis = 'Bewertung gelöscht.';
     }
     header('Location: admin.php?msg=' . rawurlencode($hinweis));
     exit;
@@ -75,15 +69,12 @@ if ($isAdmin) {
     )->fetchAll();
 }
 $anzOffen = count(array_filter($eintraege, fn($r) => $r['status'] === 'pending'));
-$stats = ['tm' => 0, 'anfragen' => 0, 'bw_pending' => 0, 'vormerk' => 0];
-$pendingBw = [];
+$stats = ['tm' => 0, 'anfragen' => 0, 'vormerk' => 0];
 if ($isAdmin) {
     $db = tmf_db();
     $stats['tm']         = (int)$db->query("SELECT COUNT(*) FROM tagesmuetter WHERE status='approved'")->fetchColumn();
     $stats['anfragen']   = (int)$db->query("SELECT COUNT(*) FROM anfragen")->fetchColumn();
-    $stats['bw_pending'] = (int)$db->query("SELECT COUNT(*) FROM bewertungen WHERE status='pending'")->fetchColumn();
     $stats['vormerk']    = (int)$db->query("SELECT COUNT(*) FROM vormerkungen")->fetchColumn();
-    $pendingBw = $db->query("SELECT b.*, t.name AS tm_name FROM bewertungen b LEFT JOIN tagesmuetter t ON t.id=b.tm_id WHERE b.status='pending' ORDER BY b.created_at DESC")->fetchAll();
 }
 ?>
 <!DOCTYPE html>
@@ -132,11 +123,6 @@ if ($isAdmin) {
   .stat-k{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem;text-align:center;box-shadow:var(--shadow-sm)}
   .stat-k .n{font-size:1.6rem;font-weight:800;color:var(--coral)}
   .stat-k .l{font-size:.78rem;color:var(--muted);font-weight:700}
-  .bw-mod{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.3rem;margin-bottom:1.6rem;box-shadow:var(--shadow-sm)}
-  .bw-mod h2{font-size:1.15rem;font-weight:800;margin-bottom:.9rem}
-  .bw-mod-item{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;margin-bottom:.7rem;display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap}
-  .bwm-body{flex:1;min-width:0}
-  .bwm-stars{color:#f2a25c}
 </style>
 </head>
 <body>
@@ -165,27 +151,8 @@ if ($isAdmin) {
       <div class="stat-k"><div class="n"><?= $stats['tm'] ?></div><div class="l">öffentlich</div></div>
       <div class="stat-k"><div class="n"><?= $anzOffen ?></div><div class="l">wartet auf Prüfung</div></div>
       <div class="stat-k"><div class="n"><?= $stats['anfragen'] ?></div><div class="l">Anfragen</div></div>
-      <div class="stat-k"><div class="n"><?= $stats['bw_pending'] ?></div><div class="l">Bewertungen offen</div></div>
       <div class="stat-k"><div class="n"><?= $stats['vormerk'] ?></div><div class="l">Vormerkungen</div></div>
     </div>
-
-    <?php if ($pendingBw): ?>
-    <div class="bw-mod">
-      <h2>⭐ Bewertungen freigeben (<?= count($pendingBw) ?>)</h2>
-      <?php foreach ($pendingBw as $b): ?>
-      <div class="bw-mod-item">
-        <div class="bwm-body">
-          <div><span class="bwm-stars"><?= str_repeat('★', (int)$b['sterne']) . str_repeat('☆', 5 - (int)$b['sterne']) ?></span> <b><?= $e($b['name']) ?></b> <span style="color:var(--muted);font-weight:600;font-size:.82rem">→ für <?= $e($b['tm_name'] ?? '?') ?></span></div>
-          <div style="font-size:.9rem;margin-top:.3rem"><?= $e($b['text']) ?></div>
-        </div>
-        <div style="display:flex;gap:.4rem">
-          <form method="post"><input type="hidden" name="id" value="<?= $e($b['id']) ?>"><button class="b-ok" name="action" value="bw_approve" style="border:none;cursor:pointer;font-weight:800;font-size:.82rem;padding:.5rem .9rem;border-radius:999px;font-family:inherit">✓ Freigeben</button></form>
-          <form method="post"><input type="hidden" name="id" value="<?= $e($b['id']) ?>"><button class="b-del" name="action" value="bw_delete" style="cursor:pointer;font-weight:800;font-size:.82rem;padding:.5rem .9rem;border-radius:999px;font-family:inherit">Löschen</button></form>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
 
     <?php if (!$eintraege): ?>
       <div class="empty">Noch keine Einträge vorhanden.</div>
