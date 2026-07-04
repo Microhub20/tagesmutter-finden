@@ -153,6 +153,7 @@ $anzOffen = count(array_filter($eintraege, fn($r) => $r['status'] === 'pending')
           <div class="sub" style="margin-top:.4rem">✉️ <?= $e($r['email']) ?><?= $r['tel'] ? ' · 📞 '.$e($r['tel']) : '' ?></div>
         </div>
         <div class="acts">
+          <a class="b-mid" href="admin-bearbeiten.php?id=<?= $e($r['id']) ?>" style="text-decoration:none;text-align:center">✏️ Bearbeiten</a>
           <?php if ($r['status'] !== 'approved'): ?>
             <form method="post"><input type="hidden" name="id" value="<?= $e($r['id']) ?>"><button class="b-ok" name="action" value="approve">✓ Freigeben</button></form>
           <?php endif; ?>

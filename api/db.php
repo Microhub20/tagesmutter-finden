@@ -58,8 +58,32 @@ function tmf_init_schema(PDO $pdo): void {
         erlaubnis     INT          NOT NULL DEFAULT 0,
         foto          VARCHAR(200),
         status        VARCHAR(20)  NOT NULL DEFAULT 'pending',
-        created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP
+        passwort_hash VARCHAR(255),
+        created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP,
+        updated_at    DATETIME
     )");
+    // Bestehende Tabellen sanft nachrüsten (Accounts wurden nachträglich eingeführt)
+    tmf_ensure_column($pdo, 'tagesmuetter', 'passwort_hash', 'VARCHAR(255)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'updated_at', 'DATETIME');
+}
+
+/** Spalte nur anlegen, wenn sie noch fehlt (funktioniert für MySQL und SQLite). */
+function tmf_ensure_column(PDO $pdo, string $table, string $col, string $def): void {
+    $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    $exists = false;
+    if ($driver === 'sqlite') {
+        foreach ($pdo->query("PRAGMA table_info(" . $table . ")") as $c) {
+            if ($c['name'] === $col) { $exists = true; break; }
+        }
+    } else {
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?"
+        );
+        $stmt->execute([$table, $col]);
+        $exists = (int)$stmt->fetchColumn() > 0;
+    }
+    if (!$exists) $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$def}");
 }
 
 /** Einen DB-Zeilensatz ins fürs Frontend erwartete Format bringen. */
