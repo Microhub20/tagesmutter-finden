@@ -115,7 +115,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html"><span class="mark">🧸</span><span class="word">Tagesmutter finden<small>Kindertagespflege</small></span></a>
+    <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
     <nav>
       <a href="profil.html?id=<?= $e($user['id']) ?>">Mein öffentliches Profil</a>
       <a href="login.php?logout=1" class="cta">Abmelden</a>

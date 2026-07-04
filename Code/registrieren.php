@@ -23,7 +23,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html"><span class="mark">🧸</span><span class="word">Tagesmutter finden<small>Kindertagespflege</small></span></a>
+    <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
     <nav><a href="login.php" class="cta">Anmelden</a></nav>
   </div>
 </header>

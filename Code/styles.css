@@ -35,6 +35,8 @@ header.scrolled{box-shadow:var(--shadow-sm)}
 .logo .mark{width:42px;height:42px;border-radius:13px;background:var(--grad-coral);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 4px 12px rgba(242,109,95,.35)}
 .logo .word{font-weight:800;font-size:1.18rem;letter-spacing:-.01em;line-height:1.1}
 .logo .word small{display:block;font-size:.68rem;font-weight:700;color:var(--sage);letter-spacing:.08em;text-transform:uppercase}
+.logo-img{height:46px;width:auto;display:block}
+@media(max-width:600px){.logo-img{height:38px}}
 nav{margin-left:auto;display:flex;gap:.2rem;align-items:center}
 nav a{text-decoration:none;color:var(--ink-soft);font-weight:700;font-size:.93rem;padding:.5rem .95rem;border-radius:999px;transition:background .15s,color .15s}
 nav a:hover{background:#f6ebdd;color:var(--ink)}
@@ -264,6 +266,8 @@ footer a:hover{color:#fff}
 .pw-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#f26d5f,#e2543f);color:#fff;font-weight:900;font-size:1.05rem;display:grid;place-items:center;box-shadow:0 3px 10px rgba(226,84,63,.4)}
 .pw-name{color:#fff;font-weight:700;font-size:1rem;letter-spacing:-.01em}
 .pw-name b{font-weight:800;color:#f2a25c}
+.pw-gaseit-img{height:30px;width:auto;filter:brightness(0) invert(1);opacity:.9;transition:opacity .15s}
+.pw-gaseit:hover .pw-gaseit-img{opacity:1}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.12);text-align:center;padding:1.1rem 1.4rem;font-size:.78rem;color:#9d9184;margin-top:1rem}
 .footer-bottom a{font-size:.78rem}
 
