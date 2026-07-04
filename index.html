@@ -26,7 +26,7 @@
   </div>
 </header>
 
-<div class="demo-banner">🚧 Demo-Entwurf v0.4 — alle Einträge sind frei erfundene Beispieldaten</div>
+<div class="demo-banner">🚧 Vorschau-Version — das Portal ist noch im Aufbau</div>
 
 <section class="hero">
   <div class="wrap hero-grid">
@@ -276,11 +276,11 @@
     </div>
   </div>
   <div class="footer-bottom">
-    Demo-Entwurf v0.4 · Alle Einträge sind frei erfundene Beispieldaten · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="reset-demo">Demo zurücksetzen</a>
+    Vorschau-Version · <a href="admin.php">Admin-Bereich</a> · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a>
   </div>
 </footer>
 
-<div class="toast" id="toast">✅ Danke! Dein Eintrag wurde hinzugefügt.</div>
+<div class="toast" id="toast">✅ Danke! Dein Eintrag wurde übermittelt und erscheint nach kurzer Prüfung.</div>
 
 <script src="data.js"></script>
 <script>
@@ -291,6 +291,7 @@ if(altHash) location.replace(profilUrl(decodeURIComponent(altHash[1])));
 // ---------- Rendering ----------
 const grid = document.getElementById("grid");
 const countEl = document.getElementById("count");
+let ALLE = [];   // vom Server geladene, freigegebene Einträge
 
 function render(){
   const q = document.getElementById("search").value.trim().toLowerCase();
@@ -298,21 +299,21 @@ function render(){
   const fAlter = document.getElementById("f-alter").value;
   const nurFrei = document.getElementById("f-frei").checked;
 
-  let list = alleEintraege().filter(e =>
+  let list = ALLE.filter(e =>
     (!q || e.name.toLowerCase().includes(q) || e.ort.toLowerCase().includes(q)) &&
     (!fOrt || e.ort === fOrt) &&
     (!fAlter || e.alter.includes(fAlter)) &&
     (!nurFrei || e.plaetze > 0)
   );
-
-  // Neue zuerst, dann nach freien Plätzen
-  list.sort((a,b) => (b.neu?1:0)-(a.neu?1:0) || b.plaetze - a.plaetze);
+  list.sort((a,b) => b.plaetze - a.plaetze);
 
   countEl.textContent = list.length === 1 ? "1 Tagesmutter gefunden" : `${list.length} Tagesmütter gefunden`;
   const statCount = document.getElementById("stat-count");
-  if(statCount) statCount.textContent = alleEintraege().length;
+  if(statCount) statCount.textContent = ALLE.length;
 
-  grid.innerHTML = list.length ? list.map(e => `
+  grid.innerHTML = list.length ? list.map(e => {
+    const teaser = e.persoenlich ? (e.persoenlich.length > 140 ? e.persoenlich.slice(0,140).trimEnd()+" …" : e.persoenlich) : "";
+    return `
     <article class="card" data-id="${esc(e.id)}" tabindex="0" role="link" aria-label="Profilseite von ${esc(e.name)} öffnen">
       <div class="card-top">
         ${e.foto
@@ -324,11 +325,10 @@ function render(){
         </div>
       </div>
       <div class="badges">
-        ${e.neu ? '<span class="badge b-neu">🕓 Neu – Prüfung ausstehend</span>' : ""}
         ${badgePlaetze(e.plaetze)}
         ${e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : ""}
       </div>
-      ${e.text ? `<p class="desc">${esc(e.text)}</p>` : ""}
+      ${teaser ? `<p class="desc">${esc(teaser)}</p>` : ""}
       <div class="meta">
         <span>🕐 <b>${esc(e.zeiten)}</b></span>
         <span class="chips">${e.alter.map(a => `<span class="chip">${esc(a)}</span>`).join("")}</span>
@@ -337,8 +337,17 @@ function render(){
         <a class="btn btn-coral" href="${profilUrl(e.id)}">👤 Profil ansehen</a>
         <a class="btn btn-ghost" href="mailto:${esc(e.email)}">✉️ Kontakt</a>
       </div>
-    </article>`).join("")
-    : '<div class="empty">Keine Treffer – Filter etwas lockern? 🙂</div>';
+    </article>`;
+  }).join("")
+    : (ALLE.length ? '<div class="empty">Keine Treffer – Filter etwas lockern? 🙂</div>'
+                   : '<div class="empty">Noch keine Tagesmütter eingetragen – trag dich als Erste ein! 💛</div>');
+}
+
+// Einträge vom Server holen und anzeigen
+async function ladeUndRender(){
+  try{ ALLE = await ladeEintraege(); }
+  catch(err){ ALLE = []; }
+  render();
 }
 
 // Klick auf die Karte öffnet die Profilseite (echte Links bleiben Links)
@@ -363,13 +372,13 @@ STADTTEILE.forEach(s => {
   document.getElementById(id).addEventListener("input", render);
 });
 
-// ---------- Foto-Upload (Demo: nur lokal) ----------
-let fotoDataUrl = "";
+// ---------- Foto-Upload (verkleinert, geht an den Server) ----------
+let fotoBlob = null;
 const fotoInput = document.getElementById("in-foto");
 const fotoPreview = document.getElementById("foto-preview");
 const fotoEntfernen = document.getElementById("foto-entfernen");
 
-// Bild clientseitig verkleinern (max. 512 px Kante), damit es klein gespeichert werden kann
+// Bild clientseitig auf max. 512 px verkleinern → als JPEG-Blob
 function verkleinereFoto(file, maxSeite = 512){
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -380,14 +389,14 @@ function verkleinereFoto(file, maxSeite = 512){
       c.height = Math.round(img.height * f);
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(img.src);
-      resolve(c.toDataURL("image/jpeg", .85));
+      c.toBlob(b => b ? resolve(b) : reject(new Error("Blob fehlgeschlagen")), "image/jpeg", .85);
     };
     img.onerror = () => { URL.revokeObjectURL(img.src); reject(new Error("Bild nicht lesbar")); };
     img.src = URL.createObjectURL(file);
   });
 }
 function fotoZuruecksetzen(){
-  fotoDataUrl = "";
+  fotoBlob = null;
   fotoInput.value = "";
   fotoPreview.textContent = "📷";
   fotoEntfernen.hidden = true;
@@ -397,15 +406,15 @@ fotoInput.addEventListener("change", async () => {
   if(!file) return;
   if(!file.type.startsWith("image/")){ alert("Bitte eine Bilddatei (JPG oder PNG) auswählen."); fotoZuruecksetzen(); return; }
   try{
-    fotoDataUrl = await verkleinereFoto(file);
-    fotoPreview.innerHTML = `<img src="${fotoDataUrl}" alt="Foto-Vorschau">`;
+    fotoBlob = await verkleinereFoto(file);
+    fotoPreview.innerHTML = `<img src="${URL.createObjectURL(fotoBlob)}" alt="Foto-Vorschau">`;
     fotoEntfernen.hidden = false;
   }catch(err){ alert("Dieses Bild konnte nicht gelesen werden."); fotoZuruecksetzen(); }
 });
 fotoEntfernen.addEventListener("click", ev => { ev.preventDefault(); fotoZuruecksetzen(); });
 
-// ---------- Formular ----------
-document.getElementById("form").addEventListener("submit", ev => {
+// ---------- Formular → an den Server (Eintrag landet zur Prüfung) ----------
+document.getElementById("form").addEventListener("submit", async ev => {
   ev.preventDefault();
   const f = ev.target;
   if(!f.reportValidity()) return;
@@ -414,38 +423,36 @@ document.getElementById("form").addEventListener("submit", ev => {
   if(alter.length === 0){ alert("Bitte mindestens eine Altersgruppe auswählen."); return; }
   if(!document.getElementById("in-consent").checked){ alert("Ohne Einwilligung können wir den Eintrag nicht veröffentlichen."); return; }
 
-  const name = document.getElementById("in-name").value.trim();
-  const persoenlich = document.getElementById("in-text").value.trim();
-  const eintrag = {
-    id: slug(name) + "-" + Date.now().toString(36),
-    name,
-    ort: document.getElementById("in-ort").value,
-    plaetze: parseInt(document.getElementById("in-plaetze").value, 10),
-    zeiten: document.getElementById("in-zeiten").value.trim(),
-    alter,
-    persoenlich,
-    foto: fotoDataUrl,
-    // Kurz-Teaser für die Kartenansicht automatisch aus der Vorstellung
-    text: persoenlich.length > 140 ? persoenlich.slice(0, 140).trimEnd() + " …" : persoenlich,
-    email: document.getElementById("in-email").value.trim(),
-    tel: document.getElementById("in-tel").value.trim(),
-    erlaubnis: document.getElementById("in-erlaubnis").checked,
-  };
-  saveOwn([eintrag, ...loadOwn()]);
-  f.reset();
-  fotoZuruecksetzen();
-  render();
-  document.getElementById("liste").scrollIntoView({behavior:"smooth"});
-  const toast = document.getElementById("toast");
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 3500);
-});
+  const fd = new FormData();
+  fd.append("name", document.getElementById("in-name").value.trim());
+  fd.append("ort", document.getElementById("in-ort").value);
+  fd.append("plaetze", document.getElementById("in-plaetze").value);
+  fd.append("zeiten", document.getElementById("in-zeiten").value.trim());
+  alter.forEach(a => fd.append("alter[]", a));
+  fd.append("persoenlich", document.getElementById("in-text").value.trim());
+  fd.append("email", document.getElementById("in-email").value.trim());
+  fd.append("tel", document.getElementById("in-tel").value.trim());
+  if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
+  fd.append("consent", "1");
+  if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");
 
-// ---------- Demo-Reset ----------
-document.getElementById("reset-demo").addEventListener("click", ev => {
-  ev.preventDefault();
-  localStorage.removeItem(LS_KEY);
-  render();
+  const btn = f.querySelector('button[type="submit"]');
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Wird gesendet …";
+  try{
+    const res = await fetch("api/submit.php", {method:"POST", body:fd});
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok || !data.ok) throw new Error(data.error || "Senden fehlgeschlagen");
+    f.reset();
+    fotoZuruecksetzen();
+    const toast = document.getElementById("toast");
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 5500);
+    document.getElementById("eintragen").scrollIntoView({behavior:"smooth"});
+  }catch(err){
+    alert("Das hat leider nicht geklappt: " + err.message);
+  }finally{
+    btn.disabled = false; btn.textContent = label;
+  }
 });
 
 // ---------- Header-Schatten ----------
@@ -458,7 +465,7 @@ const io = new IntersectionObserver(entries => {
 }, {threshold:.12});
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-render();
+ladeUndRender();
 </script>
 </body>
 </html>

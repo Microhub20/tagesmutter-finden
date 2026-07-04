@@ -26,7 +26,7 @@
   </div>
 </header>
 
-<div class="demo-banner">🚧 Demo-Entwurf — alle Einträge sind frei erfundene Beispieldaten</div>
+<div class="demo-banner">🚧 Vorschau-Version — das Portal ist noch im Aufbau</div>
 
 <main class="profile-main">
   <a class="back-link" href="index.html#liste">← Alle Tagesmütter</a>
@@ -99,15 +99,17 @@
 
 <script src="data.js"></script>
 <script>
-const id = new URLSearchParams(location.search).get("id");
-const eintrag = alleEintraege().find(e => e.id === id);
+(async () => {
+  const id = new URLSearchParams(location.search).get("id");
+  let e = null;
+  try { if(id) e = await ladeProfil(id); } catch(err) { e = null; }
 
-if(!eintrag){
-  document.getElementById("fehler").hidden = false;
-  document.title = "Profil nicht gefunden – Tagesmutter finden in Balingen (Demo)";
-}else{
-  const e = eintrag;
-  document.title = `${e.name} – Tagesmutter in Balingen-${e.ort} (Demo)`;
+  if(!e){
+    document.getElementById("fehler").hidden = false;
+    document.title = "Profil nicht gefunden – Tagesmutter finden in Balingen";
+    return;
+  }
+  document.title = `${e.name} – Tagesmutter in Balingen-${e.ort}`;
   // Foto oder Platzhalter („Foto folgt")
   const photo = document.getElementById("p-photo");
   if(e.foto){
@@ -119,7 +121,6 @@ if(!eintrag){
   document.getElementById("p-name").textContent = e.name;
   document.getElementById("p-ort").textContent = "📍 Balingen-" + e.ort;
   document.getElementById("p-badges").innerHTML =
-    (e.neu ? '<span class="badge b-neu">🕓 Neu – Prüfung ausstehend</span>' : "") +
     badgePlaetze(e.plaetze) +
     (e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : "");
   document.getElementById("p-meta").innerHTML =
@@ -129,7 +130,7 @@ if(!eintrag){
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
     (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "");
   document.getElementById("profil").hidden = false;
-}
+})();
 
 // Header-Schatten beim Scrollen
 const headerEl = document.getElementById("header");
