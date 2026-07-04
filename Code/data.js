@@ -24,6 +24,9 @@ const BUNDESLAENDER = {
 };
 const BUNDESLAND_NAMEN = Object.keys(BUNDESLAENDER);
 
+// Betreuungs-Extras (Checkboxen) – zusätzlich zu den Betreuungszeiten
+const EXTRAS = ["Frühbetreuung", "Randzeiten", "Wochenende", "Ferienbetreuung", "Notfallbetreuung"];
+
 const AVATAR_COLORS = ["#f2a25c","#6aa87e","#7f9fd1","#d17fa8","#a58bd1","#5cbdb9"];
 
 const avColor = name => AVATAR_COLORS[[...String(name)].reduce((a,c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length];

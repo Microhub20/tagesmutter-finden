@@ -88,6 +88,7 @@
         <option>1–3 Jahre</option>
         <option>3+ Jahre</option>
       </select>
+      <select id="f-extra" aria-label="Betreuungs-Extra filtern"><option value="">Alle Extras</option></select>
       <select id="f-sort" aria-label="Sortierung">
         <option value="plaetze">Sortierung: freie Plätze</option>
         <option value="name">Sortierung: Name (A–Z)</option>
@@ -275,6 +276,7 @@ function render(){
   const fAlter = document.getElementById("f-alter").value;
   const nurFrei = document.getElementById("f-frei").checked;
   const nurFav = document.getElementById("f-fav").checked;
+  const fExtra = document.getElementById("f-extra").value;
   const fSort = document.getElementById("f-sort").value;
   const favs = favGet();
 
@@ -283,6 +285,7 @@ function render(){
     (!fBl || e.bundesland === fBl) &&
     (!fOrt || e.ort === fOrt) &&
     (!fAlter || e.alter.includes(fAlter)) &&
+    (!fExtra || (e.extras && e.extras.includes(fExtra))) &&
     (!nurFrei || e.plaetze > 0) &&
     (!nurFav || favs.includes(e.id))
   );
@@ -309,6 +312,7 @@ function render(){
       </div>
       <div class="badges">
         ${badgePlaetze(e.plaetze)}
+        ${e.bewertung && e.bewertung.count ? `<span class="badge b-check">★ ${e.bewertung.avg} (${e.bewertung.count})</span>` : ""}
         ${e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : ""}
       </div>
       ${teaser ? `<p class="desc">${esc(teaser)}</p>` : ""}
@@ -358,7 +362,8 @@ grid.addEventListener("keydown", ev => {
 // ---------- Filter-Setup: Bundesland → Stadt ----------
 initOrtsauswahl(document.getElementById("f-bundesland"), document.getElementById("f-ort"), "", "", true);
 document.getElementById("f-bundesland").addEventListener("change", render); // nach dem Nachladen der Orte
-["search","f-ort","f-alter","f-frei","f-sort","f-fav"].forEach(id => {
+document.getElementById("f-extra").innerHTML = '<option value="">Alle Extras</option>' + EXTRAS.map(x => `<option>${x}</option>`).join("");
+["search","f-ort","f-alter","f-extra","f-frei","f-sort","f-fav"].forEach(id => {
   document.getElementById(id).addEventListener("input", render);
 });
 

@@ -25,6 +25,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $haustiere     = $clean($_POST['haustiere'] ?? '', 80);
     $nichtraucher  = !empty($_POST['nichtraucher']) ? 1 : 0;
     $konzept       = mb_substr(trim((string)($_POST['konzept'] ?? '')), 0, 400);
+    $extras        = array_values(array_intersect(['Frühbetreuung','Randzeiten','Wochenende','Ferienbetreuung','Notfallbetreuung'], (array)($_POST['extras'] ?? [])));
 
     $alter = $_POST['alter'] ?? [];
     if (is_string($alter)) $alter = array_filter(array_map('trim', explode(',', $alter)));
@@ -72,8 +73,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         }
     }
 
-    $sql = "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, updated_at=CURRENT_TIMESTAMP";
-    $params = [$name, $ort, $bundesland, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis, json_encode($neueGalerie, JSON_UNESCAPED_UNICODE), $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept];
+    $sql = "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, extras=?, updated_at=CURRENT_TIMESTAMP";
+    $params = [$name, $ort, $bundesland, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis, json_encode($neueGalerie, JSON_UNESCAPED_UNICODE), $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept, json_encode($extras, JSON_UNESCAPED_UNICODE)];
     if ($fotoName) {
         $sql .= ", foto=?"; $params[] = $fotoName;
     } elseif (!empty($_POST['foto_entfernen'])) {
@@ -218,6 +219,10 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
         <textarea id="in-konzept" rows="2" maxlength="400" placeholder="z. B. Natur &amp; Bewegung, feste Rituale …"><?= $e($user['konzept'] ?? '') ?></textarea>
       </div>
       <div class="field">
+        <label>Betreuungs-Extras</label>
+        <div class="age-boxes" id="extras-boxes"></div>
+      </div>
+      <div class="field">
         <label for="in-foto">Profilbild</label>
         <div class="photo-upload">
           <div class="photo-preview" id="foto-preview"><?php if($user['foto']): ?><img src="uploads/<?= $e($user['foto']) ?>" alt=""><?php else: ?>📷<?php endif; ?></div>
@@ -268,6 +273,8 @@ initOrtsauswahl(
   <?= json_encode($user['ort'], JSON_UNESCAPED_UNICODE) ?>,
   false
 );
+const meineExtras = <?= json_encode(json_decode($user['extras'] ?? '[]', true) ?: [], JSON_UNESCAPED_UNICODE) ?>;
+document.getElementById("extras-boxes").innerHTML = EXTRAS.map(x => `<label><input type="checkbox" name="extras" value="${x}" ${meineExtras.includes(x)?"checked":""}> ${x}</label>`).join("");
 
 let fotoBlob = null;
 const fotoInput = document.getElementById("in-foto");
@@ -347,6 +354,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
   ["qualifikation","sprachen","frei_ab","ernaehrung","haustiere","konzept"].forEach(k => fd.append(k, document.getElementById("in-"+k).value.trim()));
   if(document.getElementById("in-nichtraucher").checked) fd.append("nichtraucher", "1");
+  [...document.querySelectorAll('input[name="extras"]:checked')].forEach(c => fd.append("extras[]", c.value));
   const fotoWeg = document.getElementById("in-foto-weg");
   if(fotoWeg && fotoWeg.checked) fd.append("foto_entfernen", "1");
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");

@@ -86,6 +86,10 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'nichtraucher', 'INT');
     tmf_ensure_column($pdo, 'tagesmuetter', 'haustiere', 'VARCHAR(80)');
     tmf_ensure_column($pdo, 'tagesmuetter', 'konzept', 'TEXT');
+    // v2.3
+    tmf_ensure_column($pdo, 'tagesmuetter', 'extras', 'TEXT');            // JSON: Betreuungs-Extras
+    tmf_ensure_column($pdo, 'tagesmuetter', 'reset_token', 'VARCHAR(64)');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'reset_expires', 'INT');
 
     // Kontaktanfragen von Eltern an Tagesmütter (Historie fürs Konto)
     $pdo->exec("CREATE TABLE IF NOT EXISTS anfragen (
@@ -97,6 +101,27 @@ function tmf_init_schema(PDO $pdo): void {
         nachricht  TEXT,
         gelesen    INT          NOT NULL DEFAULT 0,
         created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // Bewertungen/Empfehlungen von Eltern (moderiert: pending → approved)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS bewertungen (
+        id         VARCHAR(32)  PRIMARY KEY,
+        tm_id      VARCHAR(64)  NOT NULL,
+        name       VARCHAR(80),
+        sterne     INT          NOT NULL DEFAULT 5,
+        text       TEXT,
+        status     VARCHAR(20)  NOT NULL DEFAULT 'pending',
+        created_at DATETIME     DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // Platz-frei-Vormerkungen von Eltern
+    $pdo->exec("CREATE TABLE IF NOT EXISTS vormerkungen (
+        id             VARCHAR(32)  PRIMARY KEY,
+        tm_id          VARCHAR(64)  NOT NULL,
+        name           VARCHAR(80),
+        email          VARCHAR(120),
+        benachrichtigt INT          NOT NULL DEFAULT 0,
+        created_at     DATETIME     DEFAULT CURRENT_TIMESTAMP
     )");
 }
 
@@ -178,6 +203,7 @@ function tmf_row_to_entry(array $r): array {
         'nichtraucher'=> (bool)($r['nichtraucher'] ?? 0),
         'haustiere'   => $r['haustiere'] ?? '',
         'konzept'     => $r['konzept'] ?? '',
+        'extras'      => json_decode(($r['extras'] ?? '') ?: '[]', true) ?: [],
         'status'      => $r['status'],
     ];
 }

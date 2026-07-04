@@ -76,6 +76,10 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
         <textarea id="in-konzept" rows="2" maxlength="400" placeholder="z. B. Natur & Bewegung, feste Rituale, viel Freispiel …"></textarea>
       </div>
       <div class="field">
+        <label>Betreuungs-Extras <span class="opt">(optional, Mehrfachauswahl)</span></label>
+        <div class="age-boxes" id="extras-boxes"></div>
+      </div>
+      <div class="field">
         <label for="in-foto">Profilbild <span class="opt">(optional)</span></label>
         <div class="photo-upload">
           <div class="photo-preview" id="foto-preview">📷</div>
@@ -126,6 +130,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 <script>
 // Bundesland → Stadt (abhängige Dropdowns), Baden-Württemberg vorgewählt
 initOrtsauswahl(document.getElementById("in-bundesland"), document.getElementById("in-ort"), "Baden-Württemberg", null, false);
+document.getElementById("extras-boxes").innerHTML = EXTRAS.map(x => `<label><input type="checkbox" name="extras" value="${x}"> ${x}</label>`).join("");
 
 // Foto-Upload (clientseitig auf 512px verkleinert → Blob)
 let fotoBlob = null;
@@ -205,6 +210,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   fd.append("consent", "1");
   ["qualifikation","sprachen","frei_ab","ernaehrung","haustiere","konzept"].forEach(k => fd.append(k, document.getElementById("in-"+k).value.trim()));
   if(document.getElementById("in-nichtraucher").checked) fd.append("nichtraucher", "1");
+  [...document.querySelectorAll('input[name="extras"]:checked')].forEach(c => fd.append("extras[]", c.value));
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");
   galerieBlobs.forEach((b,i) => fd.append("galerie[]", b, "bild"+i+".jpg"));
 
