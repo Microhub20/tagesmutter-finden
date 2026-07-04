@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
-          server-dir: /
+          server-dir: /httpdocs/
           # Uploads & lokale Testdaten NICHT anfassen/löschen; Doku nicht deployen
           exclude: |
             **/.git*
