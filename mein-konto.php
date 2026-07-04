@@ -111,6 +111,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
   <div class="k-card">
     <div class="k-top">
       <h1>Mein Profil</h1>
+      <span class="k-status" style="background:#eef4fb;color:#4a7fb5">Nr. <?= tmf_usernr($user['nummer']) ?></span>
       <span class="k-status <?= $e($user['status']) ?>"><?= $statusLabel ?></span>
     </div>
     <p class="sub" style="color:var(--ink-soft);margin-bottom:1.4rem">Hallo <?= $e($user['name']) ?>! Hier kannst du deine Angaben jederzeit anpassen. Änderungen sind sofort aktiv.</p>

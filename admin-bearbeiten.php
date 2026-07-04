@@ -67,6 +67,7 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
   <a class="b-back" href="admin.php">← Zurück zur Übersicht</a>
   <div class="b-card">
     <h1>✏️ Profil bearbeiten</h1>
+    <p style="color:var(--muted);margin-top:-.7rem;margin-bottom:1.3rem;font-weight:800">Mitgliedsnummer <?= tmf_usernr($r['nummer']) ?></p>
     <form method="post">
       <input type="hidden" name="id" value="<?= $e($r['id']) ?>">
       <div class="field">

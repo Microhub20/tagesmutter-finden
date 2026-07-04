@@ -59,12 +59,24 @@ function tmf_init_schema(PDO $pdo): void {
         foto          VARCHAR(200),
         status        VARCHAR(20)  NOT NULL DEFAULT 'pending',
         passwort_hash VARCHAR(255),
+        nummer        INT,
         created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP,
         updated_at    DATETIME
     )");
-    // Bestehende Tabellen sanft nachrüsten (Accounts wurden nachträglich eingeführt)
+    // Bestehende Tabellen sanft nachrüsten (Spalten wurden nachträglich eingeführt)
     tmf_ensure_column($pdo, 'tagesmuetter', 'passwort_hash', 'VARCHAR(255)');
     tmf_ensure_column($pdo, 'tagesmuetter', 'updated_at', 'DATETIME');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'nummer', 'INT');
+}
+
+/** Nächste fortlaufende Mitgliedsnummer (der Reihe nach vergeben). */
+function tmf_next_nummer(PDO $pdo): int {
+    return (int)$pdo->query("SELECT COALESCE(MAX(nummer), 0) + 1 FROM tagesmuetter")->fetchColumn();
+}
+
+/** Mitgliedsnummer 6-stellig formatiert (z. B. 000042); '—' wenn keine. */
+function tmf_usernr($n): string {
+    return $n ? str_pad((string)(int)$n, 6, '0', STR_PAD_LEFT) : '—';
 }
 
 /** Spalte nur anlegen, wenn sie noch fehlt (funktioniert für MySQL und SQLite). */

@@ -148,7 +148,7 @@ $anzOffen = count(array_filter($eintraege, fn($r) => $r['status'] === 'pending')
         <div class="body">
           <span class="st st-<?= $e($r['status']) ?>"><?= ['pending'=>'🕓 Wartet','approved'=>'✓ Freigegeben','rejected'=>'✕ Abgelehnt'][$r['status']] ?? $e($r['status']) ?></span>
           <h3><?= $e($r['name']) ?></h3>
-          <div class="sub">📍 Balingen-<?= $e($r['ort']) ?> · 🕐 <?= $e($r['zeiten']) ?> · <?= $r['plaetze'] > 0 ? $e($r['plaetze']).' Plätze frei' : 'Warteliste' ?> · <?= $e(implode(', ', $alter)) ?><?= $r['erlaubnis'] ? ' · ✓ §43' : '' ?></div>
+          <div class="sub"><b>Nr. <?= tmf_usernr($r['nummer']) ?></b> · 📍 Balingen-<?= $e($r['ort']) ?> · 🕐 <?= $e($r['zeiten']) ?> · <?= $r['plaetze'] > 0 ? $e($r['plaetze']).' Plätze frei' : 'Warteliste' ?> · <?= $e(implode(', ', $alter)) ?><?= $r['erlaubnis'] ? ' · ✓ §43' : '' ?></div>
           <div class="txt"><?= $e($r['persoenlich']) ?></div>
           <div class="sub" style="margin-top:.4rem">✉️ <?= $e($r['email']) ?><?= $r['tel'] ? ' · 📞 '.$e($r['tel']) : '' ?></div>
         </div>

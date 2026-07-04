@@ -68,15 +68,16 @@ $id   = $slug . '-' . substr(bin2hex(random_bytes(4)), 0, 6);
 
 try {
     $pdo = tmf_db();
+    $nummer = tmf_next_nummer($pdo);
     $stmt = $pdo->prepare(
         "INSERT INTO tagesmuetter
-         (id, name, ort, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, passwort_hash, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+         (id, name, ort, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, passwort_hash, nummer, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
     );
     $stmt->execute([
         $id, $name, $ort, $plaetze, $zeiten,
         json_encode($alter, JSON_UNESCAPED_UNICODE),
-        $persoenlich, $email, $tel, $erlaubnis, $fotoName, tmf_hash_pw($pass),
+        $persoenlich, $email, $tel, $erlaubnis, $fotoName, tmf_hash_pw($pass), $nummer,
     ]);
     // direkt einloggen
     tmf_session();
