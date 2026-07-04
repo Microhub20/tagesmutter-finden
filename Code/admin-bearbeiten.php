@@ -32,14 +32,18 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     $status = in_array($_POST['status'] ?? '', ['pending', 'approved', 'rejected'], true) ? $_POST['status'] : 'pending';
     $pdo->prepare(
-        "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
+        "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, qualifikation=?, sprachen=?, frei_ab=?, ernaehrung=?, nichtraucher=?, haustiere=?, konzept=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
     )->execute([
         $clean($_POST['name'] ?? '', 80), $clean($_POST['ort'] ?? '', 80), $clean($_POST['bundesland'] ?? '', 60),
         max(0, min(9, (int)($_POST['plaetze'] ?? 0))),
         $clean($_POST['zeiten'] ?? '', 120), json_encode($alter, JSON_UNESCAPED_UNICODE),
         mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500),
         $clean($_POST['email'] ?? '', 120), $clean($_POST['tel'] ?? '', 40),
-        !empty($_POST['erlaubnis']) ? 1 : 0, json_encode($galerieNeu, JSON_UNESCAPED_UNICODE), $status, $id,
+        !empty($_POST['erlaubnis']) ? 1 : 0, json_encode($galerieNeu, JSON_UNESCAPED_UNICODE),
+        $clean($_POST['qualifikation'] ?? '', 120), $clean($_POST['sprachen'] ?? '', 120), $clean($_POST['frei_ab'] ?? '', 40),
+        $clean($_POST['ernaehrung'] ?? '', 120), !empty($_POST['nichtraucher']) ? 1 : 0, $clean($_POST['haustiere'] ?? '', 80),
+        mb_substr(trim((string)($_POST['konzept'] ?? '')), 0, 400),
+        $status, $id,
     ]);
     header('Location: admin.php?msg=' . rawurlencode('Profil „' . $clean($_POST['name'] ?? '', 40) . '" gespeichert.'));
     exit;
@@ -106,6 +110,22 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
             <label><input type="checkbox" name="alter[]" value="<?= $e($a) ?>" <?= in_array($a,$meinAlter,true)?'checked':'' ?>> <?= $e($a) ?></label>
           <?php endforeach; ?>
         </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-qualifikation">Qualifikation</label><input type="text" id="in-qualifikation" name="qualifikation" maxlength="100" value="<?= $e($r['qualifikation'] ?? '') ?>"></div>
+        <div class="field"><label for="in-frei_ab">Plätze frei ab</label><input type="text" id="in-frei_ab" name="frei_ab" maxlength="30" value="<?= $e($r['frei_ab'] ?? '') ?>"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-sprachen">Sprachen</label><input type="text" id="in-sprachen" name="sprachen" maxlength="100" value="<?= $e($r['sprachen'] ?? '') ?>"></div>
+        <div class="field"><label for="in-ernaehrung">Ernährung</label><input type="text" id="in-ernaehrung" name="ernaehrung" maxlength="100" value="<?= $e($r['ernaehrung'] ?? '') ?>"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="in-haustiere">Haustiere</label><input type="text" id="in-haustiere" name="haustiere" maxlength="60" value="<?= $e($r['haustiere'] ?? '') ?>"></div>
+        <div class="field"><label style="display:block;margin-bottom:.35rem">&nbsp;</label><label class="toggle" style="display:inline-flex"><input type="checkbox" name="nichtraucher" value="1" <?= !empty($r['nichtraucher'])?'checked':'' ?>> Nichtraucher-Haushalt</label></div>
+      </div>
+      <div class="field">
+        <label for="in-konzept">Pädagogischer Schwerpunkt</label>
+        <textarea id="in-konzept" name="konzept" rows="2" maxlength="400"><?= $e($r['konzept'] ?? '') ?></textarea>
       </div>
       <?php if($r['foto']): ?>
       <div class="field">
