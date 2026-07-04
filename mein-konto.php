@@ -10,6 +10,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     $name        = $clean($_POST['name'] ?? '', 80);
     $ort         = $clean($_POST['ort'] ?? '', 80);
+    $bundesland  = $clean($_POST['bundesland'] ?? '', 60);
     $plaetze     = max(0, min(9, (int)($_POST['plaetze'] ?? 0)));
     $zeiten      = $clean($_POST['zeiten'] ?? '', 120);
     $email       = mb_strtolower($clean($_POST['email'] ?? '', 120));
@@ -25,7 +26,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     $fehler = [];
     if ($name === '')        $fehler[] = 'Name fehlt';
-    if ($ort === '')         $fehler[] = 'Stadtteil fehlt';
+    if ($ort === '')         $fehler[] = 'Ort fehlt';
+    if ($bundesland === '')  $fehler[] = 'Bundesland fehlt';
     if ($zeiten === '')      $fehler[] = 'Betreuungszeiten fehlen';
     if (!$alter)             $fehler[] = 'mindestens eine Altersgruppe';
     if ($persoenlich === '') $fehler[] = 'persönliche Vorstellung fehlt';
@@ -50,8 +52,21 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         elseif (!empty($user['foto'])) @unlink($dir . '/' . $user['foto']); // altes löschen
     }
 
-    $sql = "UPDATE tagesmuetter SET name=?, ort=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, updated_at=CURRENT_TIMESTAMP";
-    $params = [$name, $ort, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis];
+    // Galerie: bestehende behalten (Checkbox), entfernte löschen, neue anhängen (max 5)
+    $alteGalerie = tmf_fotos_list($user['fotos'] ?? '');
+    $behalten    = array_values(array_intersect($alteGalerie, (array)($_POST['behalten'] ?? [])));
+    foreach (array_diff($alteGalerie, $behalten) as $weg) @unlink(__DIR__ . '/uploads/' . $weg);
+    $neueGalerie = $behalten;
+    if (!empty($_FILES['galerie']['tmp_name']) && is_array($_FILES['galerie']['tmp_name'])) {
+        foreach ($_FILES['galerie']['tmp_name'] as $i => $tmp) {
+            if (count($neueGalerie) >= 5) break;
+            $nm = tmf_save_image((string)$tmp, (int)($_FILES['galerie']['size'][$i] ?? 0), __DIR__ . '/uploads');
+            if ($nm) $neueGalerie[] = $nm;
+        }
+    }
+
+    $sql = "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, updated_at=CURRENT_TIMESTAMP";
+    $params = [$name, $ort, $bundesland, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis, json_encode($neueGalerie, JSON_UNESCAPED_UNICODE)];
     if ($fotoName) {
         $sql .= ", foto=?"; $params[] = $fotoName;
     } elseif (!empty($_POST['foto_entfernen'])) {
@@ -72,6 +87,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 $meinAlter = json_decode($user['altersgruppen'] ?: '[]', true) ?: [];
+$meineGalerie = tmf_fotos_list($user['fotos'] ?? '');
 $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öffentlich sichtbar', 'rejected' => '✕ Nicht sichtbar'][$user['status']] ?? $user['status'];
 ?>
 <!DOCTYPE html>
@@ -99,7 +115,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html"><span class="mark">🧸</span><span class="word">Tagesmutter finden<small>Balingen</small></span></a>
+    <a class="logo" href="index.html"><span class="mark">🧸</span><span class="word">Tagesmutter finden<small>Kindertagespflege</small></span></a>
     <nav>
       <a href="profil.html?id=<?= $e($user['id']) ?>">Mein öffentliches Profil</a>
       <a href="login.php?logout=1" class="cta">Abmelden</a>
@@ -117,9 +133,10 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
     <p class="sub" style="color:var(--ink-soft);margin-bottom:1.4rem">Hallo <?= $e($user['name']) ?>! Hier kannst du deine Angaben jederzeit anpassen. Änderungen sind sofort aktiv.</p>
     <div id="msg"></div>
     <form id="form" novalidate>
+      <div class="field"><label for="in-name">Name *</label><input type="text" id="in-name" required maxlength="60" value="<?= $e($user['name']) ?>"></div>
       <div class="row">
-        <div class="field"><label for="in-name">Name *</label><input type="text" id="in-name" required maxlength="60" value="<?= $e($user['name']) ?>"></div>
-        <div class="field"><label for="in-ort">Stadtteil *</label><select id="in-ort" required></select></div>
+        <div class="field"><label for="in-bundesland">Bundesland *</label><select id="in-bundesland" required></select></div>
+        <div class="field"><label for="in-ort">Stadt / Gemeinde *</label><select id="in-ort" required></select></div>
       </div>
       <div class="row">
         <div class="field"><label for="in-plaetze">Freie Plätze *</label>
@@ -138,15 +155,25 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
         </div>
       </div>
       <div class="field">
-        <label for="in-foto">Foto</label>
+        <label for="in-foto">Profilbild</label>
         <div class="photo-upload">
           <div class="photo-preview" id="foto-preview"><?php if($user['foto']): ?><img src="uploads/<?= $e($user['foto']) ?>" alt=""><?php else: ?>📷<?php endif; ?></div>
           <div class="photo-meta">
             <input type="file" id="in-foto" accept="image/*">
-            <p class="opt-hint">Neues Foto ersetzt das alte. Leer lassen = Foto bleibt.</p>
-            <?php if($user['foto']): ?><label class="toggle" style="display:inline-flex;margin-top:.5rem"><input type="checkbox" id="in-foto-weg"> Foto ganz entfernen</label><?php endif; ?>
+            <p class="opt-hint">Dein Hauptbild (Übersicht + Profil). Neues ersetzt das alte, leer = bleibt.</p>
+            <?php if($user['foto']): ?><label class="toggle" style="display:inline-flex;margin-top:.5rem"><input type="checkbox" id="in-foto-weg"> Profilbild ganz entfernen</label><?php endif; ?>
           </div>
         </div>
+      </div>
+      <div class="field">
+        <label for="in-galerie">Weitere Bilder <span class="opt">(bis zu 5 – Bilder-Wechsel auf deinem Profil)</span></label>
+        <div class="galerie-preview" id="galerie-preview">
+          <?php foreach($meineGalerie as $g): ?>
+          <div class="g-thumb" data-name="<?= $e($g) ?>"><img src="uploads/<?= $e($g) ?>" alt=""><button type="button" title="Entfernen">✕</button></div>
+          <?php endforeach; ?>
+        </div>
+        <input type="file" id="in-galerie" accept="image/*" multiple style="margin-top:.6rem">
+        <p class="opt-hint">Frei wählbar, jederzeit änderbar. Mehrere auf einmal möglich · ✕ entfernt ein Bild.</p>
       </div>
       <div class="field">
         <label for="in-text">Persönliche Vorstellung *</label>
@@ -170,9 +197,14 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 
 <script src="data.js"></script>
 <script>
-const AKTUELL_ORT = <?= json_encode($user['ort'], JSON_UNESCAPED_UNICODE) ?>;
-const inOrt = document.getElementById("in-ort");
-STADTTEILE.forEach(s => inOrt.insertAdjacentHTML("beforeend", `<option ${s===AKTUELL_ORT?"selected":""}>${s}</option>`));
+// Bundesland → Stadt, mit gespeicherten Werten vorbelegt
+initOrtsauswahl(
+  document.getElementById("in-bundesland"),
+  document.getElementById("in-ort"),
+  <?= json_encode($user['bundesland'] ?: 'Baden-Württemberg', JSON_UNESCAPED_UNICODE) ?>,
+  <?= json_encode($user['ort'], JSON_UNESCAPED_UNICODE) ?>,
+  false
+);
 
 let fotoBlob = null;
 const fotoInput = document.getElementById("in-foto");
@@ -199,6 +231,35 @@ fotoInput.addEventListener("change", async () => {
   catch(e){ alert("Bild konnte nicht gelesen werden."); }
 });
 
+// Galerie: vorhandene Bilder (data-name bleibt = behalten) + neu hinzugefügte Blobs
+const galeriePreview = document.getElementById("galerie-preview");
+const galerieInput = document.getElementById("in-galerie");
+const neueBlobs = new Map(); // id → Blob
+let neuId = 0;
+const galerieAnzahl = () => galeriePreview.querySelectorAll(".g-thumb").length;
+galerieInput.addEventListener("change", async () => {
+  for(const file of [...galerieInput.files]){
+    if(galerieAnzahl() >= 5){ alert("Maximal 5 weitere Bilder möglich."); break; }
+    if(!file.type.startsWith("image/")) continue;
+    try{
+      const blob = await verkleinereFoto(file, 900);
+      const id = "n" + (neuId++);
+      neueBlobs.set(id, blob);
+      const div = document.createElement("div");
+      div.className = "g-thumb"; div.dataset.neu = id;
+      div.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt=""><button type="button" title="Entfernen">✕</button>`;
+      galeriePreview.appendChild(div);
+    }catch(e){}
+  }
+  galerieInput.value = "";
+});
+galeriePreview.addEventListener("click", ev => {
+  const btn = ev.target.closest("button"); if(!btn) return;
+  const thumb = btn.closest(".g-thumb");
+  if(thumb.dataset.neu) neueBlobs.delete(thumb.dataset.neu);
+  thumb.remove();
+});
+
 document.getElementById("form").addEventListener("submit", async ev => {
   ev.preventDefault();
   const f = ev.target;
@@ -208,7 +269,10 @@ document.getElementById("form").addEventListener("submit", async ev => {
 
   const fd = new FormData();
   fd.append("name", document.getElementById("in-name").value.trim());
+  fd.append("bundesland", document.getElementById("in-bundesland").value);
   fd.append("ort", document.getElementById("in-ort").value);
+  galeriePreview.querySelectorAll(".g-thumb[data-name]").forEach(t => fd.append("behalten[]", t.dataset.name));
+  neueBlobs.forEach(blob => fd.append("galerie[]", blob, "bild.jpg"));
   fd.append("plaetze", document.getElementById("in-plaetze").value);
   fd.append("zeiten", document.getElementById("in-zeiten").value.trim());
   alter.forEach(a => fd.append("alter[]", a));

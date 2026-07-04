@@ -16,6 +16,7 @@ $clean = static fn(string $s, int $max): string =>
 
 $name        = $clean($_POST['name'] ?? '', 80);
 $ort         = $clean($_POST['ort'] ?? '', 80);
+$bundesland  = $clean($_POST['bundesland'] ?? '', 60);
 $plaetze     = max(0, min(9, (int)($_POST['plaetze'] ?? 0)));
 $zeiten      = $clean($_POST['zeiten'] ?? '', 120);
 $email       = mb_strtolower($clean($_POST['email'] ?? '', 120));
@@ -32,7 +33,8 @@ $alter = array_values(array_intersect($erlaubteAlter, (array)$alter));
 
 $fehler = [];
 if ($name === '')            $fehler[] = 'Name fehlt';
-if ($ort === '')             $fehler[] = 'Stadtteil fehlt';
+if ($ort === '')             $fehler[] = 'Ort fehlt';
+if ($bundesland === '')      $fehler[] = 'Bundesland fehlt';
 if ($zeiten === '')          $fehler[] = 'Betreuungszeiten fehlen';
 if (!$alter)                 $fehler[] = 'mindestens eine Altersgruppe';
 if ($persoenlich === '')     $fehler[] = 'persönliche Vorstellung fehlt';
@@ -45,18 +47,18 @@ if (tmf_find_by_email($email)) {
     tmf_json(['error' => 'Diese E-Mail ist bereits registriert – bitte einloggen.'], 409);
 }
 
-// Foto (optional)
-$fotoName = null;
-if (!empty($_FILES['foto']['tmp_name']) && is_uploaded_file($_FILES['foto']['tmp_name'])) {
-    $f = $_FILES['foto'];
-    if ($f['size'] > 4 * 1024 * 1024) tmf_json(['error' => 'Foto zu groß (max. 4 MB)'], 422);
-    $info = @getimagesize($f['tmp_name']);
-    $extByMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    if (!$info || !isset($extByMime[$info['mime']])) tmf_json(['error' => 'Nur JPG, PNG oder WebP'], 422);
-    $dir = __DIR__ . '/../uploads';
-    if (!is_dir($dir)) @mkdir($dir, 0775, true);
-    $fotoName = bin2hex(random_bytes(8)) . '.' . $extByMime[$info['mime']];
-    if (!move_uploaded_file($f['tmp_name'], $dir . '/' . $fotoName)) $fotoName = null;
+// Bilder (optional): 1 Profilbild + bis zu 5 Galerie-Bilder (clientseitig verkleinert)
+$dir = __DIR__ . '/../uploads';
+$fotoName = !empty($_FILES['foto']['tmp_name'])
+    ? tmf_save_image($_FILES['foto']['tmp_name'], (int)($_FILES['foto']['size'] ?? 0), $dir)
+    : null;
+$galerie = [];
+if (!empty($_FILES['galerie']['tmp_name']) && is_array($_FILES['galerie']['tmp_name'])) {
+    foreach ($_FILES['galerie']['tmp_name'] as $i => $tmp) {
+        if (count($galerie) >= 5) break;
+        $nm = tmf_save_image((string)$tmp, (int)($_FILES['galerie']['size'][$i] ?? 0), $dir);
+        if ($nm) $galerie[] = $nm;
+    }
 }
 
 // ID aus Name ableiten
@@ -71,13 +73,14 @@ try {
     $nummer = tmf_next_nummer($pdo);
     $stmt = $pdo->prepare(
         "INSERT INTO tagesmuetter
-         (id, name, ort, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, passwort_hash, nummer, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, passwort_hash, nummer, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
     );
     $stmt->execute([
-        $id, $name, $ort, $plaetze, $zeiten,
+        $id, $name, $ort, $bundesland, $plaetze, $zeiten,
         json_encode($alter, JSON_UNESCAPED_UNICODE),
-        $persoenlich, $email, $tel, $erlaubnis, $fotoName, tmf_hash_pw($pass), $nummer,
+        $persoenlich, $email, $tel, $erlaubnis, $fotoName,
+        json_encode($galerie, JSON_UNESCAPED_UNICODE), tmf_hash_pw($pass), $nummer,
     ]);
     // direkt einloggen
     tmf_session();

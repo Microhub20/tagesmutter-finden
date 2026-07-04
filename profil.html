@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<meta name="description" content="Profil einer Tagesmutter in Balingen: persönliche Vorstellung, Betreuungszeiten, freie Plätze und direkter Kontakt.">
-<title>Profil – Tagesmutter finden in Balingen (Demo)</title>
+<meta name="description" content="Profil einer Tagesmutter: persönliche Vorstellung, Betreuungszeiten, freie Plätze und direkter Kontakt.">
+<title>Profil – Tagesmutter finden</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -15,7 +15,7 @@
   <div class="header-inner">
     <a class="logo" href="index.html">
       <span class="mark">🧸</span>
-      <span class="word">Tagesmutter finden<small>Balingen</small></span>
+      <span class="word">Tagesmutter finden<small>Kindertagespflege</small></span>
     </a>
     <nav>
       <a href="index.html#liste">Tagesmütter</a>
@@ -25,8 +25,6 @@
     </nav>
   </div>
 </header>
-
-<div class="demo-banner">🚧 Vorschau-Version — das Portal ist noch im Aufbau</div>
 
 <main class="profile-main">
   <a class="back-link" href="index.html#liste">← Alle Tagesmütter</a>
@@ -42,6 +40,10 @@
     </div>
     <div class="badges" id="p-badges"></div>
     <div class="p-meta" id="p-meta"></div>
+    <div class="p-galerie" id="p-galerie" hidden>
+      <div class="haupt"><img id="p-gal-haupt" src="" alt="Bild der Tagesmutter"></div>
+      <div class="thumbs" id="p-gal-thumbs"></div>
+    </div>
     <h2 class="p-label">Persönliche Vorstellung</h2>
     <p class="p-text" id="p-text"></p>
     <div class="p-contact" id="p-contact"></div>
@@ -56,24 +58,14 @@
   </div>
 </main>
 
-<!-- Werbeplätze (Demo) — hier kommt später Google AdSense rein -->
-<aside class="ad-rail left" aria-hidden="true">
-  <div class="ad-label">Anzeige</div>
-  <div class="ad-box"><span class="icon">📢</span>Google Ads<br>Demo-Banner<small>Skyscraper<br>160 × 600</small></div>
-</aside>
-<aside class="ad-rail right" aria-hidden="true">
-  <div class="ad-label">Anzeige</div>
-  <div class="ad-box"><span class="icon">📢</span>Google Ads<br>Demo-Banner<small>Skyscraper<br>160 × 600</small></div>
-</aside>
-
 <footer>
   <div class="footer-grid">
     <div>
       <a class="logo" href="index.html">
         <span class="mark">🧸</span>
-        <span class="word" style="color:#fff">Tagesmutter finden<small>Balingen</small></span>
+        <span class="word" style="color:#fff">Tagesmutter finden<small>Kindertagespflege</small></span>
       </a>
-      <p class="brand-txt">Das lokale Verzeichnis für Kindertagespflege in Balingen. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
+      <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>
     <div>
       <h5>Für Eltern</h5>
@@ -92,8 +84,15 @@
       </ul>
     </div>
   </div>
+  <div class="powered">
+    <span class="pw-label">Powered by</span>
+    <a class="pw-gaseit" href="https://gaseit.de" target="_blank" rel="noopener" aria-label="Gaseit GmbH">
+      <span class="pw-logo">G</span>
+      <span class="pw-name">Gaseit&nbsp;<b>GmbH</b></span>
+    </a>
+  </div>
   <div class="footer-bottom">
-    Demo-Entwurf · Alle Einträge sind frei erfundene Beispieldaten · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="index.html">Startseite</a>
   </div>
 </footer>
 
@@ -106,10 +105,10 @@
 
   if(!e){
     document.getElementById("fehler").hidden = false;
-    document.title = "Profil nicht gefunden – Tagesmutter finden in Balingen";
+    document.title = "Profil nicht gefunden – Tagesmutter finden";
     return;
   }
-  document.title = `${e.name} – Tagesmutter in Balingen-${e.ort}`;
+  document.title = `${e.name} – Tagesmutter in ${e.ort}`;
   // Foto oder Platzhalter („Foto folgt")
   const photo = document.getElementById("p-photo");
   if(e.foto){
@@ -119,7 +118,7 @@
     photo.innerHTML = `<span class="ini">${esc(e.name.trim()[0] || "?")}</span><span class="hint">📷 Foto folgt</span>`;
   }
   document.getElementById("p-name").textContent = e.name;
-  document.getElementById("p-ort").textContent = "📍 Balingen-" + e.ort;
+  document.getElementById("p-ort").textContent = "📍 " + e.ort + (e.bundesland ? " · " + e.bundesland : "");
   document.getElementById("p-badges").innerHTML =
     badgePlaetze(e.plaetze) +
     (e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : "");
@@ -129,6 +128,23 @@
   document.getElementById("p-contact").innerHTML =
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
     (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "");
+
+  // Bilder-Wechsel: Profilbild zuerst, dann die Galerie-Bilder
+  const alleBilder = [];
+  if(e.foto) alleBilder.push(e.foto);
+  if(Array.isArray(e.fotos)) alleBilder.push(...e.fotos);
+  if(alleBilder.length > 1){
+    const haupt = document.getElementById("p-gal-haupt");
+    const thumbs = document.getElementById("p-gal-thumbs");
+    const setAktiv = i => { haupt.src = alleBilder[i]; [...thumbs.children].forEach((x,j) => x.classList.toggle("aktiv", i===j)); };
+    thumbs.innerHTML = alleBilder.map((f,i) => `<img src="${esc(f)}" alt="Bild ${i+1}" data-i="${i}">`).join("");
+    thumbs.addEventListener("click", ev => { const t = ev.target.closest("img[data-i]"); if(t) setAktiv(+t.dataset.i); });
+    setAktiv(0);
+    document.getElementById("p-galerie").hidden = false;
+    let idx = 0;
+    setInterval(() => { idx = (idx + 1) % alleBilder.length; setAktiv(idx); }, 4500);
+  }
+
   document.getElementById("profil").hidden = false;
 })();
 

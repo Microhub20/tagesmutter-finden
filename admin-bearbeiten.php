@@ -23,15 +23,23 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         if ($foto = $rf->fetchColumn()) @unlink(__DIR__ . '/uploads/' . $foto);
         $pdo->prepare("UPDATE tagesmuetter SET foto=NULL WHERE id=?")->execute([$id]);
     }
+    // Galerie: angehakte Bilder entfernen
+    $gf = $pdo->prepare("SELECT fotos FROM tagesmuetter WHERE id=?"); $gf->execute([$id]);
+    $galerieAlt = tmf_fotos_list($gf->fetchColumn());
+    $weg = (array)($_POST['galerie_weg'] ?? []);
+    $galerieNeu = array_values(array_diff($galerieAlt, $weg));
+    foreach (array_intersect($galerieAlt, $weg) as $f) @unlink(__DIR__ . '/uploads/' . $f);
+
     $status = in_array($_POST['status'] ?? '', ['pending', 'approved', 'rejected'], true) ? $_POST['status'] : 'pending';
     $pdo->prepare(
-        "UPDATE tagesmuetter SET name=?, ort=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
+        "UPDATE tagesmuetter SET name=?, ort=?, bundesland=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, fotos=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?"
     )->execute([
-        $clean($_POST['name'] ?? '', 80), $clean($_POST['ort'] ?? '', 80), max(0, min(9, (int)($_POST['plaetze'] ?? 0))),
+        $clean($_POST['name'] ?? '', 80), $clean($_POST['ort'] ?? '', 80), $clean($_POST['bundesland'] ?? '', 60),
+        max(0, min(9, (int)($_POST['plaetze'] ?? 0))),
         $clean($_POST['zeiten'] ?? '', 120), json_encode($alter, JSON_UNESCAPED_UNICODE),
         mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500),
         $clean($_POST['email'] ?? '', 120), $clean($_POST['tel'] ?? '', 40),
-        !empty($_POST['erlaubnis']) ? 1 : 0, $status, $id,
+        !empty($_POST['erlaubnis']) ? 1 : 0, json_encode($galerieNeu, JSON_UNESCAPED_UNICODE), $status, $id,
     ]);
     header('Location: admin.php?msg=' . rawurlencode('Profil „' . $clean($_POST['name'] ?? '', 40) . '" gespeichert.'));
     exit;
@@ -78,9 +86,10 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
           <option value="rejected" <?= $r['status']==='rejected'?'selected':'' ?>>✕ Nicht sichtbar</option>
         </select>
       </div>
+      <div class="field"><label for="in-name">Name</label><input type="text" id="in-name" name="name" maxlength="60" value="<?= $e($r['name']) ?>"></div>
       <div class="row">
-        <div class="field"><label for="in-name">Name</label><input type="text" id="in-name" name="name" maxlength="60" value="<?= $e($r['name']) ?>"></div>
-        <div class="field"><label for="in-ort">Stadtteil</label><select id="in-ort" name="ort"></select></div>
+        <div class="field"><label for="in-bundesland">Bundesland</label><select id="in-bundesland" name="bundesland"></select></div>
+        <div class="field"><label for="in-ort">Stadt / Gemeinde</label><select id="in-ort" name="ort"></select></div>
       </div>
       <div class="row">
         <div class="field"><label for="in-plaetze">Freie Plätze</label>
@@ -100,10 +109,23 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
       </div>
       <?php if($r['foto']): ?>
       <div class="field">
-        <label>Aktuelles Foto</label>
+        <label>Profilbild</label>
         <div style="display:flex;align-items:center;gap:1rem">
           <img src="uploads/<?= $e($r['foto']) ?>" alt="" style="width:64px;height:64px;border-radius:14px;object-fit:cover">
-          <label class="toggle" style="display:inline-flex"><input type="checkbox" name="foto_entfernen" value="1"> Foto entfernen</label>
+          <label class="toggle" style="display:inline-flex"><input type="checkbox" name="foto_entfernen" value="1"> Profilbild entfernen</label>
+        </div>
+      </div>
+      <?php endif; ?>
+      <?php $galerie = tmf_fotos_list($r['fotos'] ?? ''); if($galerie): ?>
+      <div class="field">
+        <label>Galerie-Bilder</label>
+        <div class="galerie-preview">
+          <?php foreach($galerie as $g): ?>
+          <div style="text-align:center">
+            <div class="g-thumb"><img src="uploads/<?= $e($g) ?>" alt=""></div>
+            <label style="font-size:.7rem;display:block;margin-top:.25rem;color:var(--muted)"><input type="checkbox" name="galerie_weg[]" value="<?= $e($g) ?>"> entfernen</label>
+          </div>
+          <?php endforeach; ?>
         </div>
       </div>
       <?php endif; ?>
@@ -124,9 +146,13 @@ $meinAlter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
 </div>
 <script src="data.js"></script>
 <script>
-  const AKT = <?= json_encode($r['ort'], JSON_UNESCAPED_UNICODE) ?>;
-  const s = document.getElementById("in-ort");
-  STADTTEILE.forEach(o => s.insertAdjacentHTML("beforeend", `<option ${o===AKT?"selected":""}>${o}</option>`));
+  initOrtsauswahl(
+    document.getElementById("in-bundesland"),
+    document.getElementById("in-ort"),
+    <?= json_encode($r['bundesland'] ?: 'Baden-Württemberg', JSON_UNESCAPED_UNICODE) ?>,
+    <?= json_encode($r['ort'], JSON_UNESCAPED_UNICODE) ?>,
+    false
+  );
 </script>
 </body>
 </html>

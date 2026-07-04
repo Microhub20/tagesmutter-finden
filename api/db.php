@@ -57,6 +57,8 @@ function tmf_init_schema(PDO $pdo): void {
         tel           VARCHAR(40),
         erlaubnis     INT          NOT NULL DEFAULT 0,
         foto          VARCHAR(200),
+        fotos         TEXT,
+        bundesland    VARCHAR(60),
         status        VARCHAR(20)  NOT NULL DEFAULT 'pending',
         passwort_hash VARCHAR(255),
         nummer        INT,
@@ -67,11 +69,19 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'passwort_hash', 'VARCHAR(255)');
     tmf_ensure_column($pdo, 'tagesmuetter', 'updated_at', 'DATETIME');
     tmf_ensure_column($pdo, 'tagesmuetter', 'nummer', 'INT');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'fotos', 'TEXT');        // JSON: bis zu 5 Galerie-Bilder
+    tmf_ensure_column($pdo, 'tagesmuetter', 'bundesland', 'VARCHAR(60)');
 }
 
-/** Nächste fortlaufende Mitgliedsnummer (der Reihe nach vergeben). */
+/**
+ * Nächste Mitgliedsnummer: 2-stelliges Registrierungsjahr + 4-stellig fortlaufend
+ * (pro Jahr neu ab 0001). Beispiel 2026 → 260001, 260002 … 2027 → 270001.
+ */
 function tmf_next_nummer(PDO $pdo): int {
-    return (int)$pdo->query("SELECT COALESCE(MAX(nummer), 0) + 1 FROM tagesmuetter")->fetchColumn();
+    $prefix = ((int)date('y')) * 10000;                 // z. B. 260000 für 2026
+    $stmt = $pdo->prepare("SELECT COALESCE(MAX(nummer), 0) FROM tagesmuetter WHERE nummer >= ? AND nummer < ?");
+    $stmt->execute([$prefix, $prefix + 10000]);
+    return max((int)$stmt->fetchColumn(), $prefix) + 1; // erste im Jahr = JJ0001
 }
 
 /** Mitgliedsnummer 6-stellig formatiert (z. B. 000042); '—' wenn keine. */
@@ -98,12 +108,33 @@ function tmf_ensure_column(PDO $pdo, string $table, string $col, string $def): v
     if (!$exists) $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$col} {$def}");
 }
 
+/**
+ * Ein vom Client bereits verkleinertes Bild speichern. Gibt den neuen Dateinamen
+ * zurück (oder null bei Fehler/ungültig). $dir = Zielordner (…/uploads).
+ */
+function tmf_save_image(string $tmp, int $size, string $dir): ?string {
+    if ($tmp === '' || !is_uploaded_file($tmp) || $size > 4 * 1024 * 1024) return null;
+    $info = @getimagesize($tmp);
+    $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$info['mime'] ?? ''] ?? null;
+    if (!$ext) return null;
+    if (!is_dir($dir)) @mkdir($dir, 0775, true);
+    $name = bin2hex(random_bytes(8)) . '.' . $ext;
+    return move_uploaded_file($tmp, $dir . '/' . $name) ? $name : null;
+}
+
+/** Galerie-Dateinamen sicher aus der DB-Spalte lesen (JSON-Array). */
+function tmf_fotos_list($val): array {
+    $arr = json_decode(($val ?? '') ?: '[]', true);
+    return is_array($arr) ? array_values(array_filter($arr, 'is_string')) : [];
+}
+
 /** Einen DB-Zeilensatz ins fürs Frontend erwartete Format bringen. */
 function tmf_row_to_entry(array $r): array {
     return [
         'id'          => $r['id'],
         'name'        => $r['name'],
         'ort'         => $r['ort'],
+        'bundesland'  => $r['bundesland'] ?? '',
         'plaetze'     => (int)$r['plaetze'],
         'zeiten'      => $r['zeiten'],
         'alter'       => json_decode($r['altersgruppen'] ?: '[]', true) ?: [],
@@ -112,6 +143,7 @@ function tmf_row_to_entry(array $r): array {
         'tel'         => $r['tel'] ?? '',
         'erlaubnis'   => (bool)$r['erlaubnis'],
         'foto'        => $r['foto'] ? 'uploads/' . $r['foto'] : '',
+        'fotos'       => array_map(fn($f) => 'uploads/' . $f, tmf_fotos_list($r['fotos'] ?? '')),
         'status'      => $r['status'],
     ];
 }

@@ -42,7 +42,8 @@ nav a.cta{background:var(--grad-coral);color:#fff;box-shadow:0 4px 14px rgba(242
 nav a.cta:hover{filter:brightness(1.05)}
 @media(max-width:760px){nav a:not(.cta){display:none}}
 
-.demo-banner{background:var(--amber-bg);color:var(--amber);text-align:center;font-size:.82rem;font-weight:700;padding:.5rem 1rem}
+/* Vorschau-/Demo-Hinweis vorerst ausgeblendet – zum Reaktivieren "display:none" entfernen */
+.demo-banner{background:var(--amber-bg);color:var(--amber);text-align:center;font-size:.82rem;font-weight:700;padding:.5rem 1rem;display:none}
 
 /* ---------- Hero ---------- */
 .hero{padding:3.2rem 0 2.6rem;overflow:hidden}
@@ -101,6 +102,7 @@ section.block{padding:3.6rem 0}
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .card h3{font-size:1.12rem;font-weight:800;letter-spacing:-.01em}
 .card .ort{color:var(--muted);font-size:.85rem;font-weight:700}
+.card .ort .bl{font-weight:600;opacity:.72}
 .badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:800;padding:.2rem .65rem;border-radius:999px}
 .b-frei{background:var(--sage-bg);color:var(--sage-dark)}
 .b-voll{background:#efe8e0;color:var(--muted)}
@@ -135,6 +137,20 @@ section.block{padding:3.6rem 0}
 .photo-meta input[type=file]{font-family:inherit;font-size:.85rem;max-width:100%}
 .photo-meta .opt-hint{font-size:.76rem;color:var(--muted);margin-top:.35rem}
 .photo-meta a{color:var(--coral);font-size:.8rem;font-weight:800}
+.opt-hint{font-size:.76rem;color:var(--muted);margin-top:.35rem}
+/* Galerie-Upload (bis zu 5 Zusatzbilder) */
+.galerie-preview{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem}
+.g-thumb{position:relative;width:78px;height:78px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--cream)}
+.g-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.g-thumb button{position:absolute;top:3px;right:3px;width:22px;height:22px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.g-thumb button:hover{background:var(--coral)}
+/* Bilder-Wechsel auf der Profilseite */
+.p-galerie{margin:1.6rem 0}
+.p-galerie .haupt{width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:var(--cream);border:1px solid var(--line)}
+.p-galerie .haupt img{width:100%;height:100%;object-fit:cover;display:block}
+.p-galerie .thumbs{display:flex;gap:.55rem;margin-top:.7rem;flex-wrap:wrap}
+.p-galerie .thumbs img{width:72px;height:72px;border-radius:12px;object-fit:cover;cursor:pointer;border:2px solid transparent;opacity:.7;transition:.15s}
+.p-galerie .thumbs img.aktiv,.p-galerie .thumbs img:hover{opacity:1;border-color:var(--coral)}
 
 /* ---------- Profilseite ---------- */
 .profile-main{max-width:820px;margin:0 auto;padding:2.4rem 1.4rem 3.5rem}
@@ -240,7 +256,15 @@ footer ul{list-style:none}
 footer li{margin-bottom:.45rem}
 footer a{color:#cfc5ba;text-decoration:none;font-size:.9rem}
 footer a:hover{color:#fff}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.12);text-align:center;padding:1.1rem 1.4rem;font-size:.78rem;color:#9d9184}
+/* Powered by Gaseit GmbH (Footer) */
+.powered{display:flex;align-items:center;justify-content:center;gap:.65rem;padding:1.4rem 1.4rem .3rem}
+.pw-label{font-size:.8rem;color:#9d9184;font-weight:700}
+.pw-gaseit{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;transition:transform .15s}
+.pw-gaseit:hover{transform:translateY(-1px)}
+.pw-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#f26d5f,#e2543f);color:#fff;font-weight:900;font-size:1.05rem;display:grid;place-items:center;box-shadow:0 3px 10px rgba(226,84,63,.4)}
+.pw-name{color:#fff;font-weight:700;font-size:1rem;letter-spacing:-.01em}
+.pw-name b{font-weight:800;color:#f2a25c}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.12);text-align:center;padding:1.1rem 1.4rem;font-size:.78rem;color:#9d9184;margin-top:1rem}
 .footer-bottom a{font-size:.78rem}
 
 /* ---------- Auth-Seiten (Login / Registrieren / Konto) ---------- */
