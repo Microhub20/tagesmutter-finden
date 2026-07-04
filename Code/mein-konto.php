@@ -152,7 +152,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
   .kp-top{display:flex;justify-content:space-between;font-weight:800;font-size:.9rem;margin-bottom:.5rem}
   .kp-top b{color:var(--coral)}
   .kp-bar{height:9px;background:#eadfce;border-radius:999px;overflow:hidden}
-  .kp-fill{height:100%;background:linear-gradient(90deg,#f2a25c,#f26d5f);border-radius:999px;transition:width .5s}
+  .kp-fill{height:100%;background:linear-gradient(90deg,#e0954f,#d9634f);border-radius:999px;transition:width .5s}
   .kp-hint{font-size:.78rem;color:var(--muted);margin-top:.55rem}
 </style>
 </head>
