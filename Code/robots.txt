@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin.php
+Disallow: /admin-bearbeiten.php
+Disallow: /mein-konto.php
+Disallow: /login.php
+Disallow: /registrieren.php
+Disallow: /api/
+Disallow: /uploads/
+
+Sitemap: https://tagesmutter-vergleich.de/sitemap.php

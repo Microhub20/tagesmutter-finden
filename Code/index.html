@@ -3,11 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
+<meta name="robots" content="index, follow">
 <meta name="description" content="Tagesmütter in deiner Region auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos für Eltern und Tagesmütter.">
+<meta name="author" content="Gaseit GmbH">
+<link rel="canonical" href="https://tagesmutter-vergleich.de/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tagesmutter finden">
+<meta property="og:title" content="Tagesmutter finden – Kindertagespflege in deiner Nähe">
+<meta property="og:description" content="Alle Tagesmütter deiner Region auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos.">
+<meta property="og:image" content="https://tagesmutter-vergleich.de/img/hero.jpg">
+<meta property="og:url" content="https://tagesmutter-vergleich.de/">
+<meta name="twitter:card" content="summary_large_image">
 <title>Tagesmutter finden – Kindertagespflege in deiner Nähe</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Tagesmutter finden","url":"https://tagesmutter-vergleich.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
+</script>
 </head>
 <body>
 
@@ -19,6 +31,7 @@
     <nav>
       <a href="#liste">Tagesmütter</a>
       <a href="#so-gehts">So funktioniert’s</a>
+      <a href="#kosten">Kosten</a>
       <a href="#faq">FAQ</a>
       <a href="login.php">Anmelden</a>
       <a href="registrieren.php" class="cta">Als Tagesmutter eintragen</a>
@@ -124,6 +137,33 @@
       <div class="step reveal"><div class="num">1</div><h4>Suchen &amp; filtern</h4><p>Stadtteil wählen, Alter angeben – passende Tagesmütter mit freien Plätzen finden.</p></div>
       <div class="step reveal"><div class="num">2</div><h4>Direkt Kontakt aufnehmen</h4><p>Per E-Mail oder Telefon – ohne Umwege, ohne Anmeldung, ohne Kosten.</p></div>
       <div class="step reveal"><div class="num">3</div><h4>Kennenlernen</h4><p>Schnuppertermin vereinbaren und in Ruhe entscheiden, ob es passt.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="kosten">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">💶 Kosten &amp; Förderung</span>
+      <h2>Was kostet Kindertagespflege?</h2>
+      <p>Kindertagespflege wird wie ein Kita-Platz öffentlich gefördert – für viele Familien bleibt nur ein einkommensabhängiger Eigenanteil.</p>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit reveal">
+        <div class="ico">🏛️</div>
+        <h3>Öffentlich gefördert</h3>
+        <p>Das Jugendamt bzw. Landratsamt übernimmt den Großteil der Betreuungskosten. Kindertagespflege ist der Kita rechtlich gleichgestellt (§ 24 SGB&nbsp;VIII).</p>
+      </div>
+      <div class="benefit reveal">
+        <div class="ico">📊</div>
+        <h3>Einkommensabhängiger Anteil</h3>
+        <p>Eltern zahlen meist nur einen gestaffelten Eigenanteil – abhängig von Einkommen, Betreuungsumfang und Kommune. Vielerorts ist die Betreuung sogar beitragsfrei.</p>
+      </div>
+      <div class="benefit reveal">
+        <div class="ico">📝</div>
+        <h3>So läuft die Förderung</h3>
+        <p>Passende Tagesmutter finden, Kontakt aufnehmen und den Antrag beim zuständigen Jugendamt stellen. Die Tagesmutter kennt den Ablauf und hilft dir dabei.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -289,6 +329,7 @@ function render(){
 
 // Einträge vom Server holen und anzeigen
 async function ladeUndRender(){
+  grid.innerHTML = '<div class="empty">⏳ Lade Tagesmütter …</div>';
   try{ ALLE = await ladeEintraege(); }
   catch(err){ ALLE = []; }
   render();
