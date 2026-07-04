@@ -12,6 +12,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $ort         = $clean($_POST['ort'] ?? '', 80);
     $plaetze     = max(0, min(9, (int)($_POST['plaetze'] ?? 0)));
     $zeiten      = $clean($_POST['zeiten'] ?? '', 120);
+    $email       = mb_strtolower($clean($_POST['email'] ?? '', 120));
     $tel         = $clean($_POST['tel'] ?? '', 40);
     $erlaubnis   = !empty($_POST['erlaubnis']) ? 1 : 0;
     $persoenlich = mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500);
@@ -28,6 +29,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     if ($zeiten === '')      $fehler[] = 'Betreuungszeiten fehlen';
     if (!$alter)             $fehler[] = 'mindestens eine Altersgruppe';
     if ($persoenlich === '') $fehler[] = 'persönliche Vorstellung fehlt';
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $fehler[] = 'E-Mail ungültig';
+    $other = tmf_find_by_email($email);
+    if ($other && $other['id'] !== $user['id']) $fehler[] = 'Diese E-Mail ist bereits vergeben';
     if ($pass !== '' && mb_strlen($pass) < 8) $fehler[] = 'neues Passwort mind. 8 Zeichen';
     if ($fehler) tmf_json(['error' => implode(', ', $fehler)], 422);
 
@@ -46,9 +50,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         elseif (!empty($user['foto'])) @unlink($dir . '/' . $user['foto']); // altes löschen
     }
 
-    $sql = "UPDATE tagesmuetter SET name=?, ort=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, tel=?, erlaubnis=?, updated_at=CURRENT_TIMESTAMP";
-    $params = [$name, $ort, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $tel, $erlaubnis];
-    if ($fotoName)    { $sql .= ", foto=?";          $params[] = $fotoName; }
+    $sql = "UPDATE tagesmuetter SET name=?, ort=?, plaetze=?, zeiten=?, altersgruppen=?, persoenlich=?, email=?, tel=?, erlaubnis=?, updated_at=CURRENT_TIMESTAMP";
+    $params = [$name, $ort, $plaetze, $zeiten, json_encode($alter, JSON_UNESCAPED_UNICODE), $persoenlich, $email, $tel, $erlaubnis];
+    if ($fotoName) {
+        $sql .= ", foto=?"; $params[] = $fotoName;
+    } elseif (!empty($_POST['foto_entfernen'])) {
+        if (!empty($user['foto'])) @unlink(__DIR__ . '/uploads/' . $user['foto']);
+        $sql .= ", foto=NULL";
+    }
     if ($pass !== '') { $sql .= ", passwort_hash=?"; $params[] = tmf_hash_pw($pass); }
     $sql .= " WHERE id=?";
     $params[] = $user['id'];
@@ -134,6 +143,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
           <div class="photo-meta">
             <input type="file" id="in-foto" accept="image/*">
             <p class="opt-hint">Neues Foto ersetzt das alte. Leer lassen = Foto bleibt.</p>
+            <?php if($user['foto']): ?><label class="toggle" style="display:inline-flex;margin-top:.5rem"><input type="checkbox" id="in-foto-weg"> Foto ganz entfernen</label><?php endif; ?>
           </div>
         </div>
       </div>
@@ -142,7 +152,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
         <textarea id="in-text" required rows="6" maxlength="1500"><?= $e($user['persoenlich']) ?></textarea>
       </div>
       <div class="row">
-        <div class="field"><label>E-Mail (Login)</label><input type="email" value="<?= $e($user['email']) ?>" disabled style="opacity:.6"></div>
+        <div class="field"><label for="in-email">E-Mail (Login) *</label><input type="email" id="in-email" required maxlength="100" value="<?= $e($user['email']) ?>" autocomplete="email"></div>
         <div class="field"><label for="in-tel">Telefon</label><input type="tel" id="in-tel" maxlength="30" value="<?= $e($user['tel']) ?>"></div>
       </div>
       <div class="field">
@@ -202,10 +212,13 @@ document.getElementById("form").addEventListener("submit", async ev => {
   fd.append("zeiten", document.getElementById("in-zeiten").value.trim());
   alter.forEach(a => fd.append("alter[]", a));
   fd.append("persoenlich", document.getElementById("in-text").value.trim());
+  fd.append("email", document.getElementById("in-email").value.trim());
   fd.append("tel", document.getElementById("in-tel").value.trim());
   const pw = document.getElementById("in-pass").value;
   if(pw) fd.append("passwort", pw);
   if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
+  const fotoWeg = document.getElementById("in-foto-weg");
+  if(fotoWeg && fotoWeg.checked) fd.append("foto_entfernen", "1");
   if(fotoBlob) fd.append("foto", fotoBlob, "foto.jpg");
 
   const btn = f.querySelector('button[type="submit"]');
