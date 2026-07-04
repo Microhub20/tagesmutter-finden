@@ -193,6 +193,8 @@ function tmf_row_to_entry(array $r): array {
         'haustiere'   => $r['haustiere'] ?? '',
         'konzept'     => $r['konzept'] ?? '',
         'extras'      => json_decode(($r['extras'] ?? '') ?: '[]', true) ?: [],
+        'created_at'  => $r['created_at'] ?? '',
+        'updated_at'  => $r['updated_at'] ?? '',
         'status'      => $r['status'],
     ];
 }

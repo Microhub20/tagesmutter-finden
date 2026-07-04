@@ -305,7 +305,7 @@ function render(){
   const statCount = document.getElementById("stat-count");
   if(statCount) statCount.textContent = ALLE.length;
 
-  grid.innerHTML = list.length ? list.map(e => {
+  const karteHtml = e => {
     const teaser = e.persoenlich ? (e.persoenlich.length > 140 ? e.persoenlich.slice(0,140).trimEnd()+" …" : e.persoenlich) : "";
     return `
     <article class="card" data-id="${esc(e.id)}" tabindex="0" role="link" aria-label="Profilseite von ${esc(e.name)} öffnen">
@@ -321,7 +321,8 @@ function render(){
       </div>
       <div class="badges">
         ${badgePlaetze(e.plaetze)}
-        ${e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : ""}
+        ${e.erlaubnis ? '<span class="badge b-check" title="Pflegeerlaubnis vom Jugendamt nach § 43 SGB VIII">✓ Pflegeerlaubnis §43</span>' : ""}
+        ${frischeBadge(e)}
       </div>
       ${teaser ? `<p class="desc">${esc(teaser)}</p>` : ""}
       <div class="meta">
@@ -334,9 +335,25 @@ function render(){
         <a class="btn btn-ghost" href="mailto:${esc(e.email)}">✉️ Kontakt</a>
       </div>
     </article>`;
-  }).join("")
-    : (ALLE.length ? '<div class="empty"><span class="emo">🔍</span>Keine Tagesmütter für diese Auswahl.<span class="sub">Versuch weniger Filter oder eine andere Stadt.</span></div>'
-                   : '<div class="empty"><span class="emo">🧸</span>Noch keine Tagesmütter eingetragen.<span class="sub">Sei die Erste – kostenlos in 2 Minuten eingetragen.</span><a href="registrieren.php" class="btn btn-coral">Jetzt eintragen</a></div>');
+  };
+
+  if(list.length){
+    grid.innerHTML = list.map(karteHtml).join("");
+  } else if(ALLE.length && (fOrt || fBl || q)){
+    // Punkt 3: keine Treffer, aber Suche aktiv → Tagesmütter in der Nähe anbieten (statt Sackgasse)
+    const passtRest = e => (!fAlter || e.alter.includes(fAlter)) && (!fExtra || (e.extras && e.extras.includes(fExtra))) && (!nurFrei || e.plaetze > 0) && (!nurFav || favs.includes(e.id));
+    let nachbarn = ALLE.filter(e => passtRest(e) && (!fBl || e.bundesland === fBl) && e.ort !== fOrt);
+    if(!nachbarn.length) nachbarn = ALLE.filter(e => passtRest(e) && e.ort !== fOrt); // Bundesland auch lockern
+    nachbarn = nachbarn.sort((a,b) => b.plaetze - a.plaetze).slice(0, 6);
+    const wo = fOrt || fBl || "deiner Suche";
+    grid.innerHTML = nachbarn.length
+      ? `<div class="empty near-hint"><span class="emo">🧭</span>In <b>${esc(wo)}</b> noch keine passende Tagesmutter – aber diese sind in der Nähe:</div>` + nachbarn.map(karteHtml).join("")
+      : '<div class="empty"><span class="emo">🔍</span>Keine Tagesmütter für diese Auswahl.<span class="sub">Versuch weniger Filter.</span></div>';
+  } else if(ALLE.length){
+    grid.innerHTML = '<div class="empty"><span class="emo">🔍</span>Keine Tagesmütter für diese Auswahl.<span class="sub">Versuch weniger Filter oder eine andere Stadt.</span></div>';
+  } else {
+    grid.innerHTML = '<div class="empty"><span class="emo">🧸</span>Noch keine Tagesmütter eingetragen.<span class="sub">Sei die Erste – kostenlos in 2 Minuten eingetragen.</span><a href="registrieren.php" class="btn btn-coral">Jetzt eintragen</a></div>';
+  }
 
   // Aktive-Filter-Chips (jeder mit ✕ zum Entfernen) + Reset-Sichtbarkeit
   const aktiv = [];
@@ -353,6 +370,19 @@ function render(){
   document.getElementById("filter-reset").hidden = aktiv.length === 0;
   const badge = document.getElementById("ft-badge");
   if(badge){ badge.hidden = aktiv.length === 0; badge.textContent = aktiv.length; }
+
+  // Punkt 1: Filterzustand in die URL spiegeln → teilbar + bleibt bei „Zurück"
+  const up = new URLSearchParams();
+  if(q) up.set("q", q);
+  if(fBl) up.set("bl", fBl);
+  if(fOrt) up.set("ort", fOrt);
+  if(fAlter) up.set("alter", fAlter);
+  if(fExtra) up.set("extra", fExtra);
+  if(nurFrei) up.set("frei", "1");
+  if(nurFav) up.set("fav", "1");
+  if(fSort !== "plaetze") up.set("sort", fSort);
+  const qs = up.toString();
+  history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
 }
 
 // Einträge vom Server holen und anzeigen
@@ -415,6 +445,20 @@ document.getElementById("filter-toggle").addEventListener("click", () => {
   const f = document.getElementById("filters");
   document.getElementById("filter-toggle").setAttribute("aria-expanded", f.classList.toggle("open"));
 });
+
+// Punkt 1: gespeicherte Filter aus der URL wiederherstellen (vor dem ersten Laden)
+(function(){
+  const p = new URLSearchParams(location.search);
+  if(![...p.keys()].length) return;
+  if(p.has("q")) document.getElementById("search").value = p.get("q");
+  if(p.has("bl")){ const b = document.getElementById("f-bundesland"); b.value = p.get("bl"); b.dispatchEvent(new Event("change")); }
+  if(p.has("ort")) document.getElementById("f-ort").value = p.get("ort");
+  if(p.has("alter")) document.getElementById("f-alter").value = p.get("alter");
+  if(p.has("extra")) document.getElementById("f-extra").value = p.get("extra");
+  if(p.has("frei")) document.getElementById("f-frei").checked = true;
+  if(p.has("fav")) document.getElementById("f-fav").checked = true;
+  if(p.has("sort")) document.getElementById("f-sort").value = p.get("sort");
+})();
 
 // ---------- Live-Statistiken ----------
 fetch("api/stats.php").then(r => r.json()).then(s => {

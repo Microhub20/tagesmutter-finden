@@ -73,6 +73,21 @@
     <div id="p-konzept" hidden></div>
     <div class="p-contact" id="p-contact"></div>
     <div class="p-share" id="p-share"></div>
+    <details class="p-checkliste">
+      <summary>💡 Fragen fürs Kennenlerngespräch</summary>
+      <div class="pc-body">
+        <p>Ein persönliches Kennenlernen hilft dir, die richtige Betreuung zu finden. Diese Fragen kannst du stellen:</p>
+        <ul>
+          <li>Wie sieht ein typischer Tagesablauf aus?</li>
+          <li>Wie viele Kinder werden gleichzeitig betreut – und in welchem Alter?</li>
+          <li>Wie laufen Eingewöhnung und Abschied ab?</li>
+          <li>Was gibt es zu essen? Wie wird auf Allergien &amp; Ernährung eingegangen?</li>
+          <li>Wie wird bei Krankheit oder Urlaub der Tagesmutter vertreten?</li>
+          <li>Wie läuft die Kostenübernahme über das Jugendamt?</li>
+          <li>Gibt es feste Rituale, Ausflüge oder täglich Zeit im Freien?</li>
+        </ul>
+      </div>
+    </details>
     <div class="p-vormerkung" id="p-vormerkung" hidden>
       <h2 class="p-label">🔔 Bei freiem Platz benachrichtigen</h2>
       <p style="color:var(--muted);font-size:.9rem;margin:.2rem 0 .9rem">Aktuell keine freien Plätze. Trag dich ein – du wirst benachrichtigt, sobald wieder etwas frei wird.</p>
@@ -96,7 +111,17 @@
           <div class="field"><label for="a-email">Deine E-Mail *</label><input type="email" id="a-email" required maxlength="100" autocomplete="email"></div>
         </div>
         <div class="field"><label for="a-tel">Telefon <span class="opt">(optional)</span></label><input type="tel" id="a-tel" maxlength="30"></div>
-        <div class="field"><label for="a-text">Nachricht *</label><textarea id="a-text" required rows="4" maxlength="1500" placeholder="Hallo, ich suche einen Betreuungsplatz für mein Kind (… Jahre) ab …"></textarea></div>
+        <div class="field">
+          <label for="a-text">Nachricht *</label>
+          <div class="bausteine" id="a-bausteine">
+            <button type="button" data-b="Ich suche einen Betreuungsplatz für mein Kind.">👶 Platz gesucht</button>
+            <button type="button" data-b="Gewünschter Start: ab sofort.">🗓️ ab sofort</button>
+            <button type="button" data-b="Betreuungsumfang: Vollzeit.">🕐 Vollzeit</button>
+            <button type="button" data-b="Betreuungsumfang: Teilzeit.">🕐 Teilzeit</button>
+            <button type="button" data-b="Können wir uns unverbindlich kennenlernen?">🤝 Kennenlernen</button>
+          </div>
+          <textarea id="a-text" required rows="4" maxlength="1500" placeholder="Hallo, ich suche einen Betreuungsplatz für mein Kind (… Jahre) ab …"></textarea>
+        </div>
         <input type="text" id="a-hp" name="firma_website" style="display:none" tabindex="-1" autocomplete="off">
         <div class="submit-row" style="text-align:left"><button type="submit" class="btn btn-coral">Anfrage senden</button></div>
       </form>
@@ -175,7 +200,8 @@
   document.getElementById("p-ort").textContent = "📍 " + e.ort + (e.bundesland ? " · " + e.bundesland : "");
   document.getElementById("p-badges").innerHTML =
     badgePlaetze(e.plaetze) +
-    (e.erlaubnis ? '<span class="badge b-check">✓ Pflegeerlaubnis §43</span>' : "");
+    (e.erlaubnis ? '<span class="badge b-check" title="Pflegeerlaubnis vom Jugendamt nach § 43 SGB VIII">✓ Pflegeerlaubnis §43</span>' : "") +
+    frischeBadge(e);
   document.getElementById("p-meta").innerHTML =
     `<span>🕐 <b>${esc(e.zeiten)}</b></span><span class="chips">${e.alter.map(a => `<span class="chip">${esc(a)}</span>`).join("")}</span>`
     + (e.extras && e.extras.length ? `<span class="chips">${e.extras.map(x => `<span class="chip">✓ ${esc(x)}</span>`).join("")}</span>` : "");
@@ -189,6 +215,10 @@
   if(e.ernaehrung)    details.push(['🍎','Ernährung', e.ernaehrung]);
   if(e.haustiere)     details.push(['🐾','Haustiere', e.haustiere]);
   if(e.nichtraucher)  details.push(['🚭','Haushalt','Nichtraucher']);
+  const jahr = String(e.created_at || "").slice(0,4);
+  if(jahr >= "2020" && jahr <= "2099") details.push(['🗓️','Mitglied seit', jahr]);
+  const akt = zeitRelativ(e.updated_at || e.created_at);
+  if(akt) details.push(['🔄','Zuletzt aktualisiert', akt]);
   if(details.length){
     document.getElementById("p-details").innerHTML =
       '<h2 class="p-label">Auf einen Blick</h2><div class="detail-grid">' +
@@ -204,7 +234,8 @@
   }
   document.getElementById("p-contact").innerHTML =
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
-    (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "");
+    (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "") +
+    (e.tel && istHandy(e.tel) ? `<a class="btn btn-whatsapp" href="https://wa.me/${waNummer(e.tel)}?text=${encodeURIComponent("Hallo " + e.name + ", ich habe Ihr Profil auf Tagesmutter finden gesehen und suche einen Betreuungsplatz für mein Kind.")}" target="_blank" rel="noopener">💬 WhatsApp</a>` : "");
 
   // Bilder-Wechsel + Vollbild-Lightbox: Profilbild zuerst, dann die Galerie-Bilder
   const alleBilder = [];
@@ -267,6 +298,14 @@
 
   // Anfrage-Formular aktivieren
   document.getElementById("p-anfrage").hidden = false;
+  // Nachrichten-Bausteine (Punkt 4): fügen Text ins Nachrichtenfeld ein
+  document.getElementById("a-bausteine").addEventListener("click", ev => {
+    const b = ev.target.closest("button[data-b]");
+    if(!b) return;
+    const ta = document.getElementById("a-text");
+    ta.value = (ta.value.trim() ? ta.value.trim() + " " : "") + b.dataset.b;
+    ta.focus();
+  });
   document.getElementById("anfrage-form").addEventListener("submit", async ev => {
     ev.preventDefault();
     const form = ev.target;

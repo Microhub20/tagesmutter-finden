@@ -40,6 +40,41 @@ function badgePlaetze(p){
 
 function profilUrl(id){ return "profil.html?id=" + encodeURIComponent(id); }
 
+// Relative Zeit ("vor 3 Tagen") + Frische-Badge (Vertrauenssignal)
+function zeitRelativ(ts){
+  if(!ts) return "";
+  const d = new Date(String(ts).replace(" ", "T"));
+  if(isNaN(d)) return "";
+  const tage = Math.floor((Date.now() - d.getTime()) / 86400000);
+  if(tage <= 0) return "heute";
+  if(tage === 1) return "gestern";
+  if(tage < 7) return "vor " + tage + " Tagen";
+  if(tage < 21) return "vor " + Math.floor(tage/7) + " Woche(n)";
+  if(tage < 365) return "vor " + Math.floor(tage/30) + " Monaten";
+  return "vor " + Math.floor(tage/365) + " Jahr(en)";
+}
+function frischeBadge(e){
+  const ts = e.updated_at || e.created_at;
+  if(!ts) return "";
+  const d = new Date(String(ts).replace(" ", "T"));
+  if(isNaN(d)) return "";
+  const tage = Math.floor((Date.now() - d.getTime()) / 86400000);
+  return tage <= 14 ? '<span class="badge b-frisch" title="Profil in den letzten 2 Wochen aktualisiert">🕒 aktuell</span>' : "";
+}
+
+// Telefonnummer für WhatsApp normalisieren (dt. Format → internationale Ziffern) + Mobil-Erkennung
+function waNummer(tel){
+  let n = String(tel).replace(/[^\d+]/g, "");
+  if(n.startsWith("+")) n = n.slice(1);
+  else if(n.startsWith("00")) n = n.slice(2);
+  else if(n.startsWith("0")) n = "49" + n.slice(1); // deutsche 0 → 49
+  return n;
+}
+function istHandy(tel){
+  const n = String(tel).replace(/[^\d]/g, "");
+  return /^(0|0049|49)1[5-7]\d/.test(n); // dt. Mobilfunk: 015x/016x/017x
+}
+
 // ---------- Merkliste (Favoriten, lokal im Browser) ----------
 const FAV_KEY = "tmf_favoriten";
 function favGet(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }catch(e){ return []; } }
