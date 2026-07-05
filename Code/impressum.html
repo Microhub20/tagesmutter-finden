@@ -9,24 +9,24 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<a href="#inhalt" class="skip-link">Zum Inhalt springen</a>
 
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html">
-      <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img">
-    </a>
-    <nav>
+    <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="hauptnav">
       <a href="index.html#liste">Tagesmütter</a>
       <a href="index.html#so-gehts">So funktioniert’s</a>
       <a href="index.html#faq">FAQ</a>
-      <a href="index.html#eintragen" class="cta">Als Tagesmutter eintragen</a>
+      <a href="registrieren.php" class="cta">Als Tagesmutter eintragen</a>
     </nav>
   </div>
 </header>
 
-<div class="demo-banner">🚧 Demo-Entwurf — alle Einträge sind frei erfundene Beispieldaten</div>
-
-<main class="profile-main">
+<main class="profile-main" id="inhalt">
   <a class="back-link" href="index.html">← Zur Startseite</a>
 
   <article class="profile-card legal">
@@ -114,16 +114,23 @@
     <div>
       <h5>Rechtliches</h5>
       <ul>
-        <li><a href="index.html#eintragen">Kostenlos eintragen</a></li>
+        <li><a href="agb.html">Nutzungsbedingungen</a></li>
         <li><a href="impressum.html">Impressum</a></li>
         <li><a href="datenschutz.html">Datenschutz</a></li>
       </ul>
     </div>
   </div>
+  <div class="powered">
+    <span class="pw-label">Powered by</span>
+    <a class="pw-gaseit" href="https://gaseit.de" target="_blank" rel="noopener" aria-label="Gaseit GmbH">
+      <img src="img/gaseit-logo.png" alt="Gaseit GmbH" class="pw-gaseit-img">
+    </a>
+  </div>
   <div class="footer-bottom">
-    Demo-Entwurf · Alle Einträge sind frei erfundene Beispieldaten · <a href="https://github.com/Microhub20/tagesmutter-finden" target="_blank" rel="noopener">GitHub</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="index.html">Startseite</a>
   </div>
 </footer>
 
+<script src="data.js"></script>
 </body>
 </html>

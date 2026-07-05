@@ -16,9 +16,10 @@ foreach (['/', '/impressum.html', '/datenschutz.html'] as $u) {
 }
 try {
     $pdo = tmf_db();
-    // Stadt-Landingpages – nur Städte mit freigegebenen Angeboten (die auf "index" stehen)
-    foreach ($pdo->query("SELECT DISTINCT ort FROM tagesmuetter WHERE status = 'approved' AND ort <> ''") as $r) {
-        $out .= "  <url><loc>{$base}/tagesmutter/" . tmf_slug((string)$r['ort']) . "</loc></url>\n";
+    // Stadt-Landingpages – alle Städte der Region (auch ohne Einträge: dank lokalem
+    // Info-Text + Tagesmutter-Einladung inhaltlich substanziell und indexierbar)
+    foreach (TMF_STAEDTE as $stadt) {
+        $out .= "  <url><loc>{$base}/tagesmutter/" . tmf_slug($stadt) . "</loc></url>\n";
     }
     // Einzelne Profile
     foreach ($pdo->query("SELECT id FROM tagesmuetter WHERE status = 'approved'") as $r) {

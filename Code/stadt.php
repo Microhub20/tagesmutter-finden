@@ -38,8 +38,9 @@ $anzahl   = count($eintraege);
 $freie    = array_sum(array_map(fn($x) => max(0, (int)$x['plaetze']), $eintraege));
 $base     = 'https://tagesmutter-vergleich.de';
 $canon    = $base . '/tagesmutter/' . $slug;
-// SEO: nur Städte MIT Angeboten indexieren lassen (kein "dünner" Content)
-$robots   = ($stadt !== null && $anzahl > 0) ? 'index, follow' : 'noindex, follow';
+// SEO: gültige Stadt-Seiten indexieren (auch ohne Einträge – mit lokalem Info-Text
+// + Tagesmutter-Einladung sind sie inhaltlich substanziell, kein „dünner" Content).
+$robots   = ($stadt !== null) ? 'index, follow' : 'noindex, follow';
 $titel    = $stadt ? "Tagesmutter {$stadt} finden – freie Plätze in der Kindertagespflege" : 'Stadt nicht gefunden';
 $desc     = $stadt
     ? ($anzahl > 0
@@ -143,6 +144,23 @@ function stadt_karte(array $x, callable $e): string {
   .andere-list a:hover{border-color:var(--coral);color:var(--coral-dark)}
   .leerbox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:2rem 1.4rem;text-align:center;box-shadow:var(--shadow-sm)}
   .leerbox .emo{font-size:2.6rem;display:block;margin-bottom:.5rem}
+  /* Tagesmutter-Werbung (leere Stadt – Kaltstart) */
+  .tm-werbung{background:var(--coral-soft);border:1px solid var(--line);border-radius:18px;padding:2.2rem 1.6rem;text-align:center;margin-top:1.6rem}
+  .tmw-emo{font-size:2.8rem;margin-bottom:.3rem}
+  .tm-werbung h2{font-size:clamp(1.3rem,3vw,1.7rem);font-weight:800;letter-spacing:-.01em}
+  .tmw-lead{color:var(--ink-soft);max-width:52ch;margin:.7rem auto 1.1rem;font-size:1rem}
+  .tmw-vorteile{list-style:none;display:inline-flex;flex-direction:column;gap:.45rem;text-align:left;margin:0 auto 1.4rem;padding:0}
+  .tmw-vorteile li{font-weight:700;font-size:.95rem;color:var(--ink)}
+  .tmw-vorteile li::before{content:"✓ ";color:var(--sage-dark);font-weight:900}
+  .tmw-cta{font-size:1.05rem;padding:.85rem 2rem}
+  .tmw-klein{margin-top:.9rem;font-size:.88rem;color:var(--muted)}
+  .tmw-klein a{color:var(--coral);font-weight:800;text-decoration:none}
+  .stadt-info-eltern{color:var(--muted);font-size:.92rem;text-align:center;margin:1rem auto 0;max-width:54ch}
+  /* Info-Abschnitt (Content-Wert) */
+  .stadt-wissen{margin-top:2.4rem;padding-top:1.6rem;border-top:1px solid var(--line)}
+  .stadt-wissen h2{font-size:1.2rem;font-weight:800;margin-bottom:.7rem}
+  .stadt-wissen p{color:var(--ink-soft);font-size:.95rem;margin-bottom:.7rem;max-width:70ch}
+  .stadt-wissen a{color:var(--coral);font-weight:700}
 </style>
 </head>
 <body>
@@ -200,12 +218,19 @@ function stadt_karte(array $x, callable $e): string {
       <?php foreach ($eintraege as $x) echo stadt_karte($x, $e); ?>
     </div>
   <?php else: ?>
-    <div class="leerbox" style="margin-top:1.4rem">
-      <span class="emo">🌱</span>
-      <h2 style="font-weight:800;font-size:1.3rem">Noch keine Tagesmütter in <?= $e($stadt) ?> eingetragen</h2>
-      <p style="color:var(--ink-soft);margin:.6rem auto 1.3rem;max-width:46ch">Das Portal ist neu – trag dich als Tagesmutter in <?= $e($stadt) ?> kostenlos ein und werde von Eltern in deiner Nähe zuerst gefunden.</p>
-      <a class="btn btn-coral" href="registrieren.php">Als Tagesmutter eintragen</a>
+    <div class="tm-werbung">
+      <div class="tmw-emo">🌟</div>
+      <h2>Bist du Tagesmutter in <?= $e($stadt) ?>?</h2>
+      <p class="tmw-lead">Sei die <b>Erste</b> in <?= $e($stadt) ?>! Trag dich kostenlos ein und werde von Eltern in deiner Nähe sofort gefunden – so füllst du deine freien Plätze schneller und ganz ohne Aufwand.</p>
+      <ul class="tmw-vorteile">
+        <li>100&nbsp;% kostenlos &amp; unverbindlich</li>
+        <li>Eltern finden dich direkt – auch über Google</li>
+        <li>In 2 Minuten eingetragen, jederzeit änderbar</li>
+      </ul>
+      <a class="btn btn-coral tmw-cta" href="registrieren.php">Jetzt kostenlos eintragen →</a>
+      <p class="tmw-klein">Schon dabei? <a href="login.php">Hier anmelden</a></p>
     </div>
+    <p class="stadt-info-eltern">Du suchst als <b>Elternteil</b>? Aktuell ist noch keine Tagesmutter in <?= $e($stadt) ?> gelistet – das Portal ist neu und wächst stetig. Schau bei den Tagesmüttern in der Nähe vorbei oder komm bald wieder.</p>
   <?php endif; ?>
 
   <?php if ($andereOrte): ?>
@@ -218,6 +243,13 @@ function stadt_karte(array $x, callable $e): string {
       </div>
     </section>
   <?php endif; ?>
+
+  <section class="stadt-wissen">
+    <h2>Kindertagespflege in <?= $e($stadt) ?> – kurz erklärt</h2>
+    <p>Eine <b>Tagesmutter</b> (oder ein Tagesvater) betreut Kinder – meist im Alter von null bis drei Jahren – in einer kleinen, familiären Gruppe von höchstens fünf Kindern, in der Regel im eigenen Zuhause. Kindertagespflege ist eine anerkannte, oft flexiblere Alternative zur Kita und wird vom Jugendamt gefördert.</p>
+    <p>Jede Tagespflegeperson benötigt eine <b>Pflegeerlaubnis nach § 43 SGB VIII</b>, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt. Die Kosten werden – wie beim Kita-Platz – überwiegend öffentlich gefördert; für Eltern bleibt meist nur ein einkommensabhängiger Eigenanteil.</p>
+    <p>Über „Tagesmutter finden“ siehst du die Angebote in <?= $e($stadt) ?> auf einen Blick und nimmst direkt Kontakt auf – kostenlos und ohne Anmeldung. Du bist selbst Tagespflegeperson? <a href="registrieren.php">Trag dich kostenlos ein</a>.</p>
+  </section>
 <?php endif; ?>
 </main>
 
