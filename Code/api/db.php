@@ -206,3 +206,24 @@ function tmf_json($data, int $code = 200): void {
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
+
+// ===================== Region & Stadt-Landingpages (SEO) =====================
+// Aktuelle Ausroll-Region (Spiegel von data.js BUNDESLAENDER["Baden-Württemberg"]).
+// Für Deutschland-weite Ausrollung: hier die Städte-Liste erweitern.
+const TMF_REGION = 'Baden-Württemberg';
+const TMF_STAEDTE = ['Albstadt','Balingen','Bisingen','Bitz','Burladingen','Dautmergen','Dormettingen','Dotternhausen','Freiburg im Breisgau','Geislingen','Grosselfingen','Haigerloch','Hausen am Tann','Hechingen','Heidelberg','Jungingen','Karlsruhe','Mannheim','Meßstetten','Nusplingen','Obernheim','Rangendingen','Ratshausen','Reutlingen','Rosenfeld','Rottweil','Schömberg','Straßberg','Stuttgart','Tübingen','Ulm','Weilen unter den Rinnen','Winterlingen','Zimmern unter der Burg'];
+
+/** URL-Slug aus einem Stadtnamen (klein, ohne Umlaute/ß/Sonderzeichen). */
+function tmf_slug(string $s): string {
+    $s = strtr($s, ['ä'=>'ae','ö'=>'oe','ü'=>'ue','Ä'=>'ae','Ö'=>'oe','Ü'=>'ue','ß'=>'ss']);
+    $s = preg_replace('/[^a-z0-9]+/', '-', strtolower($s));
+    return trim((string)$s, '-');
+}
+
+/** Offiziellen Stadtnamen zu einem Slug finden (oder null, wenn keine Region-Stadt). */
+function tmf_stadt_von_slug(string $slug): ?string {
+    foreach (TMF_STAEDTE as $stadt) {
+        if (tmf_slug($stadt) === $slug) return $stadt;
+    }
+    return null;
+}

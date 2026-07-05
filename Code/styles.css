@@ -458,3 +458,8 @@ footer a:hover{color:#fff}
 .stadt-go:hover{filter:brightness(1.06)}
 @media(prefers-color-scheme:dark){.stadt-wrap{background:var(--card)}}
 @media(max-width:600px){.stadt-select{font-size:1rem;padding:.7rem 2.2rem .7rem .9rem}.stadt-go{padding:.7rem 1.2rem}}
+
+/* ============ Städte-Übersicht (interne SEO-Verlinkung) ============ */
+.staedte-grid{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center}
+.staedte-grid a{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:.5rem 1.05rem;font-size:.9rem;font-weight:700;text-decoration:none;color:var(--ink);box-shadow:var(--shadow-sm);transition:border-color .15s,color .15s}
+.staedte-grid a:hover{border-color:var(--coral);color:var(--coral-dark)}

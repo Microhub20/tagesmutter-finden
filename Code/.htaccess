@@ -15,5 +15,11 @@
 # UTF-8 sicherstellen
 AddDefaultCharset UTF-8
 
+# Sprechende Stadt-Landingpages (SEO): /tagesmutter/<stadt> → stadt.php?stadt=<stadt>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^tagesmutter/([a-z0-9-]+)/?$ stadt.php?stadt=$1 [L,QSA]
+</IfModule>
+
 # Schöne Fehlerseite
 ErrorDocument 404 /404.html

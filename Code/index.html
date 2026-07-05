@@ -57,7 +57,7 @@
         <label for="f-ort" class="hs-label">📍 In welcher Stadt suchst du?</label>
         <div class="stadt-wrap">
           <select id="f-ort" class="stadt-select" aria-label="Stadt oder Gemeinde wählen"></select>
-          <button class="stadt-go" type="button" onclick="document.getElementById('liste').scrollIntoView({behavior:'smooth'})">Finden</button>
+          <button class="stadt-go" type="button" id="stadt-go">Finden</button>
         </div>
       </div>
       <div class="trust">
@@ -232,6 +232,17 @@
         <div class="a">Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das zuständige Jugendamt – die Tagesmutter kennt den Ablauf und hilft dabei.</div>
       </details>
     </div>
+  </div>
+</section>
+
+<section class="block" id="staedte">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">📍 Nach Stadt</span>
+      <h2>Kindertagespflege in deiner Stadt</h2>
+      <p>Wähle deine Stadt und sieh alle Tagesmütter dort auf einen Blick.</p>
+    </div>
+    <div class="staedte-grid reveal" id="staedte-grid"></div>
   </div>
 </section>
 
@@ -452,6 +463,16 @@ document.getElementById("filter-toggle").addEventListener("click", () => {
   const f = document.getElementById("filters");
   document.getElementById("filter-toggle").setAttribute("aria-expanded", f.classList.toggle("open"));
 });
+
+// „Finden" im Hero → dedizierte Stadt-Landingpage (SEO) oder zur Liste scrollen
+document.getElementById("stadt-go").addEventListener("click", () => {
+  const ort = document.getElementById("f-ort").value;
+  if(ort) location.href = stadtUrl(ort);
+  else document.getElementById("liste").scrollIntoView({behavior:"smooth"});
+});
+// Städte-Übersicht rendern → interne Links zu den Stadt-Landingpages
+const sg = document.getElementById("staedte-grid");
+if(sg) sg.innerHTML = (BUNDESLAENDER[REGION_BL] || []).map(o => `<a href="${stadtUrl(o)}">${esc(o)}</a>`).join("");
 
 // Punkt 1: gespeicherte Filter aus der URL wiederherstellen (vor dem ersten Laden)
 (function(){

@@ -15,7 +15,13 @@ foreach (['/', '/impressum.html', '/datenschutz.html'] as $u) {
     $out .= "  <url><loc>{$base}{$u}</loc></url>\n";
 }
 try {
-    foreach (tmf_db()->query("SELECT id FROM tagesmuetter WHERE status = 'approved'") as $r) {
+    $pdo = tmf_db();
+    // Stadt-Landingpages – nur Städte mit freigegebenen Angeboten (die auf "index" stehen)
+    foreach ($pdo->query("SELECT DISTINCT ort FROM tagesmuetter WHERE status = 'approved' AND ort <> ''") as $r) {
+        $out .= "  <url><loc>{$base}/tagesmutter/" . tmf_slug((string)$r['ort']) . "</loc></url>\n";
+    }
+    // Einzelne Profile
+    foreach ($pdo->query("SELECT id FROM tagesmuetter WHERE status = 'approved'") as $r) {
         $out .= "  <url><loc>{$base}/profil.html?id=" . rawurlencode((string)$r['id']) . "</loc></url>\n";
     }
 } catch (Throwable $e) { /* Sitemap trotzdem mit statischen URLs ausliefern */ }

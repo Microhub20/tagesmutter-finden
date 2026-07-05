@@ -139,6 +139,13 @@ function initStadtauswahl(blSel, ortSel, aktBl, aktOrt, filter){
 function regionBundesland(blSel){
   return REGION_NUR_BW ? REGION_BL : (blSel ? blSel.value : REGION_BL);
 }
+// URL-Slug einer Stadt (spiegelt PHP tmf_slug) + Link zur Stadt-Landingpage
+function ortSlug(s){
+  return String(s).toLowerCase()
+    .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
+function stadtUrl(ort){ return "/tagesmutter/" + ortSlug(ort); }
 
 // ---------- Server-Anbindung ----------
 async function ladeEintraege(){
