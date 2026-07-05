@@ -102,15 +102,42 @@ function initOrtsauswahl(blSel, ortSel, aktBl, aktOrt, filter){
   fuelleOrte();
 }
 
-// Aktuelle Ausroll-Region: NUR Baden-Württemberg. Städte direkt, ohne Bundesland-Auswahl.
-// (Skalierbar: für weitere Bundesländer wieder auf initOrtsauswahl umstellen.)
+// ======================= Regions-Konfiguration =======================
+// Zum Start rollen wir NUR in Baden-Württemberg aus. Die Deutschland-weite
+// Bundesland→Stadt-Auswahl (BUNDESLAENDER + initOrtsauswahl oben) ist NICHT
+// gelöscht – nur ausgeblendet.
+//   ▶ Ganz Deutschland wieder aktivieren: einfach REGION_NUR_BW = false setzen.
+const REGION_NUR_BW = true;
 const REGION_BL = "Baden-Württemberg";
+
+// Städte der aktuellen Region direkt (ohne Bundesland-Auswahl).
 function initBwOrte(ortSel, aktOrt, filter){
   const orte = BUNDESLAENDER[REGION_BL] || [];
   ortSel.innerHTML = (filter
       ? '<option value="">Alle Städte</option>'
       : '<option value="" disabled' + (aktOrt ? '' : ' selected') + '>Stadt / Gemeinde wählen …</option>')
     + orte.map(o => `<option${o === aktOrt ? " selected" : ""}>${o}</option>`).join("");
+}
+
+// Zentrale Auswahl für Filter & Formulare. Blendet je nach REGION_NUR_BW die
+// Bundesland-Auswahl aus (→ BW-Städte direkt) oder zeigt die volle
+// Deutschland-Kaskade. Das Bundesland-Feld bleibt im HTML (mit [data-bl-feld]
+// markiert) und wird im BW-Modus nur versteckt. blSel darf null sein.
+function initStadtauswahl(blSel, ortSel, aktBl, aktOrt, filter){
+  const feld = blSel ? (blSel.closest("[data-bl-feld]") || blSel) : null;
+  if(REGION_NUR_BW){
+    if(feld) feld.hidden = true;
+    // Formular-Bundesland-Feld versteckt mit BW belegen (damit Form-POST korrekt sendet)
+    if(blSel && !filter) blSel.innerHTML = '<option value="' + REGION_BL + '" selected>' + REGION_BL + '</option>';
+    initBwOrte(ortSel, aktOrt, filter);
+  }else{
+    if(feld) feld.hidden = false;
+    initOrtsauswahl(blSel, ortSel, aktBl || REGION_BL, aktOrt, filter);
+  }
+}
+// Bundesland-Wert fürs Speichern (BW-Modus: fix; Deutschland: aus dem Feld)
+function regionBundesland(blSel){
+  return REGION_NUR_BW ? REGION_BL : (blSel ? blSel.value : REGION_BL);
 }
 
 // ---------- Server-Anbindung ----------

@@ -195,7 +195,8 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
     <div id="msg"></div>
     <form id="form" novalidate>
       <div class="field"><label for="in-name">Name *</label><input type="text" id="in-name" required maxlength="60" value="<?= $e($user['name']) ?>"></div>
-      <div class="field"><label for="in-ort">Stadt / Gemeinde * <span class="opt">(Baden-Württemberg)</span></label><select id="in-ort" required></select></div>
+      <div class="field" data-bl-feld><label for="in-bundesland">Bundesland *</label><select id="in-bundesland"></select></div>
+      <div class="field"><label for="in-ort">Stadt / Gemeinde *</label><select id="in-ort" required></select></div>
       <div class="row">
         <div class="field"><label for="in-plaetze">Freie Plätze *</label>
           <select id="in-plaetze" required>
@@ -279,8 +280,8 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 
 <script src="data.js"></script>
 <script>
-// Nur Baden-Württemberg (aktuelle Ausroll-Region): Städte direkt, gespeicherte Stadt vorgewählt
-initBwOrte(document.getElementById("in-ort"), <?= json_encode($user['ort'], JSON_UNESCAPED_UNICODE) ?>, false);
+// Stadt-/Regionsauswahl, gespeicherte Werte vorgewählt (Bundesland im BW-Modus ausgeblendet)
+initStadtauswahl(document.getElementById("in-bundesland"), document.getElementById("in-ort"), <?= json_encode($user['bundesland'] ?: 'Baden-Württemberg', JSON_UNESCAPED_UNICODE) ?>, <?= json_encode($user['ort'], JSON_UNESCAPED_UNICODE) ?>, false);
 const meineExtras = <?= json_encode(json_decode($user['extras'] ?? '[]', true) ?: [], JSON_UNESCAPED_UNICODE) ?>;
 document.getElementById("extras-boxes").innerHTML = EXTRAS.map(x => `<label><input type="checkbox" name="extras" value="${x}" ${meineExtras.includes(x)?"checked":""}> ${x}</label>`).join("");
 
@@ -347,7 +348,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
 
   const fd = new FormData();
   fd.append("name", document.getElementById("in-name").value.trim());
-  fd.append("bundesland", "Baden-Württemberg");
+  fd.append("bundesland", regionBundesland(document.getElementById("in-bundesland")));
   fd.append("ort", document.getElementById("in-ort").value);
   galeriePreview.querySelectorAll(".g-thumb[data-name]").forEach(t => fd.append("behalten[]", t.dataset.name));
   neueBlobs.forEach(blob => fd.append("galerie[]", blob, "bild.jpg"));

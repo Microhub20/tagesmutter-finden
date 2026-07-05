@@ -93,6 +93,7 @@
     <div class="filterbar reveal">
       <button class="filter-toggle" id="filter-toggle" type="button" aria-expanded="false" aria-controls="filters">⚙&nbsp; Filter &amp; Sortierung <span class="ft-badge" id="ft-badge" hidden>0</span></button>
       <div class="filters" id="filters">
+        <select id="f-bundesland" data-bl-feld aria-label="Bundesland filtern"></select>
         <select id="f-alter" aria-label="Altersgruppe filtern">
           <option value="">Jedes Alter</option>
           <option>0–1 Jahr</option>
@@ -285,6 +286,7 @@ let ALLE = [];   // vom Server geladene, freigegebene Einträge
 
 function render(){
   const q = document.getElementById("search").value.trim().toLowerCase();
+  const fBl = document.getElementById("f-bundesland")?.value || ""; // im BW-Modus versteckt → immer leer
   const fOrt = document.getElementById("f-ort").value;
   const fAlter = document.getElementById("f-alter").value;
   const nurFrei = document.getElementById("f-frei").checked;
@@ -295,6 +297,7 @@ function render(){
 
   let list = ALLE.filter(e =>
     (!q || e.name.toLowerCase().includes(q) || e.ort.toLowerCase().includes(q)) &&
+    (!fBl || e.bundesland === fBl) &&
     (!fOrt || e.ort === fOrt) &&
     (!fAlter || e.alter.includes(fAlter)) &&
     (!fExtra || (e.extras && e.extras.includes(fExtra))) &&
@@ -342,11 +345,13 @@ function render(){
 
   if(list.length){
     grid.innerHTML = list.map(karteHtml).join("");
-  } else if(ALLE.length && (fOrt || q)){
+  } else if(ALLE.length && (fOrt || fBl || q)){
     // Punkt 3: keine Treffer, aber Suche aktiv → Tagesmütter in der Nähe anbieten (statt Sackgasse)
     const passtRest = e => (!fAlter || e.alter.includes(fAlter)) && (!fExtra || (e.extras && e.extras.includes(fExtra))) && (!nurFrei || e.plaetze > 0) && (!nurFav || favs.includes(e.id));
-    const nachbarn = ALLE.filter(e => passtRest(e) && e.ort !== fOrt).sort((a,b) => b.plaetze - a.plaetze).slice(0, 6);
-    const wo = fOrt || "deiner Suche";
+    let nachbarn = ALLE.filter(e => passtRest(e) && (!fBl || e.bundesland === fBl) && e.ort !== fOrt);
+    if(!nachbarn.length && fBl) nachbarn = ALLE.filter(e => passtRest(e) && e.ort !== fOrt);
+    nachbarn = nachbarn.sort((a,b) => b.plaetze - a.plaetze).slice(0, 6);
+    const wo = fOrt || fBl || "deiner Suche";
     grid.innerHTML = nachbarn.length
       ? `<div class="empty near-hint"><span class="emo">🧭</span>In <b>${esc(wo)}</b> noch keine passende Tagesmutter – aber diese sind in der Nähe:</div>` + nachbarn.map(karteHtml).join("")
       : '<div class="empty"><span class="emo">🔍</span>Keine Tagesmütter für diese Auswahl.<span class="sub">Versuch weniger Filter.</span></div>';
@@ -359,6 +364,7 @@ function render(){
   // Aktive-Filter-Chips (jeder mit ✕ zum Entfernen) + Reset-Sichtbarkeit
   const aktiv = [];
   if(q)       aktiv.push(["🔎 " + q,          () => document.getElementById("search").value = ""]);
+  if(fBl)     aktiv.push(["📍 " + fBl,         () => { const b = document.getElementById("f-bundesland"); b.value = ""; b.dispatchEvent(new Event("change")); }]);
   if(fOrt)    aktiv.push(["📍 " + fOrt,        () => document.getElementById("f-ort").value = ""]);
   if(fAlter)  aktiv.push([fAlter,             () => document.getElementById("f-alter").value = ""]);
   if(fExtra)  aktiv.push([fExtra,             () => document.getElementById("f-extra").value = ""]);
@@ -374,6 +380,7 @@ function render(){
   // Punkt 1: Filterzustand in die URL spiegeln → teilbar + bleibt bei „Zurück"
   const up = new URLSearchParams();
   if(q) up.set("q", q);
+  if(fBl) up.set("bl", fBl);
   if(fOrt) up.set("ort", fOrt);
   if(fAlter) up.set("alter", fAlter);
   if(fExtra) up.set("extra", fExtra);
@@ -420,7 +427,8 @@ grid.addEventListener("keydown", ev => {
 });
 
 // ---------- Filter-Setup: Bundesland → Stadt ----------
-initBwOrte(document.getElementById("f-ort"), "", true); // nur Baden-Württemberg-Städte
+initStadtauswahl(document.getElementById("f-bundesland"), document.getElementById("f-ort"), "", "", true);
+document.getElementById("f-bundesland").addEventListener("change", render); // greift nur im Deutschland-Modus (sonst versteckt)
 document.getElementById("f-extra").innerHTML = '<option value="">Alle Extras</option>' + EXTRAS.map(x => `<option>${x}</option>`).join("");
 ["search","f-ort","f-alter","f-extra","f-frei","f-sort","f-fav"].forEach(id => {
   const el = document.getElementById(id);
@@ -430,6 +438,7 @@ document.getElementById("f-extra").innerHTML = '<option value="">Alle Extras</op
 // Alle Filter zurücksetzen
 document.getElementById("filter-reset").addEventListener("click", () => {
   document.getElementById("search").value = "";
+  const bl = document.getElementById("f-bundesland"); if(bl){ bl.value = ""; bl.dispatchEvent(new Event("change")); }
   document.getElementById("f-ort").value = "";
   document.getElementById("f-alter").value = "";
   document.getElementById("f-extra").value = "";
@@ -449,6 +458,7 @@ document.getElementById("filter-toggle").addEventListener("click", () => {
   const p = new URLSearchParams(location.search);
   if(![...p.keys()].length) return;
   if(p.has("q")) document.getElementById("search").value = p.get("q");
+  if(p.has("bl")){ const b = document.getElementById("f-bundesland"); if(b){ b.value = p.get("bl"); b.dispatchEvent(new Event("change")); } }
   if(p.has("ort")) document.getElementById("f-ort").value = p.get("ort");
   if(p.has("alter")) document.getElementById("f-alter").value = p.get("alter");
   if(p.has("extra")) document.getElementById("f-extra").value = p.get("extra");

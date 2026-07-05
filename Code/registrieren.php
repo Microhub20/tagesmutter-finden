@@ -62,7 +62,8 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
     <form id="form" novalidate>
       <fieldset class="wiz-step" data-step="1">
         <div class="field"><label for="in-name">Name *</label><input type="text" id="in-name" required maxlength="60" placeholder="z. B. Maria S."></div>
-        <div class="field"><label for="in-ort">Stadt / Gemeinde * <span class="opt">(Baden-Württemberg)</span></label><select id="in-ort" required></select></div>
+        <div class="field" data-bl-feld><label for="in-bundesland">Bundesland *</label><select id="in-bundesland"></select></div>
+        <div class="field"><label for="in-ort">Stadt / Gemeinde *</label><select id="in-ort" required></select></div>
         <div class="row">
           <div class="field"><label for="in-plaetze">Freie Plätze *</label>
             <select id="in-plaetze" required>
@@ -164,8 +165,8 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 
 <script src="data.js"></script>
 <script>
-// Nur Baden-Württemberg (aktuelle Ausroll-Region): Städte direkt
-initBwOrte(document.getElementById("in-ort"), "", false);
+// Stadt-/Regionsauswahl (blendet Bundesland im BW-Modus aus, sonst volle Kaskade)
+initStadtauswahl(document.getElementById("in-bundesland"), document.getElementById("in-ort"), "", "", false);
 document.getElementById("extras-boxes").innerHTML = EXTRAS.map(x => `<label><input type="checkbox" name="extras" value="${x}"> ${x}</label>`).join("");
 
 // Foto-Upload (clientseitig auf 512px verkleinert → Blob)
@@ -233,7 +234,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
 
   const fd = new FormData();
   fd.append("name", document.getElementById("in-name").value.trim());
-  fd.append("bundesland", "Baden-Württemberg");
+  fd.append("bundesland", regionBundesland(document.getElementById("in-bundesland")));
   fd.append("ort", document.getElementById("in-ort").value);
   fd.append("plaetze", document.getElementById("in-plaetze").value);
   fd.append("zeiten", document.getElementById("in-zeiten").value.trim());
@@ -308,7 +309,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
     const g = id => document.getElementById(id).value.trim();
     const name = g("in-name") || "(dein Name)";
     const ort = document.getElementById("in-ort").value || "(Ort)";
-    const bl = "Baden-Württemberg";
+    const bl = regionBundesland(document.getElementById("in-bundesland"));
     const plaetze = +document.getElementById("in-plaetze").value;
     const alter = [...document.querySelectorAll('input[name="alter"]:checked')].map(c => c.value);
     const extras = [...document.querySelectorAll('input[name="extras"]:checked')].map(c => c.value);
