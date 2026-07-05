@@ -251,7 +251,7 @@ function stadt_karte(array $x, callable $e): string {
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="index.html">Startseite</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="index.html">Startseite</a>
   </div>
 </footer>
 

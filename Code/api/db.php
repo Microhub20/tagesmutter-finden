@@ -90,6 +90,7 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'extras', 'TEXT');            // JSON: Betreuungs-Extras
     tmf_ensure_column($pdo, 'tagesmuetter', 'reset_token', 'VARCHAR(64)');
     tmf_ensure_column($pdo, 'tagesmuetter', 'reset_expires', 'INT');
+    tmf_ensure_column($pdo, 'tagesmuetter', 'agb_version', 'VARCHAR(20)');  // Zustimmungs-Nachweis: akzeptierter AGB-Stand (mit created_at = wann)
 
     // Kontaktanfragen von Eltern an Tagesmütter (Historie fürs Konto)
     $pdo->exec("CREATE TABLE IF NOT EXISTS anfragen (
@@ -211,6 +212,7 @@ function tmf_json($data, int $code = 200): void {
 // Aktuelle Ausroll-Region (Spiegel von data.js BUNDESLAENDER["Baden-Württemberg"]).
 // Für Deutschland-weite Ausrollung: hier die Städte-Liste erweitern.
 const TMF_REGION = 'Baden-Württemberg';
+const TMF_AGB_VERSION = '2026-07'; // Stand der Nutzungsbedingungen (agb.html) – bei inhaltlicher Änderung hochzählen
 const TMF_STAEDTE = ['Albstadt','Balingen','Bisingen','Bitz','Burladingen','Dautmergen','Dormettingen','Dotternhausen','Freiburg im Breisgau','Geislingen','Grosselfingen','Haigerloch','Hausen am Tann','Hechingen','Heidelberg','Jungingen','Karlsruhe','Mannheim','Meßstetten','Nusplingen','Obernheim','Rangendingen','Ratshausen','Reutlingen','Rosenfeld','Rottweil','Schömberg','Straßberg','Stuttgart','Tübingen','Ulm','Weilen unter den Rinnen','Winterlingen','Zimmern unter der Burg'];
 
 /** URL-Slug aus einem Stadtnamen (klein, ohne Umlaute/ß/Sonderzeichen). */

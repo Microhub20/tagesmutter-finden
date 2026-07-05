@@ -81,8 +81,8 @@ try {
     $nummer = tmf_next_nummer($pdo);
     $stmt = $pdo->prepare(
         "INSERT INTO tagesmuetter
-         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, qualifikation, sprachen, frei_ab, ernaehrung, nichtraucher, haustiere, konzept, extras, passwort_hash, nummer, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, qualifikation, sprachen, frei_ab, ernaehrung, nichtraucher, haustiere, konzept, extras, passwort_hash, nummer, agb_version, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
     );
     $stmt->execute([
         $id, $name, $ort, $bundesland, $plaetze, $zeiten,
@@ -91,7 +91,7 @@ try {
         json_encode($galerie, JSON_UNESCAPED_UNICODE),
         $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept,
         json_encode($extras, JSON_UNESCAPED_UNICODE),
-        tmf_hash_pw($pass), $nummer,
+        tmf_hash_pw($pass), $nummer, TMF_AGB_VERSION,
     ]);
     // direkt einloggen
     tmf_session();

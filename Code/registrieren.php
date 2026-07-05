@@ -144,7 +144,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
         </div>
         <label class="consent">
           <input type="checkbox" id="in-consent" required>
-          <span><b>Einwilligung (erforderlich):</b> Ich willige ein, dass die oben angegebenen Daten öffentlich auf diesem Portal angezeigt werden. Ich kann meinen Eintrag jederzeit selbst ändern oder löschen.</span>
+          <span><b>Zustimmung (erforderlich):</b> Ich habe die <a href="agb.html" target="_blank" rel="noopener">Nutzungsbedingungen</a> gelesen und akzeptiere sie. Ich willige ein, dass meine Angaben und hochgeladenen Fotos gemäß <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gespeichert, verarbeitet und öffentlich auf diesem Portal angezeigt werden. Ich bestätige, dass meine Angaben korrekt sind und ich an allen Fotos die nötigen Rechte sowie die Einwilligung abgebildeter Personen (bei Kindern der Erziehungsberechtigten) besitze. Ich kann mein Profil jederzeit selbst ändern oder löschen.</span>
         </label>
       </fieldset>
 
