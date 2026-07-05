@@ -378,14 +378,14 @@ footer a:hover{color:#fff}
   }
   header{background:rgba(27,23,18,.9)}
   .stats,.stat-k,.filters,.filters select,.toggle,.fav-btn,.float-chip,.back-link,.profile-card,
-  .faq details,.auth-card,.filter-toggle,.af-chip,.benefit,.p-meta,.detail-item,.card,.searchbar,.ae-card{background:var(--card)}
+  .faq details,.auth-card,.filter-toggle,.af-chip,.benefits,.benefit,.register,.p-meta,.detail-item,.card,.searchbar,.ae-card{background:var(--card)}
   .avatar{box-shadow:inset 0 -3px 8px rgba(0,0,0,.3),0 0 0 3px var(--card),0 0 0 5px var(--line)}
   .btn-ghost{background:#332b22;color:var(--ink)}
   .btn-ghost:hover{background:#3d342a}
   nav a:hover{background:#332b22}
   .chip{background:#3a2f22;color:#e6bd8f}
   .field input,.field select,.field textarea{background:var(--cream)}
-  .field input:focus,.field select:focus,.field textarea:focus{background:var(--card)}
+  .field input:focus,.field select:focus,.field textarea:focus,.auth-card input:focus{background:var(--card)}
   .skeleton-card{border-color:var(--line)}
   .sk{background:linear-gradient(90deg,#2a241d 25%,#332c23 50%,#2a241d 75%);background-size:200% 100%}
   footer{background:#100d0a}
