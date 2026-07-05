@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/api/auth.php';
 
-if (isset($_GET['logout'])) { tmf_logout(); header('Location: index.html'); exit; }
+if (isset($_GET['logout'])) { tmf_logout(); header('Location: /'); exit; }
 if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 
 $fehler = '';
@@ -28,7 +28,7 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 <body>
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="brand"><a href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
+    <div class="brand"><a href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
     <h1>Anmelden</h1>
     <p class="sub">Zum Bearbeiten deines Tagesmutter-Profils</p>
     <?php if ($fehler): ?><div class="auth-err"><?= $e($fehler) ?></div><?php endif; ?>
@@ -46,7 +46,7 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     <div class="links">
       <a href="passwort-vergessen.php">Passwort vergessen?</a><br>
       Noch kein Profil? <a href="registrieren.php">Jetzt kostenlos eintragen</a><br>
-      <a href="index.html">← Zurück zur Startseite</a>
+      <a href="/">← Zurück zur Startseite</a>
     </div>
   </div>
 </div>

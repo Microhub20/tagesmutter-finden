@@ -1,3 +1,78 @@
+<?php
+/**
+ * Startseite – server-seitig gerendert (SEO).
+ * Die Tagesmutter-Liste, Statistiken und schema.org stehen im HTML-Quelltext
+ * (nicht erst per JS), damit Google + KI-Crawler sie sehen. data.js übernimmt danach
+ * Filter/Suche/Merkliste und rendert aus dem eingebetteten window.__ALLE (kein fetch,
+ * kein Skeleton-Flackern).
+ */
+declare(strict_types=1);
+require __DIR__ . '/api/db.php';
+
+$e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+
+$eintraege = [];
+try {
+    $pdo  = tmf_db();
+    $rows = $pdo->query(
+        "SELECT * FROM tagesmuetter WHERE status = 'approved'
+         ORDER BY (plaetze > 0) DESC, plaetze DESC, created_at DESC"
+    )->fetchAll();
+    $eintraege = array_map('tmf_row_to_entry', $rows);
+} catch (Throwable $ex) { $eintraege = []; }
+
+$anzahl = count($eintraege);
+$freie  = array_sum(array_map(fn($x) => max(0, (int)$x['plaetze']), $eintraege));
+$orte   = count(array_unique(array_map(fn($x) => $x['ort'], $eintraege)));
+$base   = 'https://tagesmutter-vergleich.de';
+
+// Karten-Rendering server-seitig (gleiche Struktur wie data.js karteHtml – den Merken-
+// Button ergänzt das JS beim Neurendern; hier zählt der crawlbare Inhalt).
+function idx_karte(array $x, callable $e): string {
+    $farben = ['#f2a25c','#6aa87e','#7f9fd1','#d17fa8','#a58bd1','#5cbdb9'];
+    $farbe  = $farben[array_sum(array_map('ord', str_split($x['name']))) % count($farben)];
+    $ini    = mb_strtoupper(mb_substr(trim($x['name']), 0, 1)) ?: '?';
+    $p      = (int)$x['plaetze'];
+    $pBadge = $p >= 2 ? "🟢 {$p} Plätze frei" : ($p === 1 ? '🟢 1 Platz frei' : 'Warteliste');
+    $pClass = $p > 0 ? 'b-frei' : 'b-voll';
+    $teaser = mb_substr((string)$x['persoenlich'], 0, 140);
+    if (mb_strlen((string)$x['persoenlich']) > 140) $teaser = rtrim($teaser) . ' …';
+    $url    = '/profil/' . rawurlencode($x['id']);
+    $avatar = $x['foto']
+        ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '"></div>'
+        : '<div class="avatar" style="background:' . $farbe . '">' . $e($ini) . '</div>';
+    $alterChips = '';
+    foreach ((array)$x['alter'] as $a) $alterChips .= '<span class="chip">' . $e($a) . '</span>';
+    $h  = '<article class="card" data-id="' . $e($x['id']) . '" tabindex="0" role="link" aria-label="Profilseite von ' . $e($x['name']) . ' öffnen">';
+    $h .= '<div class="card-top">' . $avatar . '<div><h3>' . $e($x['name']) . '</h3>';
+    $h .= '<div class="ort">📍 ' . $e($x['ort']) . ($x['bundesland'] ? ' <span class="bl">· ' . $e($x['bundesland']) . '</span>' : '') . '</div></div></div>';
+    $h .= '<div class="badges"><span class="badge ' . $pClass . '">' . $pBadge . '</span>';
+    if ($x['erlaubnis']) $h .= '<span class="badge b-check" title="Pflegeerlaubnis vom Jugendamt nach § 43 SGB VIII">✓ Pflegeerlaubnis §43</span>';
+    $h .= '</div>';
+    if ($teaser) $h .= '<p class="desc">' . $e($teaser) . '</p>';
+    $h .= '<div class="meta"><span>🕐 <b>' . $e($x['zeiten']) . '</b></span>';
+    if (!empty($x['frei_ab'])) $h .= '<span>🗓️ frei ab <b>' . $e($x['frei_ab']) . '</b></span>';
+    $h .= '<span class="chips">' . $alterChips . '</span></div>';
+    $h .= '<div class="contact"><a class="btn btn-coral" href="' . $url . '">👤 Profil ansehen</a>';
+    $h .= '<a class="btn btn-ghost" href="mailto:' . $e($x['email']) . '">✉️ Kontakt</a></div>';
+    return $h . '</article>';
+}
+
+// schema.org ItemList der aktuell gelisteten Tagesmütter (zusätzlich zur WebSite unten)
+$itemList = null;
+if ($anzahl > 0) {
+    $items = [];
+    foreach ($eintraege as $i => $x) {
+        $items[] = ['@type' => 'ListItem', 'position' => $i + 1, 'item' => [
+            '@type' => 'ChildCare', 'name' => $x['name'],
+            'url' => $base . '/profil/' . rawurlencode($x['id']),
+            'areaServed' => $x['ort'],
+            'address' => ['@type' => 'PostalAddress', 'addressLocality' => $x['ort'], 'addressRegion' => ($x['bundesland'] ?: TMF_REGION), 'addressCountry' => 'DE'],
+        ]];
+    }
+    $itemList = ['@context' => 'https://schema.org', '@type' => 'ItemList', 'name' => 'Tagesmütter in ' . TMF_REGION, 'numberOfItems' => $anzahl, 'itemListElement' => $items];
+}
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -20,13 +95,16 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"Tagesmutter finden","url":"https://tagesmutter-vergleich.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
 </script>
+<?php if ($itemList): ?>
+<script type="application/ld+json"><?= json_encode($itemList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+<?php endif; ?>
 </head>
 <body>
 <a href="#liste" class="skip-link">Zum Inhalt springen</a>
 
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="#">
+    <a class="logo" href="/">
       <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden – Kindertagespflege" class="logo-img">
     </a>
     <div class="header-search">
@@ -76,9 +154,9 @@
 
 <div class="stats">
   <div class="stats-grid">
-    <div class="stat"><div class="n" id="stat-count">–</div><div class="l">Tagesmütter gelistet</div></div>
-    <div class="stat"><div class="n" id="stat-frei">–</div><div class="l">freie Plätze</div></div>
-    <div class="stat"><div class="n" id="stat-orte">–</div><div class="l">Orte abgedeckt</div></div>
+    <div class="stat"><div class="n" id="stat-count"><?= $anzahl ?></div><div class="l">Tagesmütter gelistet</div></div>
+    <div class="stat"><div class="n" id="stat-frei"><?= $freie ?></div><div class="l">freie Plätze</div></div>
+    <div class="stat"><div class="n" id="stat-orte"><?= $orte ?></div><div class="l">Orte abgedeckt</div></div>
     <div class="stat"><div class="n">0&nbsp;€</div><div class="l">Kosten für Eltern</div></div>
   </div>
 </div>
@@ -111,8 +189,11 @@
       </div>
       <div class="active-filters" id="active-filters"></div>
     </div>
-    <p class="count-line" id="count"></p>
-    <div class="grid" id="grid"></div>
+    <p class="count-line" id="count"><?= $anzahl === 1 ? '1 Tagesmutter gefunden' : $anzahl . ' Tagesmütter gefunden' ?></p>
+    <div class="grid" id="grid"><?php
+      if ($anzahl > 0) { foreach ($eintraege as $x) echo idx_karte($x, $e); }
+      else { echo '<div class="empty"><span class="emo">🧸</span>Noch keine Tagesmütter eingetragen.<span class="sub">Sei die Erste – kostenlos in 2 Minuten eingetragen.</span><a href="registrieren.php" class="btn btn-coral">Jetzt eintragen</a></div>'; }
+    ?></div>
   </div>
 </section>
 
@@ -242,14 +323,16 @@
       <h2>Kindertagespflege in deiner Stadt</h2>
       <p>Wähle deine Stadt und sieh alle Tagesmütter dort auf einen Blick.</p>
     </div>
-    <div class="staedte-grid reveal" id="staedte-grid"></div>
+    <div class="staedte-grid reveal" id="staedte-grid"><?php
+      foreach (TMF_STAEDTE as $stadt) echo '<a href="/tagesmutter/' . tmf_slug($stadt) . '">' . $e($stadt) . '</a>';
+    ?></div>
   </div>
 </section>
 
 <footer>
   <div class="footer-grid">
     <div>
-      <a class="logo" href="#">
+      <a class="logo" href="/">
         <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
@@ -285,16 +368,13 @@
 
 <div class="toast" id="toast">✅ Danke! Dein Eintrag wurde übermittelt und erscheint nach kurzer Prüfung.</div>
 
+<script>window.__ALLE = <?= json_encode($eintraege, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;</script>
 <script src="data.js"></script>
 <script>
-// Alte Profil-Links (v0.3: #profil=<id>) auf die neuen Profilseiten umleiten
-const altHash = location.hash.match(/^#profil=(.+)$/);
-if(altHash) location.replace(profilUrl(decodeURIComponent(altHash[1])));
-
 // ---------- Rendering ----------
 const grid = document.getElementById("grid");
 const countEl = document.getElementById("count");
-let ALLE = [];   // vom Server geladene, freigegebene Einträge
+let ALLE = [];   // vom Server geladene, freigegebene Einträge (SSR: window.__ALLE)
 
 function render(){
   const q = document.getElementById("search").value.trim().toLowerCase();
@@ -403,8 +483,9 @@ function render(){
   history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
 }
 
-// Einträge vom Server holen und anzeigen
+// Einträge anzeigen: SSR-Daten (window.__ALLE) direkt nutzen; sonst vom Server holen
 async function ladeUndRender(){
+  if(Array.isArray(window.__ALLE)){ ALLE = window.__ALLE; render(); return; }
   grid.innerHTML = Array.from({length:6}, () => `
     <div class="skeleton-card" aria-hidden="true">
       <div class="sk-row"><div class="sk sk-avatar"></div><div style="flex:1"><div class="sk sk-line" style="width:62%"></div><div class="sk sk-line" style="width:40%;margin:0"></div></div></div>
@@ -471,9 +552,7 @@ document.getElementById("stadt-go").addEventListener("click", () => {
   if(ort) location.href = stadtUrl(ort);
   else document.getElementById("liste").scrollIntoView({behavior:"smooth"});
 });
-// Städte-Übersicht rendern → interne Links zu den Stadt-Landingpages
-const sg = document.getElementById("staedte-grid");
-if(sg) sg.innerHTML = (BUNDESLAENDER[REGION_BL] || []).map(o => `<a href="${stadtUrl(o)}">${esc(o)}</a>`).join("");
+// Städte-Übersicht ist bereits server-seitig gerendert (interne Links → Stadt-Landingpages)
 
 // Punkt 1: gespeicherte Filter aus der URL wiederherstellen (vor dem ersten Laden)
 (function(){
@@ -489,7 +568,7 @@ if(sg) sg.innerHTML = (BUNDESLAENDER[REGION_BL] || []).map(o => `<a href="${stad
   if(p.has("sort")) document.getElementById("f-sort").value = p.get("sort");
 })();
 
-// ---------- Live-Statistiken ----------
+// ---------- Live-Statistiken (aktualisiert die server-seitigen Startwerte) ----------
 fetch("api/stats.php").then(r => r.json()).then(s => {
   const set = (id,v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
   set("stat-count", s.anzahl); set("stat-frei", s.freie); set("stat-orte", s.orte);

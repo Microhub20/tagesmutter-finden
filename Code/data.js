@@ -38,7 +38,7 @@ function badgePlaetze(p){
   return `<span class="badge b-voll">Warteliste</span>`;
 }
 
-function profilUrl(id){ return "profil.html?id=" + encodeURIComponent(id); }
+function profilUrl(id){ return "/profil/" + encodeURIComponent(id); }
 
 // Relative Zeit ("vor 3 Tagen") + Frische-Badge (Vertrauenssignal)
 function zeitRelativ(ts){

@@ -23,7 +23,7 @@ try {
     }
     // Einzelne Profile
     foreach ($pdo->query("SELECT id FROM tagesmuetter WHERE status = 'approved'") as $r) {
-        $out .= "  <url><loc>{$base}/profil.html?id=" . rawurlencode((string)$r['id']) . "</loc></url>\n";
+        $out .= "  <url><loc>{$base}/profil/" . rawurlencode((string)$r['id']) . "</loc></url>\n";
     }
 } catch (Throwable $e) { /* Sitemap trotzdem mit statischen URLs ausliefern */ }
 $out .= '</urlset>';

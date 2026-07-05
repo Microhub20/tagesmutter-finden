@@ -136,7 +136,7 @@ if ($isAdmin) {
       <input type="password" name="login_pass" placeholder="Passwort" autofocus required>
       <button type="submit" class="btn btn-coral" style="width:100%">Anmelden</button>
     </form>
-    <p style="margin-top:1.4rem"><a href="index.html" style="color:var(--muted);font-size:.82rem">← Zur Website</a></p>
+    <p style="margin-top:1.4rem"><a href="/" style="color:var(--muted);font-size:.82rem">← Zur Website</a></p>
   </div>
 <?php else: ?>
   <div class="admin-wrap">

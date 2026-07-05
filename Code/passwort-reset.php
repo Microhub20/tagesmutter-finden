@@ -34,7 +34,7 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 <body>
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="brand"><a href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
+    <div class="brand"><a href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
     <h1>Neues Passwort</h1>
     <?php if (!$uid): ?>
       <div class="auth-err">Dieser Link ist ungültig oder abgelaufen.</div>

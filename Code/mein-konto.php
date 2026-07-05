@@ -159,9 +159,9 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
+    <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
     <nav>
-      <a href="profil.html?id=<?= $e($user['id']) ?>">Mein öffentliches Profil</a>
+      <a href="/profil/<?= $e($user['id']) ?>">Mein öffentliches Profil</a>
       <a href="login.php?logout=1" class="cta">Abmelden</a>
     </nav>
   </div>
@@ -392,7 +392,7 @@ document.getElementById("del-btn").addEventListener("click", async () => {
   try{
     const res = await fetch("mein-konto.php", {method:"POST", body:fd});
     const data = await res.json().catch(() => ({}));
-    if(data.geloescht){ alert("Dein Konto wurde gelöscht."); location.href = "index.html"; }
+    if(data.geloescht){ alert("Dein Konto wurde gelöscht."); location.href = "/"; }
     else throw new Error();
   }catch(e){ alert("Löschen fehlgeschlagen – bitte später erneut versuchen."); }
 });

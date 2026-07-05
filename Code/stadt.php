@@ -58,7 +58,7 @@ if ($stadt !== null) {
             'item' => [
                 '@type' => 'ChildCare',
                 'name'  => $x['name'],
-                'url'   => $base . '/profil.html?id=' . rawurlencode($x['id']),
+                'url'   => $base . '/profil/' . rawurlencode($x['id']),
                 'areaServed' => $stadt,
                 'address' => ['@type' => 'PostalAddress', 'addressLocality' => $stadt, 'addressRegion' => TMF_REGION, 'addressCountry' => 'DE'],
             ],
@@ -87,7 +87,7 @@ function stadt_karte(array $x, callable $e): string {
     $pClass = $p > 0 ? 'b-frei' : 'b-voll';
     $teaser = mb_substr((string)$x['persoenlich'], 0, 140);
     if (mb_strlen((string)$x['persoenlich']) > 140) $teaser = rtrim($teaser) . ' …';
-    $url    = 'profil.html?id=' . rawurlencode($x['id']);
+    $url    = '/profil/' . rawurlencode($x['id']);
     $avatar = $x['foto']
         ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '"></div>'
         : '<div class="avatar" style="background:' . $farbe . '">' . $e($ini) . '</div>';
@@ -168,15 +168,15 @@ function stadt_karte(array $x, callable $e): string {
 
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
+    <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
     </button>
     <nav id="hauptnav">
-      <a href="index.html#liste">Tagesmütter</a>
-      <a href="index.html#so-gehts">So funktioniert’s</a>
-      <a href="index.html#kosten">Kosten</a>
-      <a href="index.html#faq">FAQ</a>
+      <a href="/#liste">Tagesmütter</a>
+      <a href="/#so-gehts">So funktioniert’s</a>
+      <a href="/#kosten">Kosten</a>
+      <a href="/#faq">FAQ</a>
       <a href="login.php">Anmelden</a>
       <a href="registrieren.php" class="cta">Als Tagesmutter eintragen</a>
     </nav>
@@ -189,11 +189,11 @@ function stadt_karte(array $x, callable $e): string {
     <span class="emo">🧸</span>
     <h1>Stadt nicht gefunden</h1>
     <p style="color:var(--ink-soft);margin:.6rem 0 1.3rem">Diese Stadt-Seite gibt es nicht. Schau in der Gesamtübersicht.</p>
-    <a class="btn btn-coral" href="index.html#liste">Zur Übersicht aller Tagesmütter</a>
+    <a class="btn btn-coral" href="/#liste">Zur Übersicht aller Tagesmütter</a>
   </div>
 <?php else: ?>
   <nav class="crumb" aria-label="Brotkrumen">
-    <a href="index.html">Startseite</a> › <a href="index.html#liste">Tagesmütter</a> › <span><?= $e($stadt) ?></span>
+    <a href="/">Startseite</a> › <a href="/#liste">Tagesmütter</a> › <span><?= $e($stadt) ?></span>
   </nav>
 
   <div class="stadt-head">
@@ -256,15 +256,15 @@ function stadt_karte(array $x, callable $e): string {
 <footer>
   <div class="footer-grid">
     <div>
-      <a class="logo" href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px"></a>
+      <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px"></a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>
     <div>
       <h5>Für Eltern</h5>
       <ul>
-        <li><a href="index.html#liste">Tagesmütter finden</a></li>
-        <li><a href="index.html#so-gehts">So funktioniert’s</a></li>
-        <li><a href="index.html#faq">Häufige Fragen</a></li>
+        <li><a href="/#liste">Tagesmütter finden</a></li>
+        <li><a href="/#so-gehts">So funktioniert’s</a></li>
+        <li><a href="/#faq">Häufige Fragen</a></li>
       </ul>
     </div>
     <div>
@@ -283,7 +283,7 @@ function stadt_karte(array $x, callable $e): string {
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="index.html">Startseite</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a>
   </div>
 </footer>
 

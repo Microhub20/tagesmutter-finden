@@ -1,17 +1,138 @@
+<?php
+/**
+ * Tagesmutter-Profil – server-seitig gerendert (SEO).
+ * URL: /profil/<id>   (per .htaccess → profil.php?id=<id>; id ist bereits ein Slug)
+ * Titel, Meta-Description, OG-Tags, schema.org und der Kern-Inhalt (Name, Ort,
+ * Vorstellung) stehen im HTML-Quelltext – nicht per JS – damit Google + KI sie sehen.
+ * Die Interaktivität (Anfrage, Galerie, Merken, ähnliche) ergänzt data.js über das
+ * eingebettete window.__PROFIL (kein zusätzlicher fetch, kein Flackern).
+ */
+declare(strict_types=1);
+require __DIR__ . '/api/db.php';
+
+$e  = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+$id = preg_replace('/[^a-z0-9\-]/', '', strtolower((string)($_GET['id'] ?? '')));
+
+$entry = null;
+if ($id !== '') {
+    try {
+        $pdo = tmf_db();
+        $st = $pdo->prepare("SELECT * FROM tagesmuetter WHERE id = ? AND status = 'approved'");
+        $st->execute([$id]);
+        $row = $st->fetch();
+        if ($row) $entry = tmf_row_to_entry($row);
+    } catch (Throwable $ex) { $entry = null; }
+}
+if ($entry === null) http_response_code(404);
+
+$base  = 'https://tagesmutter-vergleich.de';
+$canon = $entry ? $base . '/profil/' . rawurlencode($entry['id']) : $base . '/';
+
+// ---- SEO-Meta aus echten Profildaten ----
+if ($entry) {
+    $titel  = $entry['name'] . ' – Tagesmutter in ' . $entry['ort'];
+    $rohtxt = trim((string)$entry['persoenlich']) !== ''
+        ? $entry['persoenlich']
+        : ('Kindertagespflege bei ' . $entry['name'] . ' in ' . $entry['ort'] . ': Betreuungszeiten, freie Plätze und direkter Kontakt.');
+    $desc   = mb_substr(trim(preg_replace('/\s+/', ' ', (string)$rohtxt)), 0, 155);
+    $robots = 'index, follow';
+    $ogimg  = $entry['foto'] ? $base . '/' . $entry['foto'] : $base . '/img/hero.jpg';
+} else {
+    $titel  = 'Profil nicht gefunden';
+    $desc   = 'Dieses Profil existiert nicht (mehr) oder der Link ist unvollständig.';
+    $robots = 'noindex, follow';
+    $ogimg  = $base . '/img/hero.jpg';
+}
+
+// ---- Server-seitige Render-Helfer (Spiegel der JS-Logik in data.js) ----
+function p_badge_plaetze(int $p): string {
+    if ($p >= 2) return '<span class="badge b-frei">🟢 ' . $p . ' Plätze frei</span>';
+    if ($p === 1) return '<span class="badge b-frei">🟢 1 Platz frei</span>';
+    return '<span class="badge b-voll">Warteliste</span>';
+}
+function p_frische(array $x): string {
+    $ts = $x['updated_at'] ?: $x['created_at'];
+    if (!$ts) return '';
+    $t = strtotime((string)$ts);
+    if ($t === false) return '';
+    $tage = (int)floor((time() - $t) / 86400);
+    return $tage <= 14 ? '<span class="badge b-frisch" title="Profil in den letzten 2 Wochen aktualisiert">🕒 aktuell</span>' : '';
+}
+
+// ---- Kern-Inhalt server-seitig vorbereiten ----
+$badgesHtml = '';
+$metaHtml   = '';
+if ($entry) {
+    $badgesHtml = p_badge_plaetze((int)$entry['plaetze'])
+        . ($entry['erlaubnis'] ? '<span class="badge b-check" title="Pflegeerlaubnis vom Jugendamt nach § 43 SGB VIII">✓ Pflegeerlaubnis §43</span>' : '')
+        . p_frische($entry);
+
+    $metaHtml = '<span>🕐 <b>' . $e($entry['zeiten']) . '</b></span>';
+    $chips = '';
+    foreach ((array)$entry['alter'] as $a) $chips .= '<span class="chip">' . $e($a) . '</span>';
+    $metaHtml .= '<span class="chips">' . $chips . '</span>';
+    if (!empty($entry['extras'])) {
+        $ex = '';
+        foreach ((array)$entry['extras'] as $x) $ex .= '<span class="chip">✓ ' . $e($x) . '</span>';
+        $metaHtml .= '<span class="chips">' . $ex . '</span>';
+    }
+}
+
+// ---- strukturierte Daten (schema.org): ChildCare + Breadcrumb ----
+$schemas = [];
+if ($entry) {
+    $childcare = [
+        '@context'    => 'https://schema.org',
+        '@type'       => 'ChildCare',
+        'name'        => $entry['name'],
+        'url'         => $canon,
+        'description' => $desc,
+        'areaServed'  => $entry['ort'],
+        'address'     => [
+            '@type'           => 'PostalAddress',
+            'addressLocality' => $entry['ort'],
+            'addressRegion'   => $entry['bundesland'] ?: TMF_REGION,
+            'addressCountry'  => 'DE',
+        ],
+        'email'       => $entry['email'],
+    ];
+    if (!empty($entry['tel']))  $childcare['telephone'] = $entry['tel'];
+    if (!empty($entry['foto'])) $childcare['image'] = $base . '/' . $entry['foto'];
+    $schemas[] = $childcare;
+    $schemas[] = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Startseite',   'item' => $base . '/'],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Tagesmütter',  'item' => $base . '/#liste'],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => 'Tagesmütter in ' . $entry['ort'], 'item' => $base . '/tagesmutter/' . tmf_slug($entry['ort'])],
+            ['@type' => 'ListItem', 'position' => 4, 'name' => $entry['name'],  'item' => $canon],
+        ],
+    ];
+}
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="index, follow">
-<meta name="description" content="Profil einer Tagesmutter: persönliche Vorstellung, Betreuungszeiten, freie Plätze und direkter Kontakt.">
+<meta name="robots" content="<?= $robots ?>">
+<meta name="description" content="<?= $e($desc) ?>">
+<meta name="author" content="Gaseit GmbH">
+<link rel="canonical" href="<?= $e($canon) ?>">
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="Tagesmutter finden">
-<meta property="og:title" content="Tagesmutter-Profil – Tagesmutter finden">
-<meta property="og:description" content="Persönliche Vorstellung, Betreuungszeiten, freie Plätze und direkter Kontakt zur Tagesmutter.">
-<title>Profil – Tagesmutter finden</title>
+<meta property="og:title" content="<?= $e($titel) ?>">
+<meta property="og:description" content="<?= $e($desc) ?>">
+<meta property="og:url" content="<?= $e($canon) ?>">
+<meta property="og:image" content="<?= $e($ogimg) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<title><?= $e($titel) ?> | Tagesmutter finden</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
+<?php foreach ($schemas as $s): ?>
+<script type="application/ld+json"><?= json_encode($s, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+<?php endforeach; ?>
 <style>
   .p-details{margin:1.6rem 0}
   .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.7rem;margin-top:.7rem}
@@ -34,42 +155,42 @@
 
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="index.html">
+    <a class="logo" href="/">
       <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img">
     </a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
     </button>
     <nav id="hauptnav">
-      <a href="index.html#liste">Tagesmütter</a>
-      <a href="index.html#so-gehts">So funktioniert’s</a>
-      <a href="index.html#faq">FAQ</a>
-      <a href="index.html#eintragen" class="cta">Als Tagesmutter eintragen</a>
+      <a href="/#liste">Tagesmütter</a>
+      <a href="/#so-gehts">So funktioniert’s</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/#eintragen" class="cta">Als Tagesmutter eintragen</a>
     </nav>
   </div>
 </header>
 
 <main class="profile-main">
-  <a class="back-link" href="index.html#liste">← Alle Tagesmütter</a>
+  <a class="back-link" href="/#liste">← Alle Tagesmütter</a>
 
-  <!-- Profil (wird per JavaScript gefüllt) -->
-  <article class="profile-card" id="profil" hidden>
+  <!-- Profil – Kern server-seitig gerendert, Interaktivität ergänzt data.js -->
+  <article class="profile-card" id="profil"<?= $entry ? '' : ' hidden' ?>>
     <div class="p-head">
       <div class="p-photo" id="p-photo"></div>
       <div>
-        <h1 id="p-name"></h1>
-        <div class="ort" id="p-ort"></div>
+        <h1 id="p-name"><?= $entry ? $e($entry['name']) : '' ?></h1>
+        <div class="ort" id="p-ort"><?= $entry ? '📍 ' . $e($entry['ort']) . ($entry['bundesland'] ? ' · ' . $e($entry['bundesland']) : '') : '' ?></div>
       </div>
     </div>
-    <div class="badges" id="p-badges"></div>
-    <div class="p-meta" id="p-meta"></div>
+    <div class="badges" id="p-badges"><?= $badgesHtml ?></div>
+    <div class="p-meta" id="p-meta"><?= $metaHtml ?></div>
     <div class="p-details" id="p-details" hidden></div>
     <div class="p-galerie" id="p-galerie" hidden>
       <div class="haupt"><img id="p-gal-haupt" src="" alt="Bild der Tagesmutter"></div>
       <div class="thumbs" id="p-gal-thumbs"></div>
     </div>
     <h2 class="p-label">Persönliche Vorstellung</h2>
-    <p class="p-text" id="p-text"></p>
+    <p class="p-text" id="p-text"><?= $entry ? nl2br($e($entry['persoenlich'] ?: 'Für dieses Profil wurde noch kein persönlicher Text hinterlegt.')) : '' ?></p>
     <div id="p-konzept" hidden></div>
     <div class="p-contact" id="p-contact"></div>
     <div class="p-share" id="p-share"></div>
@@ -131,18 +252,18 @@
   <section class="p-aehnliche" id="p-aehnliche" hidden></section>
 
   <!-- Fehlerzustand: Profil nicht gefunden -->
-  <div class="profile-card p-error" id="fehler" hidden>
+  <div class="profile-card p-error" id="fehler"<?= $entry ? ' hidden' : '' ?>>
     <div class="big">🧸</div>
     <h1>Profil nicht gefunden</h1>
     <p>Dieses Profil existiert nicht (mehr) oder der Link ist unvollständig.</p>
-    <a class="btn btn-coral" href="index.html#liste">Zur Übersicht aller Tagesmütter</a>
+    <a class="btn btn-coral" href="/#liste">Zur Übersicht aller Tagesmütter</a>
   </div>
 </main>
 
 <footer>
   <div class="footer-grid">
     <div>
-      <a class="logo" href="index.html">
+      <a class="logo" href="/">
         <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
@@ -150,15 +271,15 @@
     <div>
       <h5>Für Eltern</h5>
       <ul>
-        <li><a href="index.html#liste">Tagesmütter finden</a></li>
-        <li><a href="index.html#so-gehts">So funktioniert’s</a></li>
-        <li><a href="index.html#faq">Häufige Fragen</a></li>
+        <li><a href="/#liste">Tagesmütter finden</a></li>
+        <li><a href="/#so-gehts">So funktioniert’s</a></li>
+        <li><a href="/#faq">Häufige Fragen</a></li>
       </ul>
     </div>
     <div>
       <h5>Für Tagesmütter</h5>
       <ul>
-        <li><a href="index.html#eintragen">Kostenlos eintragen</a></li>
+        <li><a href="/#eintragen">Kostenlos eintragen</a></li>
         <li><a href="impressum.html">Impressum</a></li>
         <li><a href="datenschutz.html">Datenschutz</a></li>
       </ul>
@@ -171,23 +292,20 @@
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="index.html">Startseite</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a>
   </div>
 </footer>
 
+<script>window.__PROFIL = <?= $entry ? json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : 'null' ?>;</script>
 <script src="data.js"></script>
 <script>
 (async () => {
-  const id = new URLSearchParams(location.search).get("id");
-  let e = null;
-  try { if(id) e = await ladeProfil(id); } catch(err) { e = null; }
+  const e = window.__PROFIL || null;
 
   if(!e){
     document.getElementById("fehler").hidden = false;
-    document.title = "Profil nicht gefunden – Tagesmutter finden";
     return;
   }
-  document.title = `${e.name} – Tagesmutter in ${e.ort}`;
   // Foto oder Platzhalter („Foto folgt")
   const photo = document.getElementById("p-photo");
   if(e.foto){

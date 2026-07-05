@@ -1,4 +1,4 @@
-# Tagesmutter finden – Cache-Steuerung
+# Tagesmutter finden – Cache-Steuerung + sprechende URLs (SEO)
 # Ziel: HTML/CSS/JS immer frisch (Updates kommen sofort an), Bilder/Fonts dürfen cachen.
 
 <IfModule mod_headers.c>
@@ -15,10 +15,22 @@
 # UTF-8 sicherstellen
 AddDefaultCharset UTF-8
 
-# Sprechende Stadt-Landingpages (SEO): /tagesmutter/<stadt> → stadt.php?stadt=<stadt>
+# Startseite server-seitig gerendert (SEO): index.php vor index.html ausliefern
+DirectoryIndex index.php index.html
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Alte .html-Adressen dauerhaft auf die neuen Ziele umleiten (Bookmarks / Suchindex)
+    RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9\-]+)
+    RewriteRule ^profil\.html$ /profil/%2? [R=301,L]
+    RewriteRule ^index\.html$ / [R=301,L]
+
+    # Sprechende Stadt-Landingpages: /tagesmutter/<stadt> → stadt.php?stadt=<stadt>
     RewriteRule ^tagesmutter/([a-z0-9-]+)/?$ stadt.php?stadt=$1 [L,QSA]
+
+    # Sprechende Profil-URLs: /profil/<id> → profil.php?id=<id>  (id ist bereits ein Slug, z. B. anna-mueller-a1b2c3)
+    RewriteRule ^profil/([a-z0-9-]+)/?$ profil.php?id=$1 [L,QSA]
 </IfModule>
 
 # Schöne Fehlerseite

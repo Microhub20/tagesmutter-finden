@@ -36,7 +36,7 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 <body>
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="brand"><a href="index.html"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
+    <div class="brand"><a href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" style="height:44px"></a></div>
     <h1>Passwort vergessen</h1>
     <?php if ($done): ?>
       <div class="auth-ok">✅ Falls ein Konto mit dieser E-Mail existiert, haben wir dir einen Link zum Zurücksetzen geschickt. Schau in dein Postfach (auch Spam-Ordner).</div>

@@ -21,6 +21,15 @@ jobs:
       - name: Code auschecken
         uses: actions/checkout@v4
 
+      - name: PHP-Syntax prüfen (Lint vor Deploy)
+        run: |
+          fail=0
+          for f in $(find Code -name '*.php'); do
+            php -l "$f" || fail=1
+          done
+          if [ "$fail" -ne 0 ]; then echo "::error::PHP-Syntaxfehler – Deploy abgebrochen"; exit 1; fi
+          echo "PHP-Lint OK – alle Dateien syntaktisch sauber"
+
       - name: Code/api/config.php aus Secrets erzeugen
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
