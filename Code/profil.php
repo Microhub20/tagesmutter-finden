@@ -98,6 +98,9 @@ if ($entry) {
     ];
     if (!empty($entry['tel']))  $childcare['telephone'] = $entry['tel'];
     if (!empty($entry['foto'])) $childcare['image'] = $base . '/' . $entry['foto'];
+    if (!empty($entry['created_at'])) $childcare['datePublished'] = substr((string)$entry['created_at'], 0, 10);
+    $mod = $entry['updated_at'] ?: $entry['created_at'];
+    if (!empty($mod)) $childcare['dateModified'] = substr((string)$mod, 0, 10);
     $schemas[] = $childcare;
     $schemas[] = [
         '@context' => 'https://schema.org',

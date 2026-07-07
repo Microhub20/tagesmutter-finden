@@ -89,7 +89,7 @@ function stadt_karte(array $x, callable $e): string {
     if (mb_strlen((string)$x['persoenlich']) > 140) $teaser = rtrim($teaser) . ' …';
     $url    = '/profil/' . rawurlencode($x['id']);
     $avatar = $x['foto']
-        ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '"></div>'
+        ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '" loading="lazy"></div>'
         : '<div class="avatar" style="background:' . $farbe . '">' . $e($ini) . '</div>';
     $alterChips = '';
     foreach ((array)$x['alter'] as $a) $alterChips .= '<span class="chip">' . $e($a) . '</span>';

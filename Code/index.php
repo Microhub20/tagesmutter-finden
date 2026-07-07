@@ -39,7 +39,7 @@ function idx_karte(array $x, callable $e): string {
     if (mb_strlen((string)$x['persoenlich']) > 140) $teaser = rtrim($teaser) . ' …';
     $url    = '/profil/' . rawurlencode($x['id']);
     $avatar = $x['foto']
-        ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '"></div>'
+        ? '<div class="avatar"><img src="' . $e($x['foto']) . '" alt="Foto von ' . $e($x['name']) . '" loading="lazy"></div>'
         : '<div class="avatar" style="background:' . $farbe . '">' . $e($ini) . '</div>';
     $alterChips = '';
     foreach ((array)$x['alter'] as $a) $alterChips .= '<span class="chip">' . $e($a) . '</span>';
@@ -98,6 +98,12 @@ if ($anzahl > 0) {
 <?php if ($itemList): ?>
 <script type="application/ld+json"><?= json_encode($itemList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endif; ?>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de","description":"Betreiber des Portals „Tagesmutter finden“ – Verzeichnis für Kindertagespflege.","address":{"@type":"PostalAddress","streetAddress":"Gymnasiumstr. 12","postalCode":"72336","addressLocality":"Balingen","addressCountry":"DE"},"email":"info@gaseit.de","sameAs":["https://gaseit.de"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was kostet die Nutzung des Portals?","acceptedAnswer":{"@type":"Answer","text":"Nichts – weder für Eltern noch für Tagesmütter. Das Portal finanziert sich über dezente Werbeanzeigen am Seitenrand."}},{"@type":"Question","name":"Was ist Kindertagespflege eigentlich?","acceptedAnswer":{"@type":"Answer","text":"Die Betreuung von Kindern (meist 0–3 Jahre) durch qualifizierte Tagesmütter oder Tagesväter – in kleinen Gruppen von maximal fünf Kindern, in der Regel im Zuhause der Betreuungsperson. Sie ist gesetzlich anerkannt und wird vom Landratsamt gefördert wie ein Kita-Platz."}},{"@type":"Question","name":"Wie werden die Profile geprüft?","acceptedAnswer":{"@type":"Answer","text":"Jede Tagesmutter trägt sich selbst ein und willigt in die Veröffentlichung ein. Vor der Freischaltung prüfen wir die Angaben – insbesondere die Pflegeerlaubnis nach § 43 SGB VIII, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt."}},{"@type":"Question","name":"Wie bekomme ich einen Betreuungsplatz?","acceptedAnswer":{"@type":"Answer","text":"Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das zuständige Jugendamt – die Tagesmutter kennt den Ablauf und hilft dabei."}}]}
+</script>
 </head>
 <body>
 <a href="#liste" class="skip-link">Zum Inhalt springen</a>
@@ -274,7 +280,7 @@ if ($anzahl > 0) {
     </div>
     <div class="register-grid">
       <div class="register-side reveal">
-        <div class="frame"><img src="img/eintragen.jpg" alt="Illustration: Tagesmutter trägt sich am Laptop ein, daneben spielt ein Kind" width="900" height="1125"></div>
+        <div class="frame"><img src="img/eintragen.jpg" alt="Illustration: Tagesmutter trägt sich am Laptop ein, daneben spielt ein Kind" width="900" height="1125" loading="lazy"></div>
         <div class="perk"><div class="tick">✓</div><div><b>Kostenlos gefunden werden</b><span>Eltern aus deinem Ort sehen dein Profil zuerst.</span></div></div>
         <div class="perk"><div class="tick">✓</div><div><b>Eigene Profilseite</b><span>Deine persönliche Vorstellung auf einer eigenen Seite – teilbar per Link.</span></div></div>
         <div class="perk"><div class="tick">✓</div><div><b>Volle Kontrolle</b><span>Dein Profil jederzeit selbst bearbeiten – nach dem Login in deinem Konto.</span></div></div>
@@ -410,7 +416,7 @@ function render(){
       <button class="fav-btn${favHas(e.id)?' on':''}" data-fav="${esc(e.id)}" title="Merken" aria-label="Zur Merkliste">${favHas(e.id)?'❤️':'🤍'}</button>
       <div class="card-top">
         ${e.foto
-          ? `<div class="avatar"><img src="${esc(e.foto)}" alt="Foto von ${esc(e.name)}"></div>`
+          ? `<div class="avatar"><img src="${esc(e.foto)}" alt="Foto von ${esc(e.name)}" loading="lazy"></div>`
           : `<div class="avatar" style="background:${avColor(e.name)}">${esc(e.name.trim()[0] || "?")}</div>`}
         <div>
           <h3>${esc(e.name)}</h3>

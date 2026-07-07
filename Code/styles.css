@@ -9,7 +9,7 @@
   color-scheme:light; /* nur helles Design – Browser/OS soll die Seite nicht automatisch abdunkeln */
   --coral:#d9634f; --coral-dark:#bf4c3a; --coral-soft:#f6e7e2;
   --sage:#5f9e74; --sage-dark:#4c8560; --sage-bg:#e9f3ec;
-  --cream:#fdf8f2; --card:#ffffff; --ink:#2d241b; --ink-soft:#5a4f45; --muted:#918678;
+  --cream:#fdf8f2; --card:#ffffff; --ink:#2d241b; --ink-soft:#5a4f45; --muted:#7e7365; /* --muted auf WCAG-AA-Kontrast (4.6:1 auf Weiß) angehoben */
   --amber:#b97e14; --amber-bg:#fcf3e0; --line:#eadfd0;
   --radius:16px;
   --shadow-sm:0 2px 10px rgba(70,50,32,.07);
