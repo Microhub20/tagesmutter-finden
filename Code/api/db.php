@@ -10,6 +10,33 @@
 
 declare(strict_types=1);
 
+/*
+ * Betrieb & Sicherheit – zentral, weil ALLE PHP-Einstiege db.php einbinden und
+ * Hostinger/LiteSpeed die .htaccess NICHT ausliest (Header/Redirects müssen daher
+ * aus PHP kommen). Läuft einmalig beim Einbinden, vor jeder Ausgabe.
+ *   • Fehler nicht an Besucher zeigen (live), aber in eine Logdatei schreiben.
+ *   • HTTP-Sicherheits-Header setzen (Clickjacking, MIME-Sniffing, Referrer, HSTS).
+ */
+(static function (): void {
+    if (PHP_SAPI === 'cli') return;                       // Lint/CLI unangetastet lassen
+    $prod = is_file(__DIR__ . '/config.php');             // live = echte Config aus Secrets
+    @ini_set('log_errors', '1');
+    @ini_set('display_errors', $prod ? '0' : '1');        // live: keine Fehler an Besucher
+    $logdir = __DIR__ . '/data';
+    if (!is_dir($logdir)) @mkdir($logdir, 0775, true);
+    if (is_dir($logdir)) @ini_set('error_log', $logdir . '/php-error.log');
+    if (!headers_sent()) {
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: SAMEORIGIN');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+        $https = ($_SERVER['HTTPS'] ?? '') === 'on'
+              || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+              || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443;
+        if ($https) header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
+})();
+
 function tmf_config(): array {
     static $cfg = null;
     if ($cfg !== null) return $cfg;

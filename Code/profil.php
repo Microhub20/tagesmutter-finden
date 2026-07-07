@@ -145,6 +145,9 @@ if ($entry) {
   .di-val{display:block;font-weight:700;color:var(--ink);font-size:.92rem;line-height:1.25}
   .p-anfrage{margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--line)}
   .p-share{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+  .p-melden{margin-top:1.6rem;font-size:.82rem;text-align:center}
+  .p-melden a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted)}
+  .p-melden a:hover{color:var(--coral);border-color:var(--coral)}
   .p-aehnliche{max-width:820px;margin:0 auto;padding:0 1.4rem 3rem}
   .aehnliche-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:.8rem}
   .ae-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;text-decoration:none;color:var(--ink);display:block;transition:transform .15s;box-shadow:var(--shadow-sm)}
@@ -212,6 +215,9 @@ if ($entry) {
         </ul>
       </div>
     </details>
+<?php if ($entry): ?>
+    <p class="p-melden"><a href="mailto:info@gaseit.de?subject=<?= $e(rawurlencode('Profil melden: ' . $entry['name'] . ' (' . $entry['id'] . ')')) ?>&amp;body=<?= $e(rawurlencode("Ich möchte dieses Profil melden:\n" . $canon . "\n\nGrund (bitte kurz beschreiben):\n")) ?>">⚠️ Stimmt etwas nicht mit diesem Profil? Melden</a></p>
+<?php endif; ?>
     <div class="p-vormerkung" id="p-vormerkung" hidden>
       <h2 class="p-label">🔔 Bei freiem Platz benachrichtigen</h2>
       <p style="color:var(--muted);font-size:.9rem;margin:.2rem 0 .9rem">Aktuell keine freien Plätze. Trag dich ein – du wirst benachrichtigt, sobald wieder etwas frei wird.</p>

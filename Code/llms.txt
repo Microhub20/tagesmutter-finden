@@ -9,6 +9,13 @@ Tagesmutter finden bringt Eltern und Tagespflegepersonen zusammen. Alle gelistet
 - [Stadt-Seiten](https://mein-tageskind.de/tagesmutter/balingen): Pro Stadt eine eigene Seite unter /tagesmutter/<stadt> (z. B. Balingen, Albstadt, Hechingen, Reutlingen, Tübingen, Stuttgart).
 - [Kostenlos als Tagesmutter eintragen](https://mein-tageskind.de/registrieren.php): Tagespflegepersonen legen ein kostenloses Profil an und werden von Eltern in ihrer Stadt gefunden.
 
+## Ratgeber (faktenbasiert, für Eltern)
+- [Ratgeber-Übersicht](https://mein-tageskind.de/ratgeber.html)
+- [Was kostet eine Tagesmutter?](https://mein-tageskind.de/ratgeber-kosten.html): Öffentliche Förderung, einkommensabhängiger Eigenanteil, Steuer.
+- [Förderung beim Jugendamt beantragen](https://mein-tageskind.de/ratgeber-foerderung-antrag.html): Rechtsanspruch ab 1 Jahr, Ablauf, Unterlagen.
+- [Die Eingewöhnung](https://mein-tageskind.de/ratgeber-eingewoehnung.html): Berliner und Münchener Modell, Dauer, Tipps.
+- [Kita oder Tagesmutter?](https://mein-tageskind.de/ratgeber-kita-oder-tagespflege.html): Beide gleichwertig und gefördert; Unterschiede und was zum Kind passt.
+
 ## Rechtliches
 - [Nutzungsbedingungen (AGB)](https://mein-tageskind.de/agb.html)
 - [Datenschutzerklärung](https://mein-tageskind.de/datenschutz.html)
