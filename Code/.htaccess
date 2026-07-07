@@ -1,37 +1,32 @@
-# Tagesmutter finden – Cache-Steuerung + sprechende URLs (SEO)
-# Ziel: HTML/CSS/JS immer frisch (Updates kommen sofort an), Bilder/Fonts dürfen cachen.
+# Tagesmutter finden - Cache-Steuerung + sprechende URLs (SEO)
+# HTML/CSS/JS immer frisch; Bilder/Fonts duerfen cachen.
 
 <IfModule mod_headers.c>
-    # Seiten & Skripte: Browser muss vor Nutzung beim Server rückfragen (ETag → 304 wenn unverändert)
     <FilesMatch "\.(html|php|css|js)$">
         Header set Cache-Control "no-cache, must-revalidate"
     </FilesMatch>
-    # Bilder, Fonts, Icons: dürfen eine Woche gecacht werden
     <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|ico|woff|woff2)$">
         Header set Cache-Control "public, max-age=604800"
     </FilesMatch>
 </IfModule>
 
-# UTF-8 sicherstellen
 AddDefaultCharset UTF-8
 
-# Startseite server-seitig gerendert (SEO): index.php vor index.html ausliefern
+# Startseite server-seitig gerendert (SEO): index.php vor index.html
 DirectoryIndex index.php index.html
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
+# Sprechende URLs (SEO) - OHNE <IfModule>-Wrapper, damit LiteSpeed (Hostinger) die Regeln anwendet
+RewriteEngine On
 
-    # Alte .html-Adressen dauerhaft auf die neuen Ziele umleiten (Bookmarks / Suchindex)
-    RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9\-]+)
-    RewriteRule ^profil\.html$ /profil/%2? [R=301,L]
-    RewriteRule ^index\.html$ / [R=301,L]
+# Alte .html-Adressen dauerhaft umleiten (Bookmarks / Suchindex)
+RewriteCond %{QUERY_STRING} (^|&)id=([a-z0-9\-]+)
+RewriteRule ^profil\.html$ /profil/%2? [R=301,L]
+RewriteRule ^index\.html$ / [R=301,L]
 
-    # Sprechende Stadt-Landingpages: /tagesmutter/<stadt> → stadt.php?stadt=<stadt>
-    RewriteRule ^tagesmutter/([a-z0-9-]+)/?$ stadt.php?stadt=$1 [L,QSA]
+# Sprechende Stadt-Landingpages: /tagesmutter/<stadt> -> stadt.php
+RewriteRule ^tagesmutter/([a-z0-9-]+)/?$ stadt.php?stadt=$1 [L,QSA]
 
-    # Sprechende Profil-URLs: /profil/<id> → profil.php?id=<id>  (id ist bereits ein Slug, z. B. anna-mueller-a1b2c3)
-    RewriteRule ^profil/([a-z0-9-]+)/?$ profil.php?id=$1 [L,QSA]
-</IfModule>
+# Sprechende Profil-URLs: /profil/<id> -> profil.php
+RewriteRule ^profil/([a-z0-9-]+)/?$ profil.php?id=$1 [L,QSA]
 
-# Schöne Fehlerseite
 ErrorDocument 404 /404.html
