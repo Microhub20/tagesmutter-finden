@@ -1,4 +1,4 @@
-# robots.txt – Tagesmutter finden (Kindertagespflege-Verzeichnis)
+# robots.txt – mein Tageskind (Kindertagespflege-Verzeichnis)
 # Öffentliche Inhalte (Startseite, Stadt-Landingpages, Profile) sind frei crawlbar.
 # KI-Crawler sind ausdrücklich willkommen (Sichtbarkeit in ChatGPT, Perplexity,
 # Google AI Overviews – AEO/GEO). Nicht-öffentliche Bereiche bleiben ausgeschlossen.

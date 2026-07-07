@@ -35,15 +35,15 @@ try {
         ->execute([$aid, $tmId, $name, $email, $tel, $nachricht]);
 
     // E-Mail an die Tagesmutter (best effort – Zustellung hängt vom Hoster ab)
-    $betreff = 'Neue Betreuungsanfrage über Tagesmutter finden';
+    $betreff = 'Neue Betreuungsanfrage über mein Tageskind';
     $body = "Hallo {$tm['name']},\n\n"
-          . "über dein Profil auf \"Tagesmutter finden\" hat dich jemand kontaktiert:\n\n"
+          . "über dein Profil auf \"mein Tageskind\" hat dich jemand kontaktiert:\n\n"
           . "Name:    {$name}\n"
           . "E-Mail:  {$email}\n"
           . "Telefon: " . ($tel !== '' ? $tel : '—') . "\n\n"
           . "Nachricht:\n{$nachricht}\n\n"
           . "Du kannst direkt auf diese E-Mail antworten. Die Anfrage findest du auch jederzeit in deinem Konto.";
-    $headers = "From: Tagesmutter finden <noreply@mein-tageskind.de>\r\n"
+    $headers = "From: mein Tageskind <noreply@mein-tageskind.de>\r\n"
              . "Reply-To: " . $name . " <" . $email . ">\r\n"
              . "Content-Type: text/plain; charset=utf-8\r\n";
     @mail($tm['email'], '=?UTF-8?B?' . base64_encode($betreff) . '?=', $body, $headers);

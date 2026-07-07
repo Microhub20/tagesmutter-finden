@@ -118,11 +118,11 @@ function stadt_karte(array $x, callable $e): string {
 <meta name="author" content="Gaseit GmbH">
 <link rel="canonical" href="<?= $e($canon) ?>">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Tagesmutter finden">
+<meta property="og:site_name" content="mein Tageskind">
 <meta property="og:title" content="<?= $e($titel) ?>">
 <meta property="og:description" content="<?= $e($desc) ?>">
 <meta property="og:url" content="<?= $e($canon) ?>">
-<title><?= $e($titel) ?> | Tagesmutter finden</title>
+<title><?= $e($titel) ?> | mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <?php if ($schema): ?>
@@ -168,7 +168,7 @@ function stadt_karte(array $x, callable $e): string {
 
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
+    <a class="logo" href="/"><img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img"></a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
     </button>
@@ -248,7 +248,7 @@ function stadt_karte(array $x, callable $e): string {
     <h2>Kindertagespflege in <?= $e($stadt) ?> – kurz erklärt</h2>
     <p>Eine <b>Tagesmutter</b> (oder ein Tagesvater) betreut Kinder – meist im Alter von null bis drei Jahren – in einer kleinen, familiären Gruppe von höchstens fünf Kindern, in der Regel im eigenen Zuhause. Kindertagespflege ist eine anerkannte, oft flexiblere Alternative zur Kita und wird vom Jugendamt gefördert.</p>
     <p>Jede Tagespflegeperson benötigt eine <b>Pflegeerlaubnis nach § 43 SGB VIII</b>, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt. Die Kosten werden – wie beim Kita-Platz – überwiegend öffentlich gefördert; für Eltern bleibt meist nur ein einkommensabhängiger Eigenanteil.</p>
-    <p>Über „Tagesmutter finden“ siehst du die Angebote in <?= $e($stadt) ?> auf einen Blick und nimmst direkt Kontakt auf – kostenlos und ohne Anmeldung. Du bist selbst Tagespflegeperson? <a href="registrieren.php">Trag dich kostenlos ein</a>.</p>
+    <p>Über „mein Tageskind“ siehst du die Angebote in <?= $e($stadt) ?> auf einen Blick und nimmst direkt Kontakt auf – kostenlos und ohne Anmeldung. Du bist selbst Tagespflegeperson? <a href="registrieren.php">Trag dich kostenlos ein</a>.</p>
   </section>
 <?php endif; ?>
 </main>
@@ -256,7 +256,7 @@ function stadt_karte(array $x, callable $e): string {
 <footer>
   <div class="footer-grid">
     <div>
-      <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px"></a>
+      <a class="logo" href="/"><img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px"></a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>
     <div>

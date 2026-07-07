@@ -91,23 +91,23 @@ if ($anzahl > 0) {
 <meta name="author" content="Gaseit GmbH">
 <link rel="canonical" href="https://mein-tageskind.de/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Tagesmutter finden">
-<meta property="og:title" content="Tagesmutter finden – Kindertagespflege in deiner Nähe">
+<meta property="og:site_name" content="mein Tageskind">
+<meta property="og:title" content="mein Tageskind – Tagesmutter finden in deiner Nähe">
 <meta property="og:description" content="Alle Tagesmütter deiner Region auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos.">
 <meta property="og:image" content="https://mein-tageskind.de/img/hero.jpg">
 <meta property="og:url" content="https://mein-tageskind.de/">
 <meta name="twitter:card" content="summary_large_image">
-<title>Tagesmutter finden – Kindertagespflege in deiner Nähe</title>
+<title>mein Tageskind – Tagesmutter finden in deiner Nähe</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"Tagesmutter finden","url":"https://mein-tageskind.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
+{"@context":"https://schema.org","@type":"WebSite","name":"mein Tageskind","url":"https://mein-tageskind.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
 </script>
 <?php if ($itemList): ?>
 <script type="application/ld+json"><?= json_encode($itemList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endif; ?>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de","description":"Betreiber des Portals „Tagesmutter finden“ – Verzeichnis für Kindertagespflege.","address":{"@type":"PostalAddress","streetAddress":"Gymnasiumstr. 12","postalCode":"72336","addressLocality":"Balingen","addressCountry":"DE"},"email":"info@gaseit.de","sameAs":["https://gaseit.de"]}
+{"@context":"https://schema.org","@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de","description":"Betreiber des Portals „mein Tageskind“ – Verzeichnis für Kindertagespflege.","address":{"@type":"PostalAddress","streetAddress":"Gymnasiumstr. 12","postalCode":"72336","addressLocality":"Balingen","addressCountry":"DE"},"email":"info@gaseit.de","sameAs":["https://gaseit.de"]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was kostet die Nutzung des Portals?","acceptedAnswer":{"@type":"Answer","text":"Nichts – weder für Eltern noch für Tagesmütter. Das Portal finanziert sich über dezente Werbeanzeigen am Seitenrand."}},{"@type":"Question","name":"Was ist Kindertagespflege eigentlich?","acceptedAnswer":{"@type":"Answer","text":"Die Betreuung von Kindern (meist 0–3 Jahre) durch qualifizierte Tagesmütter oder Tagesväter – in kleinen Gruppen von maximal fünf Kindern, in der Regel im Zuhause der Betreuungsperson. Sie ist gesetzlich anerkannt und wird vom Landratsamt gefördert wie ein Kita-Platz."}},{"@type":"Question","name":"Wie werden die Profile geprüft?","acceptedAnswer":{"@type":"Answer","text":"Jede Tagesmutter trägt sich selbst ein und willigt in die Veröffentlichung ein. Vor der Freischaltung prüfen wir die Angaben – insbesondere die Pflegeerlaubnis nach § 43 SGB VIII, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt."}},{"@type":"Question","name":"Wie bekomme ich einen Betreuungsplatz?","acceptedAnswer":{"@type":"Answer","text":"Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das zuständige Jugendamt – die Tagesmutter kennt den Ablauf und hilft dabei."}}]}
@@ -119,7 +119,7 @@ if ($anzahl > 0) {
 <header id="header">
   <div class="header-inner">
     <a class="logo" href="/">
-      <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden – Kindertagespflege" class="logo-img">
+      <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
     </a>
     <div class="header-search">
       <span class="hs-icon" aria-hidden="true">🔎</span>
@@ -348,7 +348,7 @@ if ($anzahl > 0) {
   <div class="footer-grid">
     <div>
       <a class="logo" href="/">
-        <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px">
+        <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>

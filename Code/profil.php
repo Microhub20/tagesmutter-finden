@@ -124,13 +124,13 @@ if ($entry) {
 <meta name="author" content="Gaseit GmbH">
 <link rel="canonical" href="<?= $e($canon) ?>">
 <meta property="og:type" content="profile">
-<meta property="og:site_name" content="Tagesmutter finden">
+<meta property="og:site_name" content="mein Tageskind">
 <meta property="og:title" content="<?= $e($titel) ?>">
 <meta property="og:description" content="<?= $e($desc) ?>">
 <meta property="og:url" content="<?= $e($canon) ?>">
 <meta property="og:image" content="<?= $e($ogimg) ?>">
 <meta name="twitter:card" content="summary_large_image">
-<title><?= $e($titel) ?> | Tagesmutter finden</title>
+<title><?= $e($titel) ?> | mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <?php foreach ($schemas as $s): ?>
@@ -162,7 +162,7 @@ if ($entry) {
 <header id="header">
   <div class="header-inner">
     <a class="logo" href="/">
-      <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img">
+      <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
     </a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
@@ -273,7 +273,7 @@ if ($entry) {
   <div class="footer-grid">
     <div>
       <a class="logo" href="/">
-        <img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img" style="height:50px">
+        <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>
@@ -362,7 +362,7 @@ if ($entry) {
   document.getElementById("p-contact").innerHTML =
     `<a class="btn btn-coral" href="mailto:${esc(e.email)}">✉️ E-Mail schreiben</a>` +
     (e.tel ? `<a class="btn btn-ghost" href="tel:${esc(e.tel.replace(/\s/g,""))}">📞 ${esc(e.tel)}</a>` : "") +
-    (e.tel && istHandy(e.tel) ? `<a class="btn btn-whatsapp" href="https://wa.me/${waNummer(e.tel)}?text=${encodeURIComponent("Hallo " + e.name + ", ich habe Ihr Profil auf Tagesmutter finden gesehen und suche einen Betreuungsplatz für mein Kind.")}" target="_blank" rel="noopener">💬 WhatsApp</a>` : "");
+    (e.tel && istHandy(e.tel) ? `<a class="btn btn-whatsapp" href="https://wa.me/${waNummer(e.tel)}?text=${encodeURIComponent("Hallo " + e.name + ", ich habe Ihr Profil auf mein Tageskind gesehen und suche einen Betreuungsplatz für mein Kind.")}" target="_blank" rel="noopener">💬 WhatsApp</a>` : "");
 
   // Bilder-Wechsel + Vollbild-Lightbox: Profilbild zuerst, dann die Galerie-Bilder
   const alleBilder = [];

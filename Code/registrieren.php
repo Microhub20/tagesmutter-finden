@@ -9,7 +9,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Als Tagesmutter registrieren – Tagesmutter finden</title>
+<title>Als Tagesmutter registrieren – mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <style>
@@ -44,7 +44,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="/"><img src="img/logo-tagesmutter.png" alt="Tagesmutter finden" class="logo-img"></a>
+    <a class="logo" href="/"><img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img"></a>
     <nav><a href="login.php" class="cta">Anmelden</a></nav>
   </div>
 </header>
