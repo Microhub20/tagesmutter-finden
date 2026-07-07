@@ -54,10 +54,11 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           SSHOPT="-i $HOME/.ssh/deploy_key -o Port=65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+          T="${SSH_TARGET%/}"   # evtl. trailing slash entfernen (sftp cd mag ihn nicht)
           # 1) Code/ als tar packen (inkl. .htaccess), Server-Daten ausschließen
           tar czf deploy.tar.gz -C Code --exclude=uploads --exclude=api/data --exclude=api/config.sample.php .
           echo "Paketgröße: $(du -h deploy.tar.gz | cut -f1)"
-          # 2) Paket per SFTP DIREKT in den Web-Root laden (dort hat der User volle Rechte)
-          printf 'cd %s\nput deploy.tar.gz deploy.tar.gz\n' "$SSH_TARGET" | sftp $SSHOPT "$SSH_USER@$SSH_HOST"
+          # 2) Paket per SFTP mit VOLLEM Zielpfad hochladen (kein cd -> robust)
+          printf 'put deploy.tar.gz %s/deploy.tar.gz\n' "$T" | sftp $SSHOPT "$SSH_USER@$SSH_HOST"
           # 3) Im Web-Root entpacken + Paket/Platzhalter aufräumen
-          ssh $SSHOPT "$SSH_USER@$SSH_HOST" "cd \"$SSH_TARGET\" && tar xzf deploy.tar.gz && rm -f deploy.tar.gz default.php && echo 'Entpackt – '\$(ls -1 | wc -l)' Eintraege'"
+          ssh $SSHOPT "$SSH_USER@$SSH_HOST" "cd '$T' && tar xzf deploy.tar.gz && rm -f deploy.tar.gz default.php && echo 'Entpackt – '\$(ls -1 | wc -l)' Eintraege'"
