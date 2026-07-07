@@ -53,7 +53,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          SSHOPT="-i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+          SSHOPT="-i $HOME/.ssh/deploy_key -o Port=65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
           # 1) Code/ als tar packen (inkl. .htaccess), Server-Daten ausschließen
           tar czf deploy.tar.gz -C Code --exclude=uploads --exclude=api/data --exclude=api/config.sample.php .
           echo "Paketgröße: $(du -h deploy.tar.gz | cut -f1)"
