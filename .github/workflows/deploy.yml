@@ -1,11 +1,10 @@
-name: Deploy zu Dogado (FTPS)
+name: Deploy zu Hostinger (SSH/rsync)
 
-# Lädt bei jedem Push auf main die Website-Dateien aus Code/ per FTPS auf den
-# Dogado-Webspace und erzeugt vorher Code/api/config.php aus den Secrets (nie im Repo).
-# Struktur: Web-Code liegt in Code/, Design-Assets in Bilder/ (wird NICHT deployt).
+# Lädt bei jedem Push auf main die Website-Dateien aus Code/ per rsync über SSH auf den
+# Hostinger-Webspace und erzeugt vorher Code/api/config.php aus den Secrets (nie im Repo).
 #
 # Nötige Repo-Secrets (Settings → Secrets and variables → Actions):
-#   FTP_SERVER, FTP_USERNAME, FTP_PASSWORD  – FTP-Zugang
+#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, SSH_TARGET – SSH-Deploy (Key-basiert)
 #   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS – MySQL-Datenbank
 #   ADMIN_PASS – Passwort für den Freigabe-Bereich (admin.php)
 
@@ -42,21 +41,15 @@ jobs:
           php -r '$k=["DB_HOST","DB_PORT","DB_NAME","DB_USER","DB_PASS","ADMIN_PASS"];$c=[];foreach($k as $x){$c[$x]=getenv($x);}file_put_contents("Code/api/config.php","<?php return ".var_export($c,true).";\n");'
           echo "config.php erzeugt ($(wc -c < Code/api/config.php) Bytes)"
 
-      - name: Per FTPS hochladen (nur Code/)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Per rsync über SSH hochladen (Code/ -> Hostinger public_html)
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./Code/
-          server-dir: /httpdocs/
-          # Uploads & lokale Testdaten NICHT anfassen/löschen; Doku nicht deployen
-          exclude: |
-            **/.git*
-            **/.git*/**
-            README.md
-            ROADMAP.md
-            api/config.sample.php
-            api/data/**
-            uploads/**
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          REMOTE_PORT: "65002"
+          SOURCE: "Code/"
+          TARGET: ${{ secrets.SSH_TARGET }}
+          ARGS: "-rltgoDzvO --delete"
+          # Server-Daten NICHT anfassen: hochgeladene Fotos, lokale Testdaten, Sample-Config
+          EXCLUDE: "/uploads/, /api/data/, /api/config.sample.php"
