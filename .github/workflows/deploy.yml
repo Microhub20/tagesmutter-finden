@@ -1,10 +1,11 @@
-name: Deploy zu Hostinger (SSH/rsync)
+name: Deploy zu Hostinger (SFTP)
 
-# Lädt bei jedem Push auf main die Website-Dateien aus Code/ per rsync über SSH auf den
+# Lädt bei jedem Push auf main die Website-Dateien aus Code/ per SFTP (lftp mirror) auf den
 # Hostinger-Webspace und erzeugt vorher Code/api/config.php aus den Secrets (nie im Repo).
+# Hostinger-Shared-SSH hat kein rsync/scp – daher SFTP über lftp.
 #
-# Nötige Repo-Secrets (Settings → Secrets and variables → Actions):
-#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, SSH_TARGET – SSH-Deploy (Key-basiert)
+# Nötige Repo-Secrets:
+#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, SSH_TARGET – SFTP-Deploy (Key-basiert)
 #   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS – MySQL-Datenbank
 #   ADMIN_PASS – Passwort für den Freigabe-Bereich (admin.php)
 
@@ -41,15 +42,16 @@ jobs:
           php -r '$k=["DB_HOST","DB_PORT","DB_NAME","DB_USER","DB_PASS","ADMIN_PASS"];$c=[];foreach($k as $x){$c[$x]=getenv($x);}file_put_contents("Code/api/config.php","<?php return ".var_export($c,true).";\n");'
           echo "config.php erzeugt ($(wc -c < Code/api/config.php) Bytes)"
 
-      - name: Per rsync über SSH hochladen (Code/ -> Hostinger public_html)
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
+      - name: Per SFTP hochladen (lftp mirror, Code/ -> Hostinger)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_TARGET: ${{ secrets.SSH_TARGET }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USER }}
-          REMOTE_PORT: "65002"
-          SOURCE: "Code/"
-          TARGET: ${{ secrets.SSH_TARGET }}
-          ARGS: "-rltgoDzvO --delete"
-          # Server-Daten NICHT anfassen: hochgeladene Fotos, lokale Testdaten, Sample-Config
-          EXCLUDE: "/uploads/, /api/data/, /api/config.sample.php"
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          lftp -c "set sftp:connect-program 'ssh -a -x -i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; open sftp://$SSH_USER@$SSH_HOST; mirror -R --delete --parallel=4 --exclude uploads/ --exclude api/data/ --exclude api/config.sample.php Code/ \"$SSH_TARGET\"; bye"
+          echo "SFTP-Upload abgeschlossen"
