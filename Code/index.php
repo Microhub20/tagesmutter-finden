@@ -7,6 +7,14 @@
  * kein Skeleton-Flackern).
  */
 declare(strict_types=1);
+
+// --- Front-Controller (Hostinger/LiteSpeed liest .htaccess nicht und leitet unbekannte
+// Pfade auf index.php). Sprechende URLs hier in PHP routen; sonst sauberes 404. ---
+$__uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (preg_match('#^/tagesmutter/([a-z0-9-]+)/?$#', $__uri, $__m)) { $_GET['stadt'] = $__m[1]; require __DIR__ . '/stadt.php'; exit; }
+if (preg_match('#^/profil/([a-z0-9-]+)/?$#', $__uri, $__m)) { $_GET['id'] = $__m[1]; require __DIR__ . '/profil.php'; exit; }
+if ($__uri !== '/' && $__uri !== '' && $__uri !== '/index.php') { http_response_code(404); require __DIR__ . '/404.html'; exit; }
+
 require __DIR__ . '/api/db.php';
 
 $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
