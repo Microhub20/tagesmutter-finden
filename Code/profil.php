@@ -36,7 +36,7 @@ if ($entry) {
         : ('Kindertagespflege bei ' . $entry['name'] . ' in ' . $entry['ort'] . ': Betreuungszeiten, freie Plätze und direkter Kontakt.');
     $desc   = mb_substr(trim(preg_replace('/\s+/', ' ', (string)$rohtxt)), 0, 155);
     $robots = 'index, follow';
-    $ogimg  = $entry['foto'] ? $base . '/' . $entry['foto'] : $base . '/img/hero.jpg';
+    $ogimg  = $entry['foto'] ? $base . $entry['foto'] : $base . '/img/hero.jpg';
 } else {
     $titel  = 'Profil nicht gefunden';
     $desc   = 'Dieses Profil existiert nicht (mehr) oder der Link ist unvollständig.';
@@ -97,7 +97,7 @@ if ($entry) {
         'email'       => $entry['email'],
     ];
     if (!empty($entry['tel']))  $childcare['telephone'] = $entry['tel'];
-    if (!empty($entry['foto'])) $childcare['image'] = $base . '/' . $entry['foto'];
+    if (!empty($entry['foto'])) $childcare['image'] = $base . $entry['foto'];
     if (!empty($entry['created_at'])) $childcare['datePublished'] = substr((string)$entry['created_at'], 0, 10);
     $mod = $entry['updated_at'] ?: $entry['created_at'];
     if (!empty($mod)) $childcare['dateModified'] = substr((string)$mod, 0, 10);
@@ -132,7 +132,7 @@ if ($entry) {
 <meta name="twitter:card" content="summary_large_image">
 <title><?= $e($titel) ?> | mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="/styles.css">
 <?php foreach ($schemas as $s): ?>
 <script type="application/ld+json"><?= json_encode($s, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endforeach; ?>
@@ -162,7 +162,7 @@ if ($entry) {
 <header id="header">
   <div class="header-inner">
     <a class="logo" href="/">
-      <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
+      <img src="/img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
     </a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
@@ -273,7 +273,7 @@ if ($entry) {
   <div class="footer-grid">
     <div>
       <a class="logo" href="/">
-        <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
+        <img src="/img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>
@@ -289,24 +289,24 @@ if ($entry) {
       <h5>Für Tagesmütter</h5>
       <ul>
         <li><a href="/#eintragen">Kostenlos eintragen</a></li>
-        <li><a href="impressum.html">Impressum</a></li>
-        <li><a href="datenschutz.html">Datenschutz</a></li>
+        <li><a href="/impressum.html">Impressum</a></li>
+        <li><a href="/datenschutz.html">Datenschutz</a></li>
       </ul>
     </div>
   </div>
   <div class="powered">
     <span class="pw-label">Powered by</span>
     <a class="pw-gaseit" href="https://gaseit.de" target="_blank" rel="noopener" aria-label="Gaseit GmbH">
-      <img src="img/gaseit-logo.png" alt="Gaseit GmbH" class="pw-gaseit-img">
+      <img src="/img/gaseit-logo.png" alt="Gaseit GmbH" class="pw-gaseit-img">
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a>
+    <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a>
   </div>
 </footer>
 
 <script>window.__PROFIL = <?= $entry ? json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : 'null' ?>;</script>
-<script src="data.js"></script>
+<script src="/data.js"></script>
 <script>
 (async () => {
   const e = window.__PROFIL || null;
