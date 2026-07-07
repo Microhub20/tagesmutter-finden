@@ -24,7 +24,7 @@ try {
 $anzahl = count($eintraege);
 $freie  = array_sum(array_map(fn($x) => max(0, (int)$x['plaetze']), $eintraege));
 $orte   = count(array_unique(array_map(fn($x) => $x['ort'], $eintraege)));
-$base   = 'https://tagesmutter-vergleich.de';
+$base   = 'https://mein-tageskind.de';
 
 // Karten-Rendering server-seitig (gleiche Struktur wie data.js karteHtml – den Merken-
 // Button ergänzt das JS beim Neurendern; hier zählt der crawlbare Inhalt).
@@ -81,19 +81,19 @@ if ($anzahl > 0) {
 <meta name="robots" content="index, follow">
 <meta name="description" content="Tagesmütter in deiner Region auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos für Eltern und Tagesmütter.">
 <meta name="author" content="Gaseit GmbH">
-<link rel="canonical" href="https://tagesmutter-vergleich.de/">
+<link rel="canonical" href="https://mein-tageskind.de/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Tagesmutter finden">
 <meta property="og:title" content="Tagesmutter finden – Kindertagespflege in deiner Nähe">
 <meta property="og:description" content="Alle Tagesmütter deiner Region auf einen Blick: freie Plätze, Betreuungszeiten, direkter Kontakt. Kostenlos.">
-<meta property="og:image" content="https://tagesmutter-vergleich.de/img/hero.jpg">
-<meta property="og:url" content="https://tagesmutter-vergleich.de/">
+<meta property="og:image" content="https://mein-tageskind.de/img/hero.jpg">
+<meta property="og:url" content="https://mein-tageskind.de/">
 <meta name="twitter:card" content="summary_large_image">
 <title>Tagesmutter finden – Kindertagespflege in deiner Nähe</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"Tagesmutter finden","url":"https://tagesmutter-vergleich.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
+{"@context":"https://schema.org","@type":"WebSite","name":"Tagesmutter finden","url":"https://mein-tageskind.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
 </script>
 <?php if ($itemList): ?>
 <script type="application/ld+json"><?= json_encode($itemList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
@@ -124,6 +124,7 @@ if ($anzahl > 0) {
       <a href="#liste">Tagesmütter</a>
       <a href="#so-gehts">So funktioniert’s</a>
       <a href="#kosten">Kosten</a>
+      <a href="ratgeber.html">Ratgeber</a>
       <a href="#faq">FAQ</a>
       <a href="login.php">Anmelden</a>
       <a href="registrieren.php" class="cta">Als Tagesmutter eintragen</a>
@@ -348,6 +349,7 @@ if ($anzahl > 0) {
       <ul>
         <li><a href="#liste">Tagesmütter finden</a></li>
         <li><a href="#so-gehts">So funktioniert’s</a></li>
+        <li><a href="ratgeber.html">Ratgeber</a></li>
         <li><a href="#faq">Häufige Fragen</a></li>
       </ul>
     </div>
@@ -355,6 +357,7 @@ if ($anzahl > 0) {
       <h5>Für Tagesmütter</h5>
       <ul>
         <li><a href="#eintragen">Kostenlos eintragen</a></li>
+        <li><a href="ueber-uns.html">Über uns</a></li>
         <li><a href="agb.html">Nutzungsbedingungen</a></li>
         <li><a href="impressum.html">Impressum</a></li>
         <li><a href="datenschutz.html">Datenschutz</a></li>

@@ -5,14 +5,14 @@
 Tagesmutter finden bringt Eltern und Tagespflegepersonen zusammen. Alle gelisteten Tagesmütter haben eine Pflegeerlaubnis nach § 43 SGB VIII (erteilt vom Jugendamt nach Qualifikations- und Eignungsprüfung). Kindertagespflege ist eine familiäre, öffentlich geförderte Alternative zur Kita: Betreuung in kleinen Gruppen von höchstens fünf Kindern, meist im Alter von null bis drei Jahren, oft mit flexiblen Zeiten.
 
 ## Wichtige Seiten
-- [Startseite – alle Tagesmütter](https://tagesmutter-vergleich.de/): Übersicht mit Suche und Filter nach Stadt, Alter und freien Plätzen.
-- [Stadt-Seiten](https://tagesmutter-vergleich.de/tagesmutter/balingen): Pro Stadt eine eigene Seite unter /tagesmutter/<stadt> (z. B. Balingen, Albstadt, Hechingen, Reutlingen, Tübingen, Stuttgart).
-- [Kostenlos als Tagesmutter eintragen](https://tagesmutter-vergleich.de/registrieren.php): Tagespflegepersonen legen ein kostenloses Profil an und werden von Eltern in ihrer Stadt gefunden.
+- [Startseite – alle Tagesmütter](https://mein-tageskind.de/): Übersicht mit Suche und Filter nach Stadt, Alter und freien Plätzen.
+- [Stadt-Seiten](https://mein-tageskind.de/tagesmutter/balingen): Pro Stadt eine eigene Seite unter /tagesmutter/<stadt> (z. B. Balingen, Albstadt, Hechingen, Reutlingen, Tübingen, Stuttgart).
+- [Kostenlos als Tagesmutter eintragen](https://mein-tageskind.de/registrieren.php): Tagespflegepersonen legen ein kostenloses Profil an und werden von Eltern in ihrer Stadt gefunden.
 
 ## Rechtliches
-- [Nutzungsbedingungen (AGB)](https://tagesmutter-vergleich.de/agb.html)
-- [Datenschutzerklärung](https://tagesmutter-vergleich.de/datenschutz.html)
-- [Impressum](https://tagesmutter-vergleich.de/impressum.html)
+- [Nutzungsbedingungen (AGB)](https://mein-tageskind.de/agb.html)
+- [Datenschutzerklärung](https://mein-tageskind.de/datenschutz.html)
+- [Impressum](https://mein-tageskind.de/impressum.html)
 
 ## Kernfakten (auf einen Blick)
 - Region: aktuell Baden-Württemberg, Schwerpunkt Zollernalbkreis / Balingen.

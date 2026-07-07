@@ -43,7 +43,7 @@ try {
           . "Telefon: " . ($tel !== '' ? $tel : '—') . "\n\n"
           . "Nachricht:\n{$nachricht}\n\n"
           . "Du kannst direkt auf diese E-Mail antworten. Die Anfrage findest du auch jederzeit in deinem Konto.";
-    $headers = "From: Tagesmutter finden <noreply@tagesmutter-vergleich.de>\r\n"
+    $headers = "From: Tagesmutter finden <noreply@mein-tageskind.de>\r\n"
              . "Reply-To: " . $name . " <" . $email . ">\r\n"
              . "Content-Type: text/plain; charset=utf-8\r\n";
     @mail($tm['email'], '=?UTF-8?B?' . base64_encode($betreff) . '?=', $body, $headers);

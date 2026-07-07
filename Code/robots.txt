@@ -41,4 +41,4 @@ User-agent: Google-Extended
 Allow: /
 Disallow: /uploads/
 
-Sitemap: https://tagesmutter-vergleich.de/sitemap.php
+Sitemap: https://mein-tageskind.de/sitemap.php

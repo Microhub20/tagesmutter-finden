@@ -25,7 +25,7 @@ if ($id !== '') {
 }
 if ($entry === null) http_response_code(404);
 
-$base  = 'https://tagesmutter-vergleich.de';
+$base  = 'https://mein-tageskind.de';
 $canon = $entry ? $base . '/profil/' . rawurlencode($entry['id']) : $base . '/';
 
 // ---- SEO-Meta aus echten Profildaten ----

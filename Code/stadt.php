@@ -36,7 +36,7 @@ if ($stadt !== null) {
 
 $anzahl   = count($eintraege);
 $freie    = array_sum(array_map(fn($x) => max(0, (int)$x['plaetze']), $eintraege));
-$base     = 'https://tagesmutter-vergleich.de';
+$base     = 'https://mein-tageskind.de';
 $canon    = $base . '/tagesmutter/' . $slug;
 // SEO: gültige Stadt-Seiten indexieren (auch ohne Einträge – mit lokalem Info-Text
 // + Tagesmutter-Einladung sind sie inhaltlich substanziell, kein „dünner" Content).

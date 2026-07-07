@@ -12,7 +12,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $token = bin2hex(random_bytes(32));
             tmf_db()->prepare("UPDATE tagesmuetter SET reset_token=?, reset_expires=? WHERE id=?")
                 ->execute([$token, time() + 3600, $user['id']]);
-            $link = 'https://tagesmutter-vergleich.de/passwort-reset.php?token=' . $token;
+            $link = 'https://mein-tageskind.de/passwort-reset.php?token=' . $token;
             $body = "Hallo,\n\nfür dein Konto bei \"Tagesmutter finden\" wurde ein neues Passwort angefordert.\n\n"
                   . "Setze es hier neu (Link 1 Stunde gültig):\n{$link}\n\n"
                   . "Warst du das nicht? Dann ignoriere diese E-Mail – dein Passwort bleibt unverändert.";
