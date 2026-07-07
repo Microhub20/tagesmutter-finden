@@ -13,6 +13,7 @@ declare(strict_types=1);
 $__uri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 if (preg_match('#^/tagesmutter/([a-z0-9-]+)/?$#', $__uri, $__m)) { $_GET['stadt'] = $__m[1]; require __DIR__ . '/stadt.php'; exit; }
 if (preg_match('#^/profil/([a-z0-9-]+)/?$#', $__uri, $__m)) { $_GET['id'] = $__m[1]; require __DIR__ . '/profil.php'; exit; }
+if ($__uri === '/sitemap.xml') { require __DIR__ . '/sitemap.php'; exit; }
 if ($__uri !== '/' && $__uri !== '' && $__uri !== '/index.php') { http_response_code(404); require __DIR__ . '/404.html'; exit; }
 
 require __DIR__ . '/api/db.php';
@@ -101,13 +102,13 @@ if ($anzahl > 0) {
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"mein Tageskind","url":"https://mein-tageskind.de/","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de"}}
+{"@context":"https://schema.org","@type":"WebSite","name":"mein Tageskind","alternateName":"Tagesmutter finden","url":"https://mein-tageskind.de/","inLanguage":"de-DE","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"mein Tageskind","url":"https://mein-tageskind.de/","logo":{"@type":"ImageObject","url":"https://mein-tageskind.de/img/logo-mein-tageskind.png"}},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://mein-tageskind.de/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
 </script>
 <?php if ($itemList): ?>
 <script type="application/ld+json"><?= json_encode($itemList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endif; ?>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de","description":"Betreiber des Portals „mein Tageskind“ – Verzeichnis für Kindertagespflege.","address":{"@type":"PostalAddress","streetAddress":"Gymnasiumstr. 12","postalCode":"72336","addressLocality":"Balingen","addressCountry":"DE"},"email":"info@gaseit.de","sameAs":["https://gaseit.de"]}
+{"@context":"https://schema.org","@type":"Organization","name":"Gaseit GmbH","url":"https://gaseit.de","logo":{"@type":"ImageObject","url":"https://mein-tageskind.de/img/gaseit-logo.png"},"description":"Betreiber des Portals „mein Tageskind“ – Verzeichnis für Kindertagespflege.","address":{"@type":"PostalAddress","streetAddress":"Gymnasiumstr. 12","postalCode":"72336","addressLocality":"Balingen","addressCountry":"DE"},"email":"info@gaseit.de","sameAs":["https://gaseit.de"]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was kostet die Nutzung des Portals?","acceptedAnswer":{"@type":"Answer","text":"Nichts – weder für Eltern noch für Tagesmütter. Das Portal finanziert sich über dezente Werbeanzeigen am Seitenrand."}},{"@type":"Question","name":"Was ist Kindertagespflege eigentlich?","acceptedAnswer":{"@type":"Answer","text":"Die Betreuung von Kindern (meist 0–3 Jahre) durch qualifizierte Tagesmütter oder Tagesväter – in kleinen Gruppen von maximal fünf Kindern, in der Regel im Zuhause der Betreuungsperson. Sie ist gesetzlich anerkannt und wird vom Landratsamt gefördert wie ein Kita-Platz."}},{"@type":"Question","name":"Wie werden die Profile geprüft?","acceptedAnswer":{"@type":"Answer","text":"Jede Tagesmutter trägt sich selbst ein und willigt in die Veröffentlichung ein. Vor der Freischaltung prüfen wir die Angaben – insbesondere die Pflegeerlaubnis nach § 43 SGB VIII, die das Jugendamt nach Qualifikationsnachweis und Eignungsprüfung erteilt."}},{"@type":"Question","name":"Wie bekomme ich einen Betreuungsplatz?","acceptedAnswer":{"@type":"Answer","text":"Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das zuständige Jugendamt – die Tagesmutter kennt den Ablauf und hilft dabei."}}]}
@@ -160,7 +161,7 @@ if ($anzahl > 0) {
       </div>
     </div>
     <div class="hero-visual">
-      <div class="frame"><img src="img/hero.jpg" alt="Illustration: Tagesmutter liest zwei Kindern ein Bilderbuch vor" width="1600" height="900"></div>
+      <div class="frame"><img src="img/hero.jpg" alt="Illustration: Tagesmutter liest zwei Kindern ein Bilderbuch vor" width="1600" height="900" fetchpriority="high" decoding="async"></div>
       <div class="float-chip tl"><span class="dot"></span> Freie Plätze in deiner Nähe</div>
       <div class="float-chip br">🧸 Liebevoll betreut</div>
     </div>
@@ -328,6 +329,25 @@ if ($anzahl > 0) {
         <div class="a">Tagesmutter mit freien Plätzen suchen, direkt Kontakt aufnehmen und einen Kennenlerntermin vereinbaren. Die Kostenübernahme bzw. Förderung läuft anschließend über das zuständige Jugendamt – die Tagesmutter kennt den Ablauf und hilft dabei.</div>
       </details>
     </div>
+  </div>
+</section>
+
+<section class="block" id="ratgeber">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">📖 Ratgeber</span>
+      <h2>Gut informiert entscheiden</h2>
+      <p>Kosten, Förderung, Rechtsanspruch, Eingewöhnung – verständlich erklärt für Eltern.</p>
+    </div>
+    <div class="ratgeber-teaser reveal">
+      <a href="ratgeber-kosten.html">💶 Was kostet eine Tagesmutter?</a>
+      <a href="ratgeber-kita-oder-tagespflege.html">⚖️ Kita oder Tagesmutter?</a>
+      <a href="ratgeber-rechtsanspruch-betreuungsplatz.html">🏛️ Rechtsanspruch auf einen Platz</a>
+      <a href="ratgeber-foerderung-antrag.html">📝 Förderung beim Jugendamt</a>
+      <a href="ratgeber-eingewoehnung.html">🧸 Die Eingewöhnung</a>
+      <a href="ratgeber-gute-tagesmutter.html">✅ Gute Tagesmutter erkennen</a>
+    </div>
+    <div style="text-align:center;margin-top:1.6rem"><a href="ratgeber.html" class="btn btn-ghost">Alle Ratgeber-Artikel ansehen →</a></div>
   </div>
 </section>
 

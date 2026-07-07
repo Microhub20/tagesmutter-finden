@@ -1,7 +1,9 @@
 <?php
 /**
- * Dynamische XML-Sitemap: statische Seiten + alle freigegebenen Profile.
- * Erreichbar als /sitemap.php (in robots.txt referenziert).
+ * Dynamische XML-Sitemap: statische Seiten + Stadt-Landingpages + alle freigegebenen Profile.
+ * Mit lastmod (Dateidatum bzw. updated_at), changefreq und priority.
+ * Erreichbar als /sitemap.php UND /sitemap.xml (Route im Front-Controller in index.php),
+ * referenziert in robots.txt.
  */
 declare(strict_types=1);
 require __DIR__ . '/api/db.php';
@@ -9,22 +11,53 @@ require __DIR__ . '/api/db.php';
 header('Content-Type: application/xml; charset=utf-8');
 $base = 'https://mein-tageskind.de';
 
+/** Ein <url>-Element bauen. */
+function tmf_url(string $base, string $path, ?string $lastmod, string $freq, string $prio): string {
+    $u = "  <url><loc>{$base}{$path}</loc>";
+    if ($lastmod) $u .= "<lastmod>{$lastmod}</lastmod>";
+    return $u . "<changefreq>{$freq}</changefreq><priority>{$prio}</priority></url>\n";
+}
+/** Änderungsdatum einer lokalen Datei (Y-m-d) oder null. */
+function tmf_mtime(string $rel): ?string {
+    $f = __DIR__ . $rel;
+    return is_file($f) ? date('Y-m-d', (int) filemtime($f)) : null;
+}
+
 $out  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 $out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-foreach (['/', '/ueber-uns.html', '/ratgeber.html', '/ratgeber-kosten.html', '/ratgeber-foerderung-antrag.html', '/ratgeber-eingewoehnung.html', '/ratgeber-kita-oder-tagespflege.html', '/ratgeber-tagesmutter-werden.html', '/ratgeber-rechtsanspruch-betreuungsplatz.html', '/ratgeber-pflegeerlaubnis-paragraf-43.html', '/ratgeber-gute-tagesmutter.html', '/ratgeber-betreuungsvertrag.html', '/ratgeber-ab-wann-fremdbetreuung.html', '/ratgeber-krank-vertretung.html', '/ratgeber-steuer-absetzen.html', '/ratgeber-uebergang-kindergarten.html', '/ratgeber-selbststaendig-tagespflege.html', '/agb.html', '/impressum.html', '/datenschutz.html'] as $u) {
-    $out .= "  <url><loc>{$base}{$u}</loc></url>\n";
+
+// Startseite (wichtigste Seite, Statistiken ändern sich)
+$out .= tmf_url($base, '/', tmf_mtime('/index.php'), 'daily', '1.0');
+// Ratgeber-Hub + Über-uns
+$out .= tmf_url($base, '/ratgeber.html', tmf_mtime('/ratgeber.html'), 'weekly', '0.7');
+$out .= tmf_url($base, '/ueber-uns.html', tmf_mtime('/ueber-uns.html'), 'monthly', '0.5');
+
+// Ratgeber-Artikel
+$artikel = ['ratgeber-kosten','ratgeber-foerderung-antrag','ratgeber-eingewoehnung',
+    'ratgeber-kita-oder-tagespflege','ratgeber-rechtsanspruch-betreuungsplatz',
+    'ratgeber-pflegeerlaubnis-paragraf-43','ratgeber-gute-tagesmutter','ratgeber-betreuungsvertrag',
+    'ratgeber-ab-wann-fremdbetreuung','ratgeber-krank-vertretung','ratgeber-steuer-absetzen',
+    'ratgeber-uebergang-kindergarten','ratgeber-tagesmutter-werden','ratgeber-selbststaendig-tagespflege'];
+foreach ($artikel as $slug) {
+    $out .= tmf_url($base, "/{$slug}.html", tmf_mtime("/{$slug}.html"), 'monthly', '0.6');
 }
+// Rechtstexte (selten geändert)
+foreach (['agb','impressum','datenschutz'] as $slug) {
+    $out .= tmf_url($base, "/{$slug}.html", tmf_mtime("/{$slug}.html"), 'yearly', '0.3');
+}
+
 try {
     $pdo = tmf_db();
-    // Stadt-Landingpages – alle Städte der Region (auch ohne Einträge: dank lokalem
-    // Info-Text + Tagesmutter-Einladung inhaltlich substanziell und indexierbar)
+    // Stadt-Landingpages – alle Städte der Region (auch ohne Einträge indexierbar)
     foreach (TMF_STAEDTE as $stadt) {
-        $out .= "  <url><loc>{$base}/tagesmutter/" . tmf_slug($stadt) . "</loc></url>\n";
+        $out .= tmf_url($base, '/tagesmutter/' . tmf_slug($stadt), null, 'weekly', '0.8');
     }
-    // Einzelne Profile
-    foreach ($pdo->query("SELECT id FROM tagesmuetter WHERE status = 'approved'") as $r) {
-        $out .= "  <url><loc>{$base}/profil/" . rawurlencode((string)$r['id']) . "</loc></url>\n";
+    // Einzelne Profile (lastmod aus updated_at/created_at)
+    foreach ($pdo->query("SELECT id, updated_at, created_at FROM tagesmuetter WHERE status = 'approved'") as $r) {
+        $lm = substr((string)(($r['updated_at'] ?? '') ?: ($r['created_at'] ?? '')), 0, 10) ?: null;
+        $out .= tmf_url($base, '/profil/' . rawurlencode((string)$r['id']), $lm, 'weekly', '0.7');
     }
 } catch (Throwable $e) { /* Sitemap trotzdem mit statischen URLs ausliefern */ }
+
 $out .= '</urlset>';
 echo $out;
