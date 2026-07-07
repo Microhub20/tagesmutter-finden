@@ -35,6 +35,9 @@ header.scrolled{box-shadow:var(--shadow-sm)}
 :focus-visible{outline:3px solid var(--coral);outline-offset:2px;border-radius:3px}
 .skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--coral);color:#fff;padding:.7rem 1.1rem;font-weight:800;border-radius:0 0 10px 0;text-decoration:none}
 .skip-link:focus{left:0}
+/* Ratgeber-Artikel: Titelbild (flache Illustration im Site-Stil) */
+.ratgeber-hero{margin:0 0 1.6rem;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);aspect-ratio:16/9;background:var(--cream)}
+.ratgeber-hero img{width:100%;height:100%;object-fit:cover;display:block}
 .header-inner{max-width:1120px;margin:0 auto;padding:.75rem 1.4rem;display:flex;align-items:center;gap:.9rem}
 .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
 .logo .mark{width:42px;height:42px;border-radius:13px;background:var(--grad-coral);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 4px 12px rgba(150,66,50,.2)}
