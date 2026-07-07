@@ -11,7 +11,7 @@ $base = 'https://mein-tageskind.de';
 
 $out  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 $out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-foreach (['/', '/ueber-uns.html', '/ratgeber.html', '/ratgeber-kosten.html', '/ratgeber-foerderung-antrag.html', '/ratgeber-eingewoehnung.html', '/ratgeber-kita-oder-tagespflege.html', '/ratgeber-tagesmutter-werden.html', '/ratgeber-rechtsanspruch-betreuungsplatz.html', '/agb.html', '/impressum.html', '/datenschutz.html'] as $u) {
+foreach (['/', '/ueber-uns.html', '/ratgeber.html', '/ratgeber-kosten.html', '/ratgeber-foerderung-antrag.html', '/ratgeber-eingewoehnung.html', '/ratgeber-kita-oder-tagespflege.html', '/ratgeber-tagesmutter-werden.html', '/ratgeber-rechtsanspruch-betreuungsplatz.html', '/ratgeber-pflegeerlaubnis-paragraf-43.html', '/ratgeber-gute-tagesmutter.html', '/agb.html', '/impressum.html', '/datenschutz.html'] as $u) {
     $out .= "  <url><loc>{$base}{$u}</loc></url>\n";
 }
 try {
