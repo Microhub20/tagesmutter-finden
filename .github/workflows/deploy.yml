@@ -53,5 +53,5 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          lftp -c "set sftp:connect-program 'ssh -a -x -i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; open sftp://$SSH_USER@$SSH_HOST; mirror -R --delete --parallel=4 --exclude uploads/ --exclude api/data/ --exclude api/config.sample.php Code/ \"$SSH_TARGET\"; bye"
+          lftp -c "set sftp:connect-program 'ssh -a -x -i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; open -u $SSH_USER,dummy sftp://$SSH_HOST; mirror -R --delete --parallel=4 --exclude uploads/ --exclude api/data/ --exclude api/config.sample.php Code/ \"$SSH_TARGET\"; bye"
           echo "SFTP-Upload abgeschlossen"
