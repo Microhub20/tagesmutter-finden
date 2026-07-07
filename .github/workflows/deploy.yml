@@ -1,11 +1,12 @@
-name: Deploy zu Hostinger (SFTP)
+name: Deploy zu Hostinger (SFTP + tar)
 
-# Lädt bei jedem Push auf main die Website-Dateien aus Code/ per SFTP (lftp mirror) auf den
-# Hostinger-Webspace und erzeugt vorher Code/api/config.php aus den Secrets (nie im Repo).
-# Hostinger-Shared-SSH hat kein rsync/scp – daher SFTP über lftp.
+# Lädt bei jedem Push auf main die Website-Dateien aus Code/ auf den Hostinger-Webspace.
+# Hostinger-Shared-SSH hat kein rsync/scp – daher: Code/ als tar packen, per SFTP als
+# EINE Datei hochladen und per SSH auf dem Server entpacken (tar/gzip sind dort vorhanden).
+# config.php wird vorher aus den Secrets erzeugt (nie im Repo).
 #
 # Nötige Repo-Secrets:
-#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, SSH_TARGET – SFTP-Deploy (Key-basiert)
+#   SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, SSH_TARGET – Deploy (Key-basiert)
 #   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS – MySQL-Datenbank
 #   ADMIN_PASS – Passwort für den Freigabe-Bereich (admin.php)
 
@@ -42,16 +43,21 @@ jobs:
           php -r '$k=["DB_HOST","DB_PORT","DB_NAME","DB_USER","DB_PASS","ADMIN_PASS"];$c=[];foreach($k as $x){$c[$x]=getenv($x);}file_put_contents("Code/api/config.php","<?php return ".var_export($c,true).";\n");'
           echo "config.php erzeugt ($(wc -c < Code/api/config.php) Bytes)"
 
-      - name: Per SFTP hochladen (lftp mirror, Code/ -> Hostinger)
+      - name: Per SFTP hochladen (tar-Paket, per SSH entpacken)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_TARGET: ${{ secrets.SSH_TARGET }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          lftp -c "set sftp:connect-program 'ssh -a -x -i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; open -u $SSH_USER,dummy sftp://$SSH_HOST; mirror -R --delete --parallel=4 --exclude uploads/ --exclude api/data/ --exclude api/config.sample.php Code/ \"$SSH_TARGET\"; bye"
-          echo "SFTP-Upload abgeschlossen"
+          SSHOPT="-i $HOME/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+          # 1) Code/ als tar packen (inkl. .htaccess), Server-Daten ausschließen
+          tar czf deploy.tar.gz -C Code --exclude=uploads --exclude=api/data --exclude=api/config.sample.php .
+          echo "Paketgröße: $(du -h deploy.tar.gz | cut -f1)"
+          # 2) Paket per SFTP ins Server-Home hochladen
+          echo "put deploy.tar.gz deploy.tar.gz" | sftp $SSHOPT "$SSH_USER@$SSH_HOST"
+          # 3) Auf dem Server in den Web-Root entpacken + aufräumen
+          ssh $SSHOPT "$SSH_USER@$SSH_HOST" "cd \"$SSH_TARGET\" && tar xzf ~/deploy.tar.gz && rm -f ~/deploy.tar.gz default.php && echo 'Entpackt nach '\$(pwd)' – $(ls -1 | wc -l) Einträge'"
