@@ -56,7 +56,7 @@ jobs:
           SSHOPT="-i $HOME/.ssh/deploy_key -o Port=65002 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
           T="${SSH_TARGET%/}"   # evtl. trailing slash entfernen (sftp cd mag ihn nicht)
           # 1) Code/ als tar packen (inkl. .htaccess), Server-Daten ausschließen
-          tar czf deploy.tar.gz -C Code --exclude=uploads --exclude=api/data --exclude=api/config.sample.php .
+          tar czf deploy.tar.gz -C Code --exclude=uploads --exclude=api/data --exclude=api/config.sample.php --exclude=.claude .
           echo "Paketgröße: $(du -h deploy.tar.gz | cut -f1)"
           # 2) Paket per SFTP mit VOLLEM Zielpfad hochladen (kein cd -> robust)
           printf 'put deploy.tar.gz %s/deploy.tar.gz\n' "$T" | sftp $SSHOPT "$SSH_USER@$SSH_HOST"
