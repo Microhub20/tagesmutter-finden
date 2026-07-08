@@ -38,9 +38,10 @@ $anzahl   = count($eintraege);
 $freie    = array_sum(array_map(fn($x) => max(0, (int)$x['plaetze']), $eintraege));
 $base     = 'https://mein-tageskind.de';
 $canon    = $base . '/tagesmutter/' . $slug;
-// SEO: gültige Stadt-Seiten indexieren (auch ohne Einträge – mit lokalem Info-Text
-// + Tagesmutter-Einladung sind sie inhaltlich substanziell, kein „dünner" Content).
-$robots   = ($stadt !== null) ? 'index, follow' : 'noindex, follow';
+// SEO: Nur Stadt-Seiten MIT mindestens einer Tagesmutter indexieren. Leere Städte
+// bleiben erreichbar (Kaltstart-Einladung), aber noindex – so entstehen bei 138 BW-Städten
+// keine dünnen/doorway-Seiten im Index; sobald eine TM eingetragen ist, wird die Seite indexiert.
+$robots   = ($stadt !== null && $anzahl > 0) ? 'index, follow' : 'noindex, follow';
 $titel    = $stadt ? "Tagesmutter {$stadt} finden – freie Plätze in der Kindertagespflege" : 'Stadt nicht gefunden';
 $desc     = $stadt
     ? ($anzahl > 0

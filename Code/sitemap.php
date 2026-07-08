@@ -48,9 +48,16 @@ foreach (['agb','impressum','datenschutz'] as $slug) {
 
 try {
     $pdo = tmf_db();
-    // Stadt-Landingpages – alle Städte der Region (auch ohne Einträge indexierbar)
+    // Stadt-Landingpages – nur Städte MIT mindestens einer freigegebenen Tagesmutter
+    // (leere Städte sind noindex und gehören nicht in die Sitemap – kein Thin-Content-Signal)
+    $mitEintrag = [];
+    foreach ($pdo->query("SELECT DISTINCT ort FROM tagesmuetter WHERE status = 'approved'") as $r) {
+        $mitEintrag[(string)$r['ort']] = true;
+    }
     foreach (TMF_STAEDTE as $stadt) {
-        $out .= tmf_url($base, '/tagesmutter/' . tmf_slug($stadt), null, 'weekly', '0.8');
+        if (isset($mitEintrag[$stadt])) {
+            $out .= tmf_url($base, '/tagesmutter/' . tmf_slug($stadt), null, 'weekly', '0.8');
+        }
     }
     // Einzelne Profile (lastmod aus updated_at/created_at)
     foreach ($pdo->query("SELECT id, updated_at, created_at FROM tagesmuetter WHERE status = 'approved'") as $r) {

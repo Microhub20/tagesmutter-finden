@@ -43,11 +43,11 @@ header.scrolled{box-shadow:var(--shadow-sm)}
 .ratgeber-teaser a{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.9rem 1.1rem;text-decoration:none;color:var(--ink);font-weight:700;font-size:.95rem;box-shadow:var(--shadow-sm);transition:transform .15s,border-color .15s}
 .ratgeber-teaser a:hover{transform:translateY(-2px);border-color:var(--coral);color:var(--coral-dark)}
 .header-inner{max-width:1120px;margin:0 auto;padding:.75rem 1.4rem;display:flex;align-items:center;gap:.9rem}
-.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink)}
+.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink);flex-shrink:0}
 .logo .mark{width:42px;height:42px;border-radius:13px;background:var(--grad-coral);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 4px 12px rgba(150,66,50,.2)}
 .logo .word{font-weight:800;font-size:1.18rem;letter-spacing:-.01em;line-height:1.1}
 .logo .word small{display:block;font-size:.68rem;font-weight:700;color:var(--sage);letter-spacing:.08em;text-transform:uppercase}
-.logo-img{height:46px;width:auto;display:block}
+.logo-img{height:46px;width:auto;max-width:none;display:block}
 @media(max-width:600px){.logo-img{height:38px}}
 nav{margin-left:auto;display:flex;gap:.2rem;align-items:center}
 nav a{text-decoration:none;color:var(--ink-soft);font-weight:700;font-size:.93rem;padding:.5rem .72rem;border-radius:999px;white-space:nowrap;transition:background .15s,color .15s}
