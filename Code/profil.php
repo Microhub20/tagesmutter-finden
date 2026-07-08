@@ -297,7 +297,7 @@ if ($entry) {
   <div class="powered">
     <span class="pw-label">Powered by</span>
     <a class="pw-gaseit" href="https://gaseit.de" target="_blank" rel="noopener" aria-label="Gaseit GmbH">
-      <img src="/img/gaseit-logo.png" alt="Gaseit GmbH" class="pw-gaseit-img">
+      <img src="/img/gaseit-logo.png?v=2" alt="Gaseit GmbH" class="pw-gaseit-img">
     </a>
   </div>
   <div class="footer-bottom">
