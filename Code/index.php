@@ -133,8 +133,8 @@ if ($anzahl > 0) {
       <a href="#liste">Tagesmütter</a>
       <a href="#so-gehts">So funktioniert’s</a>
       <a href="#kosten">Kosten</a>
-      <a href="ratgeber.html">Ratgeber</a>
-      <a href="#faq">FAQ</a>
+      <a href="ratgeber.html">Infos</a>
+      
       <a href="login.php">Anmelden</a>
       <a href="registrieren.php" class="cta">Als Tagesmutter eintragen</a>
     </nav>
@@ -377,7 +377,7 @@ if ($anzahl > 0) {
       <ul>
         <li><a href="#liste">Tagesmütter finden</a></li>
         <li><a href="#so-gehts">So funktioniert’s</a></li>
-        <li><a href="ratgeber.html">Ratgeber</a></li>
+        <li><a href="ratgeber.html">Infos</a></li>
         <li><a href="#faq">Häufige Fragen</a></li>
       </ul>
     </div>

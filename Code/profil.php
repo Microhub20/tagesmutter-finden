@@ -170,7 +170,7 @@ if ($entry) {
     <nav id="hauptnav">
       <a href="/#liste">Tagesmütter</a>
       <a href="/#so-gehts">So funktioniert’s</a>
-      <a href="/#faq">FAQ</a>
+      
       <a href="/#eintragen" class="cta">Als Tagesmutter eintragen</a>
     </nav>
   </div>

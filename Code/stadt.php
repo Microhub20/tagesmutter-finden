@@ -177,7 +177,7 @@ function stadt_karte(array $x, callable $e): string {
       <a href="/#liste">Tagesmütter</a>
       <a href="/#so-gehts">So funktioniert’s</a>
       <a href="/#kosten">Kosten</a>
-      <a href="/#faq">FAQ</a>
+      
       <a href="/login.php">Anmelden</a>
       <a href="/registrieren.php" class="cta">Als Tagesmutter eintragen</a>
     </nav>
