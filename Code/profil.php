@@ -132,7 +132,7 @@ if ($entry) {
 <meta name="twitter:card" content="summary_large_image">
 <title><?= $e($titel) ?> | mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="/styles.css?v=2">
+<link rel="stylesheet" href="/styles.css?v=3">
 <?php foreach ($schemas as $s): ?>
 <script type="application/ld+json"><?= json_encode($s, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endforeach; ?>
@@ -162,7 +162,7 @@ if ($entry) {
 <header id="header">
   <div class="header-inner">
     <a class="logo" href="/">
-      <img src="/img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
+      <img src="/img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" class="logo-img">
     </a>
     <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="hauptnav">
       <span></span><span></span><span></span>
@@ -273,7 +273,7 @@ if ($entry) {
   <div class="footer-grid">
     <div>
       <a class="logo" href="/">
-        <img src="/img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
+        <img src="/img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>

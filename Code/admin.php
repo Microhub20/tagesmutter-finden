@@ -85,7 +85,7 @@ if ($isAdmin) {
 <meta name="robots" content="noindex">
 <title>Admin – mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 <style>
   .admin-wrap{max-width:900px;margin:0 auto;padding:2rem 1.4rem 4rem}
   .admin-top{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}

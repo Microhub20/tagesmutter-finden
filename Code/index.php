@@ -100,7 +100,7 @@ if ($anzahl > 0) {
 <meta name="twitter:card" content="summary_large_image">
 <title>mein Tageskind – Tagesmutter finden in deiner Nähe</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"mein Tageskind","alternateName":"Tagesmutter finden","url":"https://mein-tageskind.de/","inLanguage":"de-DE","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"mein Tageskind","url":"https://mein-tageskind.de/","logo":{"@type":"ImageObject","url":"https://mein-tageskind.de/img/logo-mein-tageskind.png"}},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://mein-tageskind.de/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
 </script>
@@ -120,7 +120,7 @@ if ($anzahl > 0) {
 <header id="header">
   <div class="header-inner">
     <a class="logo" href="/">
-      <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img">
+      <img src="img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" class="logo-img">
     </a>
     <div class="header-search">
       <span class="hs-icon" aria-hidden="true">🔎</span>
@@ -368,7 +368,7 @@ if ($anzahl > 0) {
   <div class="footer-grid">
     <div>
       <a class="logo" href="/">
-        <img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img" style="height:50px">
+        <img src="img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" class="logo-img" style="height:50px">
       </a>
       <p class="brand-txt">Das Verzeichnis für Kindertagespflege in deiner Region. Eltern finden Betreuung, Tagesmütter werden gefunden – einfach, direkt und kostenlos.</p>
     </div>

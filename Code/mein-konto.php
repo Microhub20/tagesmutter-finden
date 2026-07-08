@@ -136,7 +136,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 <meta name="robots" content="noindex">
 <title>Mein Profil – mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 <style>
   .k-wrap{max-width:660px;margin:0 auto;padding:2.2rem 1.2rem 4rem}
   .k-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:2.2rem;box-shadow:var(--shadow)}
@@ -159,7 +159,7 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
 <body>
 <header id="header">
   <div class="header-inner">
-    <a class="logo" href="/"><img src="img/logo-mein-tageskind.png" alt="mein Tageskind" class="logo-img"></a>
+    <a class="logo" href="/"><img src="img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" class="logo-img"></a>
     <nav>
       <a href="/profil/<?= $e($user['id']) ?>">Mein öffentliches Profil</a>
       <a href="login.php?logout=1" class="cta">Abmelden</a>

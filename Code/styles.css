@@ -47,8 +47,8 @@ header.scrolled{box-shadow:var(--shadow-sm)}
 .logo .mark{width:42px;height:42px;border-radius:13px;background:var(--grad-coral);display:grid;place-items:center;font-size:1.35rem;box-shadow:0 4px 12px rgba(150,66,50,.2)}
 .logo .word{font-weight:800;font-size:1.18rem;letter-spacing:-.01em;line-height:1.1}
 .logo .word small{display:block;font-size:.68rem;font-weight:700;color:var(--sage);letter-spacing:.08em;text-transform:uppercase}
-.logo-img{height:46px;width:auto;max-width:none;display:block}
-@media(max-width:600px){.logo-img{height:38px}}
+.logo-img{height:56px;width:auto;max-width:none;display:block}
+@media(max-width:600px){.logo-img{height:44px}}
 nav{margin-left:auto;display:flex;gap:.2rem;align-items:center}
 nav a{text-decoration:none;color:var(--ink-soft);font-weight:700;font-size:.93rem;padding:.5rem .72rem;border-radius:999px;white-space:nowrap;transition:background .15s,color .15s}
 nav a:hover{background:#f6ebdd;color:var(--ink)}

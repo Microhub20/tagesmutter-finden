@@ -31,12 +31,12 @@ $e = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 <meta name="robots" content="noindex">
 <title>Passwort vergessen – mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <div class="auth-wrap">
   <div class="auth-card">
-    <div class="brand"><a href="/"><img src="img/logo-mein-tageskind.png" alt="mein Tageskind" style="height:44px"></a></div>
+    <div class="brand"><a href="/"><img src="img/logo-mein-tageskind.png?v=2" alt="mein Tageskind" style="height:44px"></a></div>
     <h1>Passwort vergessen</h1>
     <?php if ($done): ?>
       <div class="auth-ok">✅ Falls ein Konto mit dieser E-Mail existiert, haben wir dir einen Link zum Zurücksetzen geschickt. Schau in dein Postfach (auch Spam-Ordner).</div>
