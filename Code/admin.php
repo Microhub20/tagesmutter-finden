@@ -75,6 +75,10 @@ if ($isAdmin) {
     $stats['tm']         = (int)$db->query("SELECT COUNT(*) FROM tagesmuetter WHERE status='approved'")->fetchColumn();
     $stats['anfragen']   = (int)$db->query("SELECT COUNT(*) FROM anfragen")->fetchColumn();
     $stats['vormerk']    = (int)$db->query("SELECT COUNT(*) FROM vormerkungen")->fetchColumn();
+    // Laufende Beta-Mitgliedschaften (Datum in PHP, damit MySQL und SQLite gleich funktionieren)
+    $stBeta = $db->prepare("SELECT COUNT(*) FROM tagesmuetter WHERE plan = 'beta' AND beta_bis >= ?");
+    $stBeta->execute([date('Y-m-d')]);
+    $stats['beta'] = (int)$stBeta->fetchColumn();
 }
 ?>
 <!DOCTYPE html>
@@ -112,6 +116,8 @@ if ($isAdmin) {
   .st-pending{background:var(--amber-bg);color:var(--amber)}
   .st-approved{background:var(--sage-bg);color:var(--sage-dark)}
   .st-rejected{background:#eee7e0;color:var(--muted)}
+  .st-beta{background:#fdeee7;color:#bf4c3a;margin-left:.3rem}
+  .st-basis{background:#eef4fb;color:#4a7fb5;margin-left:.3rem}
   .arow .acts{display:flex;flex-direction:column;gap:.4rem;flex-shrink:0}
   .arow .acts button{border:none;cursor:pointer;font-weight:800;font-size:.82rem;padding:.5rem .9rem;border-radius:999px;font-family:inherit;white-space:nowrap}
   .b-ok{background:var(--grad-coral);color:#fff}
@@ -152,6 +158,7 @@ if ($isAdmin) {
       <div class="stat-k"><div class="n"><?= $anzOffen ?></div><div class="l">wartet auf Prüfung</div></div>
       <div class="stat-k"><div class="n"><?= $stats['anfragen'] ?></div><div class="l">Anfragen</div></div>
       <div class="stat-k"><div class="n"><?= $stats['vormerk'] ?></div><div class="l">Vormerkungen</div></div>
+      <div class="stat-k"><div class="n"><?= $stats['beta'] ?></div><div class="l">in Beta</div></div>
     </div>
 
     <?php if (!$eintraege): ?>
@@ -160,6 +167,7 @@ if ($isAdmin) {
         $alter = json_decode($r['altersgruppen'] ?: '[]', true) ?: [];
         $farben = ['#f2a25c','#6aa87e','#7f9fd1','#d17fa8','#a58bd1','#5cbdb9'];
         $farbe = $farben[array_sum(array_map('ord', str_split($r['name']))) % count($farben)];
+        $p = tmf_plan_info($r);
     ?>
       <div class="arow <?= $e($r['status']) ?>">
         <?php if ($r['foto']): ?>
@@ -169,6 +177,11 @@ if ($isAdmin) {
         <?php endif; ?>
         <div class="body">
           <span class="st st-<?= $e($r['status']) ?>"><?= ['pending'=>'🕓 Wartet','approved'=>'✓ Freigegeben','rejected'=>'✕ Abgelehnt'][$r['status']] ?? $e($r['status']) ?></span>
+          <?php if ($p['beta_aktiv']): ?>
+            <span class="st st-beta" title="Beta-Mitgliedschaft: alle Funktionen kostenfrei">★ Beta bis <?= $e($p['bis_de']) ?> (<?= (int)$p['rest_tage'] ?> T.)</span>
+          <?php else: ?>
+            <span class="st st-basis" title="Beta abgelaufen – Eintrag bleibt kostenfrei, Kandidat für Premium-Extras">Basis</span>
+          <?php endif; ?>
           <h3><?= $e($r['name']) ?></h3>
           <div class="sub"><b>Nr. <?= tmf_usernr($r['nummer']) ?></b> · 📍 <?= $e($r['ort']) ?><?= $r['bundesland'] ? ' ('.$e($r['bundesland']).')' : '' ?> · 🕐 <?= $e($r['zeiten']) ?> · <?= $r['plaetze'] > 0 ? $e($r['plaetze']).' Plätze frei' : 'Warteliste' ?> · <?= $e(implode(', ', $alter)) ?><?= $r['erlaubnis'] ? ' · ✓ §43' : '' ?></div>
           <div class="txt"><?= $e($r['persoenlich']) ?></div>

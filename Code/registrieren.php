@@ -39,6 +39,22 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
   .vs-ort{color:var(--muted);font-weight:700;font-size:.92rem}
   .vs-text{white-space:pre-line;color:var(--ink-soft);margin-top:.8rem;font-size:.96rem}
   .vs-note{text-align:center;color:var(--muted);font-size:.78rem;margin-top:1.3rem;font-weight:700}
+  /* Mitgliedschaft / Beta-Tarif (letzter Wizard-Schritt) */
+  .tarif-card{position:relative;border:1.5px solid var(--line);border-radius:18px;padding:1.6rem 1.5rem;background:linear-gradient(180deg,#fff,var(--cream))}
+  .tarif-badge{position:absolute;top:1.2rem;right:1.2rem;background:var(--grad-coral);color:#fff;font-size:.7rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;padding:.3rem .72rem;border-radius:999px}
+  .tarif-titel{font-size:1.3rem;margin:0}
+  .tarif-preis{display:flex;align-items:baseline;gap:.55rem;margin:.45rem 0 .75rem}
+  .tp-zahl{font-size:2.6rem;font-weight:900;color:var(--coral);line-height:1;letter-spacing:-.02em}
+  .tp-zeit{font-size:.95rem;font-weight:800;color:var(--muted)}
+  .tarif-lead{color:var(--ink);font-size:.98rem;margin-bottom:1rem}
+  .tarif-liste{list-style:none;margin:0 0 1.15rem;padding:0}
+  .tarif-liste li{position:relative;padding-left:1.65rem;margin-bottom:.5rem;color:var(--ink-soft);font-size:.94rem}
+  .tarif-liste li::before{content:"✓";position:absolute;left:0;top:-.05rem;color:var(--sage-dark);font-weight:900}
+  .tarif-danach{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:1rem 1.15rem;margin-bottom:1.15rem}
+  .tarif-danach p{font-size:.89rem;color:var(--ink-soft);margin:.35rem 0 .7rem}
+  .tarif-fakten{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem}
+  .tarif-fakten li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.26rem .7rem;font-size:.76rem;font-weight:800;color:var(--ink-soft)}
+  .tarif-fakten li::before{content:"✓ ";color:var(--sage-dark)}
 </style>
 </head>
 <body>
@@ -58,6 +74,7 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
       <div class="wiz-step-ind active" data-s="1"><span class="wsi-num">1</span><span class="wsi-lbl">Betreuung</span></div>
       <div class="wiz-step-ind" data-s="2"><span class="wsi-num">2</span><span class="wsi-lbl">Dein Profil</span></div>
       <div class="wiz-step-ind" data-s="3"><span class="wsi-num">3</span><span class="wsi-lbl">Zugang</span></div>
+      <div class="wiz-step-ind" data-s="4"><span class="wsi-num">4</span><span class="wsi-lbl">Mitgliedschaft</span></div>
     </div>
     <form id="form" novalidate>
       <fieldset class="wiz-step" data-step="1">
@@ -148,12 +165,50 @@ if (tmf_current_user()) { header('Location: mein-konto.php'); exit; }
         </label>
       </fieldset>
 
+      <fieldset class="wiz-step" data-step="4" hidden>
+        <div class="tarif-card">
+          <span class="tarif-badge">Beta</span>
+          <h2 class="tarif-titel">Beta-Mitgliedschaft</h2>
+          <div class="tarif-preis"><span class="tp-zahl">0 €</span><span class="tp-zeit">für <?= TMF_BETA_MONATE ?> Monate</span></div>
+          <p class="tarif-lead">
+            Du bist von Anfang an dabei – deshalb sind für dich <strong>alle Funktionen ein Jahr lang kostenfrei</strong>,
+            bis zum <strong><?= date('d.m.Y', strtotime('+' . TMF_BETA_MONATE . ' months')) ?></strong>.
+          </p>
+          <ul class="tarif-liste">
+            <li>Dein Profil mit Fotos, Konzept und freien Plätzen</li>
+            <li>Unbegrenzt Anfragen von Eltern – direkt an dich, ohne Provision</li>
+            <li>Eigene Profilseite, die bei Google gefunden wird</li>
+            <li>Eintrag in der Städte-Übersicht deiner Region</li>
+            <li>Jederzeit selbst bearbeiten oder löschen</li>
+          </ul>
+          <div class="tarif-danach">
+            <b>Und was ist nach dem Jahr?</b>
+            <p>
+              Dein Eintrag <strong>bleibt kostenfrei</strong>. Wir schalten nichts ab und buchen nichts ab.
+              Später wird es <strong>optionale</strong> Zusatzleistungen geben (zum Beispiel eine Hervorhebung
+              in der Liste) – ob du die möchtest, entscheidest du dann in Ruhe selbst.
+            </p>
+            <ul class="tarif-fakten">
+              <li>Keine Zahlungsdaten</li>
+              <li>Keine automatische Verlängerung</li>
+              <li>Keine Kündigung nötig</li>
+            </ul>
+          </div>
+          <label class="consent">
+            <input type="checkbox" id="in-beta" required>
+            <span><b>Beta-Mitgliedschaft starten:</b> <?= TMF_BETA_MONATE ?> Monate alle Funktionen kostenfrei.
+            Mir ist klar, dass mein Eintrag auch danach kostenfrei bleibt und nur optionale Extras kostenpflichtig
+            werden können – ohne automatische Abbuchung.</span>
+          </label>
+        </div>
+      </fieldset>
+
       <div class="wiz-nav">
         <button type="button" class="btn btn-ghost" id="wiz-back" hidden>← Zurück</button>
         <span class="wiz-spacer"></span>
         <button type="button" class="btn btn-ghost" id="wiz-preview" hidden>👁 Vorschau</button>
         <button type="button" class="btn btn-coral" id="wiz-next">Weiter →</button>
-        <button type="submit" class="btn btn-coral" id="wiz-submit" hidden>✓ Registrieren</button>
+        <button type="submit" class="btn btn-coral" id="wiz-submit" hidden>✓ Kostenfrei registrieren</button>
       </div>
       <p class="form-note">Nach dem Absenden wird dein Profil geprüft und dann freigeschaltet. Du bist sofort eingeloggt und kannst dein Profil bearbeiten.</p>
     </form>
@@ -231,6 +286,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   const alter = [...f.querySelectorAll('input[name="alter"]:checked')].map(c => c.value);
   if(alter.length === 0){ alert("Bitte mindestens eine Altersgruppe auswählen."); return; }
   if(!document.getElementById("in-consent").checked){ alert("Ohne Einwilligung können wir dich nicht eintragen."); return; }
+  if(!document.getElementById("in-beta").checked){ alert("Bitte bestätige noch die Beta-Mitgliedschaft – sie ist kostenfrei."); return; }
 
   const fd = new FormData();
   fd.append("name", document.getElementById("in-name").value.trim());
@@ -245,6 +301,7 @@ document.getElementById("form").addEventListener("submit", async ev => {
   fd.append("passwort", document.getElementById("in-pass").value);
   if(document.getElementById("in-erlaubnis").checked) fd.append("erlaubnis", "1");
   fd.append("consent", "1");
+  fd.append("beta_ok", "1");
   ["qualifikation","sprachen","frei_ab","ernaehrung","haustiere","konzept"].forEach(k => fd.append(k, document.getElementById("in-"+k).value.trim()));
   if(document.getElementById("in-nichtraucher").checked) fd.append("nichtraucher", "1");
   [...document.querySelectorAll('input[name="extras"]:checked')].forEach(c => fd.append("extras[]", c.value));

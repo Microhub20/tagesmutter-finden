@@ -23,6 +23,7 @@ $email       = mb_strtolower($clean($_POST['email'] ?? '', 120));
 $tel         = $clean($_POST['tel'] ?? '', 40);
 $erlaubnis   = !empty($_POST['erlaubnis']) ? 1 : 0;
 $consent     = !empty($_POST['consent']);
+$betaOk      = !empty($_POST['beta_ok']);   // Bestätigung der Beta-Mitgliedschaft (kostenfrei, keine Zahlungsdaten)
 $persoenlich = mb_substr(trim((string)($_POST['persoenlich'] ?? '')), 0, 1500);
 $pass        = (string)($_POST['passwort'] ?? '');
 $qualifikation = $clean($_POST['qualifikation'] ?? '', 120);
@@ -49,6 +50,7 @@ if ($persoenlich === '')     $fehler[] = 'persönliche Vorstellung fehlt';
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $fehler[] = 'E-Mail ungültig';
 if (mb_strlen($pass) < 8)    $fehler[] = 'Passwort mind. 8 Zeichen';
 if (!$consent)               $fehler[] = 'Einwilligung erforderlich';
+if (!$betaOk)                $fehler[] = 'Bestätigung der Beta-Mitgliedschaft erforderlich';
 if ($fehler) tmf_json(['error' => implode(', ', $fehler)], 422);
 
 if (tmf_find_by_email($email)) {
@@ -79,10 +81,15 @@ $id   = $slug . '-' . substr(bin2hex(random_bytes(4)), 0, 6);
 try {
     $pdo = tmf_db();
     $nummer = tmf_next_nummer($pdo);
+    // Beta-Mitgliedschaft: ab heute TMF_BETA_MONATE Monate alle Funktionen kostenfrei.
+    // Danach bleibt der Eintrag als "basis" gratis – keine Abbuchung, keine Abschaltung.
+    $planStart = date('Y-m-d H:i:s');
+    $betaBis   = date('Y-m-d', strtotime('+' . TMF_BETA_MONATE . ' months'));
+
     $stmt = $pdo->prepare(
         "INSERT INTO tagesmuetter
-         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, qualifikation, sprachen, frei_ab, ernaehrung, nichtraucher, haustiere, konzept, extras, passwort_hash, nummer, agb_version, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+         (id, name, ort, bundesland, plaetze, zeiten, altersgruppen, persoenlich, email, tel, erlaubnis, foto, fotos, qualifikation, sprachen, frei_ab, ernaehrung, nichtraucher, haustiere, konzept, extras, passwort_hash, nummer, agb_version, plan, plan_start, beta_bis, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'beta', ?, ?, 'pending')"
     );
     $stmt->execute([
         $id, $name, $ort, $bundesland, $plaetze, $zeiten,
@@ -91,7 +98,7 @@ try {
         json_encode($galerie, JSON_UNESCAPED_UNICODE),
         $qualifikation, $sprachen, $frei_ab, $ernaehrung, $nichtraucher, $haustiere, $konzept,
         json_encode($extras, JSON_UNESCAPED_UNICODE),
-        tmf_hash_pw($pass), $nummer, TMF_AGB_VERSION,
+        tmf_hash_pw($pass), $nummer, TMF_AGB_VERSION, $planStart, $betaBis,
     ]);
     // direkt einloggen
     tmf_session();

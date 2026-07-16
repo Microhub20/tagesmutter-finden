@@ -119,6 +119,14 @@ function tmf_init_schema(PDO $pdo): void {
     tmf_ensure_column($pdo, 'tagesmuetter', 'reset_expires', 'INT');
     tmf_ensure_column($pdo, 'tagesmuetter', 'agb_version', 'VARCHAR(20)');  // Zustimmungs-Nachweis: akzeptierter AGB-Stand (mit created_at = wann)
 
+    // v2.4 – Mitgliedschaft. Beta = TMF_BETA_MONATE Monate alle Funktionen kostenfrei.
+    // Danach fällt das Profil auf "basis" zurück: der Eintrag bleibt dauerhaft gratis,
+    // nur optionale Extras werden dann kostenpflichtig. Es werden bewusst KEINE
+    // Zahlungsdaten erhoben und nichts verlängert sich automatisch.
+    tmf_ensure_column($pdo, 'tagesmuetter', 'plan', 'VARCHAR(20)');        // 'beta' | 'basis' | 'premium'
+    tmf_ensure_column($pdo, 'tagesmuetter', 'plan_start', 'DATETIME');     // Beginn der Mitgliedschaft
+    tmf_ensure_column($pdo, 'tagesmuetter', 'beta_bis', 'DATE');           // bis einschließlich diesem Tag sind alle Funktionen frei
+
     // Kontaktanfragen von Eltern an Tagesmütter (Historie fürs Konto)
     $pdo->exec("CREATE TABLE IF NOT EXISTS anfragen (
         id         VARCHAR(32)  PRIMARY KEY,
@@ -239,7 +247,30 @@ function tmf_json($data, int $code = 200): void {
 // Aktuelle Ausroll-Region (Spiegel von data.js BUNDESLAENDER["Baden-Württemberg"]).
 // Für Deutschland-weite Ausrollung: hier die Städte-Liste erweitern.
 const TMF_REGION = 'Baden-Württemberg';
-const TMF_AGB_VERSION = '2026-07'; // Stand der Nutzungsbedingungen (agb.html) – bei inhaltlicher Änderung hochzählen
+const TMF_AGB_VERSION = '2026-07b'; // Stand der Nutzungsbedingungen (agb.html) – bei inhaltlicher Änderung hochzählen (b = § 9 Beta-Mitgliedschaft)
+const TMF_BETA_MONATE = 12;        // Beta-Mitgliedschaft: so viele Monate sind ALLE Funktionen kostenfrei
+
+/**
+ * Mitgliedschafts-Status einer Tagesmutter (für Konto, Admin und Registrierung).
+ * Nach Ablauf der Beta bleibt der Eintrag kostenfrei ("basis") – es wird nichts
+ * abgebucht und nichts abgeschaltet; nur optionale Extras werden dann kostenpflichtig.
+ *
+ * @param array $tm Datensatz aus `tagesmuetter` (mind. plan, beta_bis)
+ */
+function tmf_plan_info(array $tm): array {
+    $bis   = trim((string)($tm['beta_bis'] ?? ''));
+    $ts    = $bis !== '' ? strtotime($bis) : false;
+    $heute = strtotime('today');
+    $aktiv = $ts !== false && $ts >= $heute;
+    return [
+        'plan'      => (string)($tm['plan'] ?? 'basis'),
+        'beta_bis'  => $bis,
+        'beta_aktiv'=> $aktiv,
+        'rest_tage' => $aktiv ? (int)ceil(($ts - $heute) / 86400) : 0,
+        'label'     => $aktiv ? 'Beta-Mitgliedschaft' : 'Basis-Eintrag (kostenfrei)',
+        'bis_de'    => $ts !== false ? date('d.m.Y', $ts) : '',
+    ];
+}
 const TMF_STAEDTE = ['Aalen','Achern','Albstadt','Backnang','Bad Friedrichshall','Bad Krozingen','Bad Mergentheim','Bad Rappenau','Bad Säckingen','Bad Saulgau','Bad Waldsee','Baden-Baden','Balingen','Biberach an der Riß','Bietigheim-Bissingen','Blaustein','Böblingen','Brackenheim','Breisach am Rhein','Bretten','Bruchsal','Buchen (Odenwald)','Bühl','Burladingen','Calw','Crailsheim','Ditzingen','Donaueschingen','Ebersbach an der Fils','Ehingen (Donau)','Eislingen/Fils','Ellwangen (Jagst)','Emmendingen','Eppelheim','Eppingen','Esslingen am Neckar','Ettlingen','Fellbach','Filderstadt','Freiberg am Neckar','Freiburg im Breisgau','Freudenstadt','Friedrichshafen','Gaggenau','Geislingen an der Steige','Gerlingen','Giengen an der Brenz','Göppingen','Haigerloch','Hechingen','Heidelberg','Heidenheim an der Brenz','Heilbronn','Herrenberg','Hockenheim','Horb am Neckar','Isny im Allgäu','Karlsruhe','Kehl','Kirchheim unter Teck','Konstanz','Korntal-Münchingen','Kornwestheim','Künzelsau','Lahr/Schwarzwald','Langenau','Laupheim','Leimen','Leinfelden-Echterdingen','Leonberg','Leutkirch im Allgäu','Lörrach','Ludwigsburg','Mannheim','Marbach am Neckar','Meßstetten','Metzingen','Mosbach','Mössingen','Mühlacker','Müllheim','Nagold','Neckarsulm','Nürtingen','Oberkirch','Offenburg','Öhringen','Ostfildern','Pforzheim','Pfullingen','Radolfzell am Bodensee','Rastatt','Ravensburg','Remseck am Neckar','Renningen','Reutlingen','Rheinfelden (Baden)','Rheinstetten','Rottenburg am Neckar','Rottweil','Sachsenheim','Schopfheim','Schorndorf','Schramberg','Schriesheim','Schwäbisch Gmünd','Schwäbisch Hall','Schwetzingen','Sigmaringen','Sindelfingen','Singen (Hohentwiel)','Sinsheim','Stockach','Stutensee','Stuttgart','Tettnang','Trossingen','Tübingen','Tuttlingen','Überlingen','Ulm','Vaihingen an der Enz','Villingen-Schwenningen','Waghäusel','Waiblingen','Waldkirch','Waldshut-Tiengen','Walldorf','Wangen im Allgäu','Weil am Rhein','Weil der Stadt','Weingarten','Weinheim','Weinstadt','Wendlingen am Neckar','Wertheim','Wiesloch','Winnenden'];
 
 /** URL-Slug aus einem Stadtnamen (klein, ohne Umlaute/ß/Sonderzeichen). */

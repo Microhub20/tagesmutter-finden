@@ -127,6 +127,7 @@ $checks = [
 $prozent = (int)round(count(array_filter($checks)) / count($checks) * 100);
 $offen   = array_keys(array_filter($checks, fn($v) => !$v));
 $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öffentlich sichtbar', 'rejected' => '✕ Nicht sichtbar'][$user['status']] ?? $user['status'];
+$plan = tmf_plan_info($user);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -145,6 +146,11 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
   .k-top h1{font-size:1.5rem;font-weight:800}
   .k-status{font-size:.8rem;font-weight:800;padding:.25rem .7rem;border-radius:999px;background:var(--sage-bg);color:var(--sage-dark)}
   .k-status.pending{background:var(--amber-bg);color:var(--amber)}
+  .k-status.beta{background:#fdeee7;color:#bf4c3a}
+  /* Mitgliedschaft */
+  .k-plan{border:1px solid var(--line);border-radius:14px;padding:.85rem 1.05rem;margin-bottom:1.1rem;background:var(--cream)}
+  .k-plan b{font-size:.92rem}
+  .k-plan p{font-size:.84rem;color:var(--ink-soft);margin-top:.2rem}
   .k-links{margin-left:auto;display:flex;gap:.9rem;font-size:.85rem;font-weight:700}
   .k-links a{color:var(--muted);text-decoration:none}
   .cur-foto{width:64px;height:64px;border-radius:14px;object-fit:cover}
@@ -185,8 +191,24 @@ $statusLabel = ['pending' => '🕓 Wartet auf Freigabe', 'approved' => '✓ Öff
       <h1>Mein Profil</h1>
       <span class="k-status" style="background:#eef4fb;color:#4a7fb5">Nr. <?= tmf_usernr($user['nummer']) ?></span>
       <span class="k-status <?= $e($user['status']) ?>"><?= $statusLabel ?></span>
+      <?php if ($plan['beta_aktiv']): ?>
+        <span class="k-status beta">★ Beta · kostenfrei bis <?= $e($plan['bis_de']) ?></span>
+      <?php endif; ?>
     </div>
     <p class="sub" style="color:var(--ink-soft);margin-bottom:1.1rem">Hallo <?= $e($user['name']) ?>! Hier kannst du deine Angaben jederzeit anpassen. Änderungen sind sofort aktiv.</p>
+    <div class="k-plan">
+      <?php if ($plan['beta_aktiv']): ?>
+        <b>★ Deine Beta-Mitgliedschaft läuft</b>
+        <p>
+          Alle Funktionen sind für dich noch <b><?= (int)$plan['rest_tage'] ?> Tage</b> kostenfrei (bis <?= $e($plan['bis_de']) ?>).
+          Danach bleibt dein Eintrag kostenfrei – wir schalten nichts ab und buchen nichts ab. Nur optionale
+          Extras werden später kostenpflichtig, und die entscheidest du selbst.
+        </p>
+      <?php else: ?>
+        <b>Basis-Eintrag · kostenfrei</b>
+        <p>Dein Profil ist und bleibt kostenfrei. Optionale Extras kannst du dazubuchen, musst du aber nicht.</p>
+      <?php endif; ?>
+    </div>
     <div class="k-progress">
       <div class="kp-top"><span>Profil-Vollständigkeit</span><b><?= $prozent ?> %</b></div>
       <div class="kp-bar"><div class="kp-fill" style="width:<?= $prozent ?>%"></div></div>
