@@ -2,7 +2,7 @@
 /**
  * Tagesmutter finden – Datenbank-Layer
  *
- * Nutzt auf Dogado MySQL (Zugänge aus config.php, die beim Deploy aus den
+ * Nutzt auf Hostinger MySQL (Zugänge aus config.php, die beim Deploy aus den
  * GitHub-Secrets generiert wird). Fehlt config.php (z. B. lokal), fällt der
  * Layer automatisch auf eine SQLite-Datei zurück – so lässt sich alles ohne
  * MySQL-Server testen.
@@ -42,7 +42,7 @@ function tmf_config(): array {
     if ($cfg !== null) return $cfg;
     $file = __DIR__ . '/config.php';
     if (is_file($file)) {
-        $cfg = require $file;                       // Dogado (MySQL)
+        $cfg = require $file;                       // Hostinger (MySQL)
     } else {
         $cfg = ['DB_DRIVER' => 'sqlite', 'ADMIN_PASS' => 'admin']; // lokaler Test
     }
