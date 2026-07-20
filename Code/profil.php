@@ -132,7 +132,8 @@ if ($entry) {
 <meta name="twitter:card" content="summary_large_image">
 <title><?= $e($titel) ?> | mein Tageskind</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="/styles.css?v=3">
+<link rel="stylesheet" href="/styles.css?v=4">
+<script src="/consent.js?v=1"></script>
 <?php foreach ($schemas as $s): ?>
 <script type="application/ld+json"><?= json_encode($s, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php endforeach; ?>
@@ -301,7 +302,7 @@ if ($entry) {
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a>
+    <a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html">Datenschutz</a> · <a href="/agb.html">Nutzungsbedingungen</a> · <a href="/">Startseite</a> · <a href="#cookies" class="cc-link">Cookie-Einstellungen</a>
   </div>
 </footer>
 

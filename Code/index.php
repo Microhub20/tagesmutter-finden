@@ -100,7 +100,8 @@ if ($anzahl > 0) {
 <meta name="twitter:card" content="summary_large_image">
 <title>mein Tageskind – Tagesmutter finden in deiner Nähe</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
-<link rel="stylesheet" href="styles.css?v=3">
+<link rel="stylesheet" href="styles.css?v=4">
+<script src="/consent.js?v=1"></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"mein Tageskind","alternateName":"Tagesmutter finden","url":"https://mein-tageskind.de/","inLanguage":"de-DE","description":"Verzeichnis für Kindertagespflege – Tagesmütter mit freien Plätzen in deiner Region finden.","publisher":{"@type":"Organization","name":"mein Tageskind","url":"https://mein-tageskind.de/","logo":{"@type":"ImageObject","url":"https://mein-tageskind.de/img/logo-mein-tageskind.png"}},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://mein-tageskind.de/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
 </script>
@@ -399,7 +400,7 @@ if ($anzahl > 0) {
     </a>
   </div>
   <div class="footer-bottom">
-    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="admin.php">Admin-Bereich</a>
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="agb.html">Nutzungsbedingungen</a> · <a href="admin.php">Admin-Bereich</a> · <a href="#cookies" class="cc-link">Cookie-Einstellungen</a>
   </div>
 </footer>
 
